@@ -1,27 +1,26 @@
- ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
- ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
 (after! doom-ui
   (abbrev-mode 1)
   (blink-cursor-mode 1)
-  (display-line-numbers-mode -1)
+  (global-display-line-numbers-mode -1)
   (global-hl-line-mode -1)
   (doom-modeline-mode 1)
-  (global-hide-mode-line-mode -1))
+  (global-hide-mode-line-mode -1)
+  (set (quote +snippets-dir)
+       (or (expand-file-name "snippets" (file-truename doom-user-dir))
+           (expand-file-name "snippets" (expand-file-name doom-user-dir))))
+  )
 
 (set (quote doom-theme)
      (quote doom-dracula))
 
-(set (quote +snippets-dir)
-     (or (expand-file-name "snippets" (file-truename doom-user-dir))
-         (expand-file-name "snippets" (expand-file-name doom-user-dir))))
+(set (quote doom-scratch-initial-major-mode)
+     (quote emacs-lisp-mode))
 
 (set (quote initial-buffer-choice)
      (or (expand-file-name "dashboard.org" doom-user-dir)
          (expand-file-name "todo.org" org-directory)))
-
-(set (quote safe-local-variable-values)
-     (quote ((eval require 'dotfiles-emacs-macros))))
 
 (set (quote comint-move-point-for-output)
      t)
@@ -57,7 +56,6 @@
   (set (quote org-babel-default-header-args)
        (quote ((:session . "none")
                (:noweb . "yes")
-               (:results . "replace silent")
                (:exports . "code")
                (:cache . "no")
                (:tangle-mode . 416)     ; #o0640
@@ -88,6 +86,29 @@
             (ansi-color-apply-on-region beg end))))))
   (add-hook 'org-babel-after-execute-hook 'ek/babel-ansi))
 
+(defmacro sh!! (CMDLINE &optional RETURNCODE)
+  "`WIP'"
+  `(ignore-errors
+     (eq (or RETURNCODE 0)
+         (string-to-number
+          (string-trim
+           (shell-command-to-string
+            (concat ,CMDLINE " &> /dev/null; echo $?")))))))
+
+(defmacro sh!! (CMDLINE)
+  `(ignore-errors
+     (string= "0" (string-trim (shell-command-to-string (concat ,CMDLINE " &> /dev/null; echo $?"))))))
+
+(defmacro ENV! ()
+  "Convert environment vars into assoc list (hash table)"
+  `(mapcar
+    (lambda (_)
+      (let* ((LIST (split-string-and-unquote _ "="))
+             (KEY (car LIST))
+             (VALUE (mapconcat (lambda(_)_) (cdr LIST) "=")))
+        `(,(intern KEY) . ,VALUE)))
+    (split-string-and-unquote (sh! "cat /proc/$PPID/environ") "\0")))
+
 (defmacro my/all-windows ()
   `(flatten-list (mapcar #'window-list (frame-list))))
 
@@ -110,17 +131,21 @@
                         (match-end 0)))))
 
 (defun M-RET! (&rest BODY)
+  "Default M-RET action"
   (interactive)
+  (quote (progn
+           TODO
+           (unless (string= "-" (projectile-project-name))
+                          (recompile))))
   (eval (assoc-default major-mode my/compile)))
+
 (defvar my/compile
   '(
     ;; EXPECT- / TCL-MODE
     (tcl-mode . (recompile))
 
-
     ;; YAML
     (yaml-mode .  (progn (when nil
-                           (message "DEBUG")
                            (setq-local compile-command (format "command /usr/bin/env ./%" (buffer-file-name)))
                            (recompile))
                          (recompile)))
@@ -128,7 +153,7 @@
     ;; MAKEFILE
     (makefile-gmake-mode .  (recompile))
 
-    ;; EMACS
+    ;; EMACS LISP
     (emacs-lisp-mode .  (eval-buffer))
 
     ;; SHELL
@@ -138,9 +163,8 @@
                           (goto-char 0)
                           (when (looking-at (rx "bash")) (setq-local compile-command (format "cp %s %s; bash $_" $ %))) ;; FIXME
                           (when (looking-at (rx "zsh")) (setq-local compile-command (format "cp %s %s; zsh $_" $ %)))) ;; FIXME
-                        (when (projectile-project-name)
-                          (recompile))
-                        )))
+                        (unless (string= "-" (projectile-project-name))
+                          (recompile)))))
 
     ;; PYTHON
     (python-mode . (progn
@@ -162,6 +186,8 @@
                            (switch-to-buffer-other-window
                             (my/get-buffer python-shell-buffer-name)))))))))
 
+(global-set-key (kbd "M-RET") #'M-RET!)
+
 (after! vterm
   (global-set-key (kbd "H-M-\\") #'+vterm/toggle)
   (global-set-key (kbd "H-\\") #'vterm))
@@ -177,116 +203,113 @@
   (global-set-key (kbd "s-M-p") #'projectile-switcH-project)
   (global-set-key (kbd "s-r") #'consult-recent-file))
 
-(global-set-key (kbd "M-RET") nil)
-(global-set-key (kbd "H-SPC RET") #'M-RET!)
-(global-set-key (kbd "s-SPC RET") #'M-RET!)
-
-(global-set-key (kbd "s-SPC TAB") (cmd! (find-file initial-buffer-choice)))
-(global-set-key (kbd "s-SPC b") #'doom-big-font-mode)
-(global-set-key (kbd "s-SPC q") #'delete-other-windows)
-(global-set-key (kbd "s-SPC s-q") #'delete-other-frames)
-(global-set-key (kbd "s-<down>") #'my/clone-line-down)
-(global-set-key (kbd "s-<up>") #'my/clone-line-up)
-(global-set-key (kbd "s-SPC s") #'org-narrow-to-subtree)
-(global-set-key (kbd "s-SPC w") #'writeroom-mode)
-(global-set-key (kbd "s-M-k") #'doom/kill-this-buffer-in-all-windows)
-(global-set-key (kbd "s-8") #'my/mark-all-like-this)
-(global-set-key (kbd "H-SPC TAB") (cmd! (find-file initial-buffer-choice)))
-(global-set-key (kbd "H-SPC b") #'doom-big-font-mode)
-(global-set-key (kbd "H-SPC q") #'delete-other-windows)
-(global-set-key (kbd "H-SPC H-q") #'delete-other-frames)
-(global-set-key (kbd "H-<down>") #'my/clone-line-down)
-(global-set-key (kbd "H-<up>") #'my/clone-line-up)
-(global-set-key (kbd "H-SPC s") #'org-narrow-to-subtree)
-(global-set-key (kbd "H-SPC w") #'writeroom-mode)
-(global-set-key (kbd "H-SPC w") #'global-writeroom-mode)
-(global-set-key (kbd "H-M-k") #'doom/kill-this-buffer-in-all-windows)
-(global-set-key (kbd "M-s-k") #'doom/kill-this-buffer-in-all-windows)
-(global-set-key (kbd "H-8") #'my/mark-all-like-this)
-(global-set-key (kbd "H-i f") #'+default/insert-file-path)
-(global-set-key (kbd "s-i f") #'+default/insert-file-path)
-(global-set-key (kbd "H-SPC ]") #'mc/edit-enda-of-lines)
-(global-set-key (kbd "H-SPC [") #'mc/edit-beginnings-of-lines)
-(global-set-key (kbd "H-SPC a") #'mc/edit-beginnings-of-lines)
-(global-set-key (kbd "H-SPC e") #'mc/edit-enda-of-lines)
-(global-set-key (kbd "s-SPC [") #'mc/edit-beginnings-of-lines)
-(global-set-key (kbd "s-SPC ]") #'mc/edit-enda-of-lines)
-(global-set-key (kbd "s-SPC a") #'mc/edit-beginnings-of-lines)
-(global-set-key (kbd "s-SPC e") #'mc/edit-enda-of-lines)
-(global-set-key (kbd "H-}") #'flycheck-next-error)
-(global-set-key (kbd "H-{") #'flycheck-previous-error)
-(global-set-key (kbd "C-<tab>") #'flycheck-next-error)
-(global-set-key (kbd "C-<iso-lefttab>") #'flycheck-previous-error)
-(global-set-key (kbd "H-SPC n") #'org-capture)
-(global-set-key (kbd "H-SPC m") #'mc/mark-all-like-this) ;FIXME
-(global-set-key (kbd "H-.") #'dired-jump)
-(global-set-key (kbd "s-.") #'dired-jump)
-(global-set-key (kbd "H-<return>") #'bookmark-jump)
-(global-set-key (kbd "s-<return>") #'bookmark-jump)
-(global-set-key (kbd "H-l") #'display-line-numbers-mode)
-(global-set-key (kbd "s-l") #'display-line-numbers-mode)
-(global-set-key (kbd "H-M-l") #'toggle-truncate-lines)
-(global-set-key (kbd "M-s-l") #'toggle-truncate-lines)
-(global-set-key (kbd "H-m") #'hide-mode-line-mode)
-(global-set-key (kbd "H-<backspace>") #'delete-pair)
-(global-set-key (kbd "s-<backspace>") #'delete-pair)
-(global-set-key (kbd "H-[") #'undo)
-(global-set-key (kbd "H-]") #'undo-redo)
-(global-set-key (kbd "H-/") #'+default/search-buffer)
-(global-set-key (kbd "s-/") #'+default/searcH-buffer)
-(global-set-key (kbd "H-SPC p") #'doom/goto-private-packages-file)
-(global-set-key (kbd "s-SPC p") #'doom/goto-private-packages-file)
-(global-set-key (kbd "H-SPC i") #'doom/goto-private-init-file)
-(global-set-key (kbd "s-SPC i") #'doom/goto-private-init-file)
-(global-set-key (kbd "H-SPC c") #'doom/goto-private-config-file)
-(global-set-key (kbd "s-SPC c") #'doom/goto-private-config-file)
-(global-set-key (kbd "H-SPC x") #'doom/open-scratch-buffer)
-(global-set-key (kbd "s-SPC x") #'doom/open-scratcH-buffer)
-(global-set-key (kbd "H-SPC l") #'my/open-library-of-babel)
-(global-set-key (kbd "H-0") #'balance-windows)
-(global-set-key (kbd "H-n") #'split-window-horizontally)
-(global-set-key (kbd "H-n") #'split-window-horizontally)
-(global-set-key (kbd "H-M-n") #'split-window-vertically)
-(global-set-key (kbd "M-s-n") #'split-window-vertically)
-(global-set-key (kbd "H-k") #'delete-window)
-(global-set-key (kbd "H-M-[") #'winner-undo)
-(global-set-key (kbd "H-M-]") #'winner-redo)
-(global-set-key (kbd "s-]") 'undo-redo)
-(global-set-key (kbd "s-[") 'undo)
-(global-set-key (kbd "s-n") #'split-window-horizontally)
-(global-set-key (kbd "M-s-n") #'split-window-vertically)
-(global-set-key (kbd "M-]") #'next-error)
-(global-set-key (kbd "M-[") #'previous-error)
-(global-set-key (kbd "s-0") #'balance-windows)
-(global-set-key (kbd "M-s-0") #'balance-windows-area)
-(global-set-key (kbd "H-M-0") #'balance-windows-area)
-(global-set-key (kbd "s-<return>") #'bookmark-jump)
-(global-set-key (kbd "M-s-<return>") #'org-roam-node-find)
-(global-set-key (kbd "<f12>") #'flycheck-list-errors)
-(global-set-key (kbd "<f5>") #'call-last-kbd-macro)
-(global-set-key (kbd "M-s-[") #'winner-undo)
-(global-set-key (kbd "M-s-]") #'winner-redo)
-(global-set-key (kbd "H-M-k") #'kill-buffer)
-(global-set-key (kbd "M-s-k") #'kill-buffer)
-(global-set-key (kbd "H-;") #'company-yasnippet)
-(global-set-key (kbd "s-;") #'company-yasnippet)
-(global-set-key (kbd "s-<up>") #'my/clone-line-up)
-(global-set-key (kbd "s-k") #'delete-window)
-(global-set-key (kbd "s-m s-m") #'mc/mark-all-like-this)
-(global-set-key (kbd "C-.") #'mc/mark-next-like-this)
-(global-set-key (kbd "C-c SPC SPC") #'my/refresh)
-(global-set-key (kbd "H-SPC H-SPC") #'my/refresh)
-(global-set-key (kbd "H-SPC h") (cmd! (dired "~")))
-(global-set-key (kbd "H-SPC r") nil)
-(global-set-key (kbd "H-SPC ~") (cmd! (dired "~")))
-(global-set-key (kbd "s-SPC r") nil)
-(global-set-key (kbd "s-g") #'magit-status)
-(global-set-key (kbd "H-g") #'magit-status)
-(global-set-key (kbd "s-<down>")  #'my/clone-line-down)
-(global-set-key (kbd "s-SPC h") (cmd! (dired "~")))
-(global-set-key (kbd "s-SPC s-SPC") #'my/refresh)
-(global-set-key (kbd "s-SPC ~") (cmd! (dired "~")))
-
+(ignore-errors
+  (global-set-key (kbd "s-SPC TAB") (cmd! (find-file initial-buffer-choice)))
+  (global-set-key (kbd "s-SPC b") #'doom-big-font-mode)
+  (global-set-key (kbd "s-SPC q") #'delete-other-windows)
+  (global-set-key (kbd "s-SPC s-q") #'delete-other-frames)
+  (global-set-key (kbd "s-<down>") #'my/clone-line-down)
+  (global-set-key (kbd "s-<up>") #'my/clone-line-up)
+  (global-set-key (kbd "s-SPC s") #'org-narrow-to-subtree)
+  (global-set-key (kbd "s-SPC w") #'writeroom-mode)
+  (global-set-key (kbd "s-M-k") #'doom/kill-this-buffer-in-all-windows)
+  (global-set-key (kbd "s-8") #'my/mark-all-like-this)
+  (global-set-key (kbd "H-SPC TAB") (cmd! (find-file initial-buffer-choice)))
+  (global-set-key (kbd "H-SPC b") #'doom-big-font-mode)
+  (global-set-key (kbd "H-SPC q") #'delete-other-windows)
+  (global-set-key (kbd "H-SPC H-q") #'delete-other-frames)
+  (global-set-key (kbd "H-<down>") #'my/clone-line-down)
+  (global-set-key (kbd "H-<up>") #'my/clone-line-up)
+  (global-set-key (kbd "H-SPC s") #'org-narrow-to-subtree)
+  (global-set-key (kbd "H-SPC w") #'writeroom-mode)
+  (global-set-key (kbd "H-SPC w") #'global-writeroom-mode)
+  (global-set-key (kbd "H-M-k") #'doom/kill-this-buffer-in-all-windows)
+  (global-set-key (kbd "M-s-k") #'doom/kill-this-buffer-in-all-windows)
+  (global-set-key (kbd "H-8") #'my/mark-all-like-this)
+  (global-set-key (kbd "H-i f") #'+default/insert-file-path)
+  (global-set-key (kbd "s-i f") #'+default/insert-file-path)
+  (global-set-key (kbd "H-SPC ]") #'mc/edit-enda-of-lines)
+  (global-set-key (kbd "H-SPC [") #'mc/edit-beginnings-of-lines)
+  (global-set-key (kbd "H-SPC a") #'mc/edit-beginnings-of-lines)
+  (global-set-key (kbd "H-SPC e") #'mc/edit-enda-of-lines)
+  (global-set-key (kbd "s-SPC [") #'mc/edit-beginnings-of-lines)
+  (global-set-key (kbd "s-SPC ]") #'mc/edit-enda-of-lines)
+  (global-set-key (kbd "s-SPC a") #'mc/edit-beginnings-of-lines)
+  (global-set-key (kbd "s-SPC e") #'mc/edit-enda-of-lines)
+  (global-set-key (kbd "H-}") #'flycheck-next-error)
+  (global-set-key (kbd "H-{") #'flycheck-previous-error)
+  (global-set-key (kbd "C-<tab>") #'flycheck-next-error)
+  (global-set-key (kbd "C-<iso-lefttab>") #'flycheck-previous-error)
+  (global-set-key (kbd "H-SPC n") #'org-capture)
+  (global-set-key (kbd "H-SPC m") #'mc/mark-all-like-this) ;FIXME
+  (global-set-key (kbd "H-.") #'dired-jump)
+  (global-set-key (kbd "s-.") #'dired-jump)
+  (global-set-key (kbd "H-<return>") #'bookmark-jump)
+  (global-set-key (kbd "s-<return>") #'bookmark-jump)
+  (global-set-key (kbd "H-l") #'display-line-numbers-mode)
+  (global-set-key (kbd "s-l") #'display-line-numbers-mode)
+  (global-set-key (kbd "H-M-l") #'toggle-truncate-lines)
+  (global-set-key (kbd "M-s-l") #'toggle-truncate-lines)
+  (global-set-key (kbd "H-m") #'hide-mode-line-mode)
+  (global-set-key (kbd "H-<backspace>") #'delete-pair)
+  (global-set-key (kbd "s-<backspace>") #'delete-pair)
+  (global-set-key (kbd "H-[") #'undo)
+  (global-set-key (kbd "H-]") #'undo-redo)
+  (global-set-key (kbd "H-/") #'+default/search-buffer)
+  (global-set-key (kbd "s-/") #'+default/searcH-buffer)
+  (global-set-key (kbd "H-SPC p") #'doom/goto-private-packages-file)
+  (global-set-key (kbd "s-SPC p") #'doom/goto-private-packages-file)
+  (global-set-key (kbd "H-SPC i") #'doom/goto-private-init-file)
+  (global-set-key (kbd "s-SPC i") #'doom/goto-private-init-file)
+  (global-set-key (kbd "H-SPC c") #'doom/goto-private-config-file)
+  (global-set-key (kbd "s-SPC c") #'doom/goto-private-config-file)
+  (global-set-key (kbd "H-SPC x") #'doom/open-scratch-buffer)
+  (global-set-key (kbd "s-SPC x") #'doom/open-scratcH-buffer)
+  (global-set-key (kbd "H-SPC l") #'my/open-library-of-babel)
+  (global-set-key (kbd "H-0") #'balance-windows)
+  (global-set-key (kbd "H-n") #'split-window-horizontally)
+  (global-set-key (kbd "H-n") #'split-window-horizontally)
+  (global-set-key (kbd "H-M-n") #'split-window-vertically)
+  (global-set-key (kbd "M-s-n") #'split-window-vertically)
+  (global-set-key (kbd "H-k") #'delete-window)
+  (global-set-key (kbd "H-M-[") #'winner-undo)
+  (global-set-key (kbd "H-M-]") #'winner-redo)
+  (global-set-key (kbd "s-]") 'undo-redo)
+  (global-set-key (kbd "s-[") 'undo)
+  (global-set-key (kbd "s-n") #'split-window-horizontally)
+  (global-set-key (kbd "M-s-n") #'split-window-vertically)
+  (global-set-key (kbd "M-]") #'next-error)
+  (global-set-key (kbd "M-[") #'previous-error)
+  (global-set-key (kbd "s-0") #'balance-windows)
+  (global-set-key (kbd "M-s-0") #'balance-windows-area)
+  (global-set-key (kbd "H-M-0") #'balance-windows-area)
+  (global-set-key (kbd "s-<return>") #'bookmark-jump)
+  (global-set-key (kbd "M-s-<return>") #'org-roam-node-find)
+  (global-set-key (kbd "<f12>") #'flycheck-list-errors)
+  (global-set-key (kbd "<f5>") #'call-last-kbd-macro)
+  (global-set-key (kbd "M-s-[") #'winner-undo)
+  (global-set-key (kbd "M-s-]") #'winner-redo)
+  (global-set-key (kbd "H-M-k") #'kill-buffer)
+  (global-set-key (kbd "M-s-k") #'kill-buffer)
+  (global-set-key (kbd "H-;") #'company-yasnippet)
+  (global-set-key (kbd "s-;") #'company-yasnippet)
+  (global-set-key (kbd "s-<up>") #'my/clone-line-up)
+  (global-set-key (kbd "s-k") #'delete-window)
+  (global-set-key (kbd "s-m s-m") #'mc/mark-all-like-this)
+  (global-set-key (kbd "C-.") #'mc/mark-next-like-this)
+  (global-set-key (kbd "C-c SPC SPC") #'my/refresh)
+  (global-set-key (kbd "H-SPC H-SPC") #'my/refresh)
+  (global-set-key (kbd "H-SPC h") (cmd! (dired "~")))
+  (global-set-key (kbd "H-SPC r") nil)
+  (global-set-key (kbd "H-SPC ~") (cmd! (dired "~")))
+  (global-set-key (kbd "s-SPC r") nil)
+  (global-set-key (kbd "s-g") #'magit-status)
+  (global-set-key (kbd "H-g") #'magit-status)
+  (global-set-key (kbd "s-<down>")  #'my/clone-line-down)
+  (global-set-key (kbd "s-SPC h") (cmd! (dired "~")))
+  (global-set-key (kbd "s-SPC s-SPC") #'my/refresh)
+  (global-set-key (kbd "s-SPC ~") (cmd! (dired "~")))
+  )
 (map!
  (:map dired-mode-map
        "]"   #'dired-next-marked-file
@@ -329,15 +352,6 @@
             (t (save-window-excursion (org-babel-detangle))))))
   (recentf-cleanup))
 
-(use-package! dotfiles-emacs-macros
-  :load-path "~/git/dotfiles-emacs-macros"
-  :demand t)
-
-(use-package! dotfiles-emacs-bindings
-  :after dotfiles-emacs-macros
-  :load-path "~/git/dotfiles-emacs-bindings"
-  :demand t)
-
 (use-package! comint
   :custom
   (comint-buffer-maximum-size 20000 "Increase comint buffer size.")
@@ -375,8 +389,7 @@
          ("M-s-s" . #'windmove-swap-states-down)
          ("M-H-s" . #'windmove-swap-states-down)))
 
-(use-package! org-crypt
-  :catch (lambda (&rest -)))
+(use-package! org-crypt)
 
 (use-package! hi-lock
   :bind (("M-o l" . highlight-lines-matching-regexp)
@@ -397,3 +410,7 @@
 
 (ignore-errors
   (load-file (format "~/.%s.el" (getenv "HOSTNAME"))))
+
+(defmacro sh! (CMDLINE)
+  `(ignore-errors (string-trim
+                   (shell-command-to-string (concat ,CMDLINE)))))
