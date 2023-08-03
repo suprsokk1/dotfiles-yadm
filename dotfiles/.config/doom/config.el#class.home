@@ -116,7 +116,7 @@
   (quote (progn
            TODO
            (unless (string= "-" (projectile-project-name))
-             (recompile))))
+                          (recompile))))
   (eval (assoc-default major-mode -compile)))
 
 (defvar -compile
@@ -444,7 +444,7 @@
     (interactive
      (insert
       (completing-read "Insert filename:"
-                       (-fd "-tf --max-depth=${_FD_MAX_DEPTH:-4} . $HOME/")))))
+                              (-fd "-tf --max-depth=${_FD_MAX_DEPTH:-4} . $HOME/")))))
 
   (defun -fd (&rest ARGS)
     (let ((exe "fd")
@@ -454,8 +454,23 @@
                    (shell-command-to-string
                     (format "%s %s %s %s" prefix exe args (eval `(concat ,@ARGS))))
                    "\0"))))
+
   (defun -cmd-on-buffer (CMD)
-    (shell-command-on-region (point-min) (point-max) CMD nil t)))
+    (shell-command-on-region (point-min) (point-max) CMD nil t))
+
+  (defun -command-on-buffer (&rest list)
+    (interactive
+     (-cmd-on-buffer
+      (completing-read
+       "Apply script on buffer:"
+       (split-string-and-unquote (shell-command-to-string "bash -c 'compgen -A command'"))))))
+
+  (defun -script-on-buffer (&rest list)
+    (interactive
+     (-cmd-on-buffer
+      (completing-read
+       "Apply script on buffer:"
+       (-fd "-tf -tx --max-depth=${_FD_MAX_DEPTH:-3} . $HOME/"))))))
 
 (after! ob-async
   (setq ob-async-no-async-languages-alist '("ipython" "python")))
@@ -465,4 +480,4 @@
 
 (defmacro sh! (CMDLINE)
   `(ignore-errors (string-trim
-                   (shell-command-to-string (concat ,CMDLINE)))))
+                   (shell-command-to-string (concat CMDLINE)))))
