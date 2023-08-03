@@ -12,7 +12,8 @@
   (set (quote prog-mode-hook) nil)
   (set (quote +snippets-dir)
        (or (expand-file-name "snippets" (file-truename doom-user-dir))
-           (expand-file-name "snippets" (expand-file-name doom-user-dir)))))
+           (expand-file-name "snippets" (expand-file-name doom-user-dir))))
+  (require '-functions nil t))          ; custom functions
 
 (set (quote doom-theme)
      (quote doom-dracula))
@@ -42,11 +43,12 @@
 (set (quote display-line-numbers-type)
      (quote absolute))
 
-(set (quote +python-ipython-repl-args)
-     (quote ("-i" "--simple-prompt" "--no-color-info")))
+(after! python
+  (set (quote +python-ipython-repl-args)
+       (quote ("-i" "--simple-prompt" "--no-color-info")))
 
-(set (quote +python-jupyter-repl-args)
-     (quote ("--simple-prompt")))
+  (set (quote +python-jupyter-repl-args)
+       (quote ("--simple-prompt"))))
 
 (after! org
   (set (quote org-agenda-files)
@@ -114,7 +116,7 @@
   (quote (progn
            TODO
            (unless (string= "-" (projectile-project-name))
-                          (recompile))))
+             (recompile))))
   (eval (assoc-default major-mode -compile)))
 
 (defvar -compile
@@ -288,8 +290,10 @@
                 "i" nil
                 (:prefix "i"
                          "f" #'-list
-                         "u" #'insert-char
-                         )))
+                         "u" #'insert-char)
+                "H-q" #'delete-other-windows
+                (:prefix
+                 )))
 
  (:map dired-mode-map
        "]"   #'dired-next-marked-file
@@ -387,8 +391,6 @@
         (re-search-backward (rx ?* ,(eval $buffer-name) ?*) nil t)
         (buffer-substring (match-beginning 0)
                           (match-end 0))))))
-(require '-functions nil t)
-
 (use-package! -functions
   :no-require t
   :config
@@ -425,6 +427,25 @@
                (org-babel-tangle))
               (t (save-window-excursion (org-babel-detangle))))))
     (recentf-cleanup))
+
+  (defun -clone-line-down (&rest args)
+    (interactive "*p")
+    (message "clone-line-up %s" (quote args))
+    (save-excursion
+      (beginning-of-line)
+      (insert (line!) "\n")))
+
+  (defun -clone-line-up ()
+    (interactive "*p")
+    (line! -1)
+    (message "clone-line-down %s"))
+
+  (defun -list (&rest list)
+    (interactive
+     (insert
+      (completing-read "Insert filename:"
+                       (-fd "-tf --max-depth=${_FD_MAX_DEPTH:-4} . $HOME/")))))
+
   (defun -fd (&rest ARGS)
     (let ((exe "fd")
           (prefix "/usr/bin/env -")
@@ -433,9 +454,8 @@
                    (shell-command-to-string
                     (format "%s %s %s %s" prefix exe args (eval `(concat ,@ARGS))))
                    "\0"))))
-  (defun -list (&rest list)
-    (interactive
-     (insert (completing-read "Insert filename:" (-fd "-tf --max-depth=4 . $HOME/"))))))
+  (defun -cmd-on-buffer (CMD)
+    (shell-command-on-region (point-min) (point-max) CMD nil t)))
 
 (after! ob-async
   (setq ob-async-no-async-languages-alist '("ipython" "python")))
