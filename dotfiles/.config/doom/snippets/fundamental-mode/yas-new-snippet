@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: yas-new-snippet
+# type: command
+# key: .n
+# --
+(yas-new-snippet)

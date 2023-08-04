@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: big-font-mode
+# type: command
+# key: bf
+# --
+(doom-big-font-mode
+    (cond ((eq doom-big-font-mode nil) 1)
+            (t -1)))
