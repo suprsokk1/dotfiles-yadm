@@ -1,0 +1,4 @@
+# key: ,ins
+# name: inline_shell
+# --
+{{ lookup('ansible.builtin.pipe('${0:xargs -0n1 < /proc/$PPID/environ}')}}

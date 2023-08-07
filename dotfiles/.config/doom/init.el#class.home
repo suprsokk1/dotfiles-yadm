@@ -8,13 +8,11 @@
        vertico
 
        :ui
-       doom
        hl-todo
        modeline
-       ;; indent-guides
        treemacs
-       (popup +defaults)
        zen
+       (popup +defaults)
 
        :editor
        multiple-cursors
@@ -29,7 +27,7 @@
 
        :checkers
        syntax
-       (spell +flyspell)
+       ;; (spell +flyspell)
 
        :term
        vterm

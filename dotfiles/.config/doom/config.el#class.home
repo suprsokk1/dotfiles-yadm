@@ -4,22 +4,29 @@
   (treemacs)
   (abbrev-mode 1)
   (blink-cursor-mode 1)
-  (global-hide-mode-line-mode 1)
-  (global-display-line-numbers-mode -1)
+  ;; (global-hide-mode-line-mode 1)
+  ;; (doom-modeline-mode 1)
+  ;; (global-display-line-numbers-mode -1)
   (global-hl-line-mode -1)
-  (doom-modeline-mode 1)
   ;; (set (quote doom-font ))
-  (set (quote prog-mode-hook) nil)
+  ;; (set (quote prog-mode-hook) nil)
   (set (quote +snippets-dir)
        (or (expand-file-name "snippets" (file-truename doom-user-dir))
            (expand-file-name "snippets" (expand-file-name doom-user-dir))))
+  ;; (load-file@silence custom-file)
   (require '-functions nil t))          ; custom functions
 
 (set (quote doom-theme)
      (quote doom-dracula))
 
 (set (quote doom-scratch-initial-major-mode)
-     (quote emacs-lisp-mode))
+     (quote fundamental-mode))
+
+;; (set (quote doom-modeline-mode-alist) )
+
+(set (quote custom-file) (expand-file-name "_custom.el" doom-private-dir))
+
+(set (quote global-hide-mode-line-mode) 1)
 
 (set (quote initial-buffer-choice)
      (or (expand-file-name "dashboard.org" doom-user-dir)
@@ -35,7 +42,7 @@
      (quote ("/tmp")))
 
 (set (quote bookmark-default-file)
-     (expand-file-name "bookmarks.el" doom-user-dir))
+     (expand-file-name "_bookmarks.el" doom-user-dir))
 
 (set (quote shift-select-mode)
      nil)
@@ -72,6 +79,7 @@
   (set (quote org-babel-default-header-args:shell)
        (quote ((:session . "none")
                (:tangle-mode . 448)
+               (:results . "replace drawer")
                (:mkdirp . "yes"))))
 
   (ignore-errors
@@ -86,15 +94,6 @@
                 (ansi-color-context-region nil))
             (ansi-color-apply-on-region beg end))))))
   (add-hook 'org-babel-after-execute-hook 'ek/babel-ansi))
-
-(defmacro sh!! (CMDLINE &optional RETURNCODE)
-  "`WIP'"
-  `(ignore-errors
-     (eq (or RETURNCODE 0)
-         (string-to-number
-          (string-trim
-           (shell-command-to-string
-            (concat ,CMDLINE " &> /dev/null; echo $?")))))))
 
 (defmacro sh!! (CMDLINE)
   `(ignore-errors
@@ -308,6 +307,10 @@
                 "/" #'dired-mark-files-regexp
                 "." #'dired-mark-files-containing-regexp)))
 
+(use-package! doom-ui
+  :custom
+  (hide-mode-line-mode t))
+
 (use-package! comint
   :custom
   (comint-buffer-maximum-size 20000 "Increase comint buffer size.")
@@ -318,6 +321,16 @@
   :mode "dockerfile\(?:\.[[:word:]]+\)?\'"
   :custom
   (dockerfile-mode-command "docker buildx build"))
+
+(use-package! org
+  :config (progn
+            (defun my/org-mode-hook ()
+              (setq truncate-lines t
+                    display-line-numbers-mode -1)))
+  :hook ((org-mode . my/org-mode-hook))
+  :custom
+  (display-line-numbers-mode -1)
+  (org-mode-hook nil))
 
 (use-package! org-roam
   :if (string-match "sqlite3" (shell-command-to-string "command -v sqlite3"))
@@ -356,9 +369,9 @@
   :load-path "~/git/modus-themes"
   :config
   (modus-themes-select 'modus-vivendi-tinted)
+  (setq modus-themes-variable-pitch-ui t)
   :custom
-  (modus-themes-to-toggle
-   (quote (modus-operandi-tinted modus-vivendi-tinted))))
+  (modus-themes-to-toggle (quote (modus-operandi-tinted modus-vivendi-tinted))))
 
 (use-package! writeroom
   :no-require t
@@ -366,7 +379,13 @@
          ("H-SPC w" . #'writeroom-mode)))
 
 (use-package! vterm
-  :bind (("H-\\" . #'+vterm/toggle)))
+  :bind (("H-\\" . #'+vterm/toggle))
+  :custom
+  (vterm-shell "/bin/zsh"))
+
+(use-package! flycheck
+  :custom
+  (flycheck-mode-hook nil))
 
 (use-package! -macros
   :no-require t
@@ -391,6 +410,7 @@
         (re-search-backward (rx ?* ,(eval $buffer-name) ?*) nil t)
         (buffer-substring (match-beginning 0)
                           (match-end 0))))))
+
 (use-package! -functions
   :no-require t
   :config
@@ -465,7 +485,7 @@
        "Apply script on buffer:"
        (split-string-and-unquote (shell-command-to-string "bash -c 'compgen -A command'"))))))
 
-  (defun -script-on-buffer (&rest list)
+  (defun -script-on-bufferw (&rest list)
     (interactive
      (-cmd-on-buffer
       (completing-read
