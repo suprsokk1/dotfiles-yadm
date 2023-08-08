@@ -1,0 +1,445 @@
+# If you come from bash you might have to change your $PATH.
+# export PATH=$HOME/bin:/usr/local/bin:$PATH
+
+# Path to your oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
+
+# Set name of the theme to load --- if set to "random", it will
+# load a random theme each time oh-my-zsh is loaded, in which case,
+# to know which specific one was loaded, run: echo $RANDOM_THEME
+# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
+ZSH_THEME="robbyrussell"
+
+# Set list of themes to pick from when loading at random
+# Setting this variable when ZSH_THEME=random will cause zsh to load
+# a theme from this variable instead of looking in $ZSH/themes/
+# If set to an empty array, this variable will have no effect.
+# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+
+# Uncomment the following line to use case-sensitive completion.
+# CASE_SENSITIVE="true"
+
+# Uncomment the following line to use hyphen-insensitive completion.
+# Case-sensitive completion must be off. _ and - will be interchangeable.
+# HYPHEN_INSENSITIVE="true"
+
+# Uncomment one of the following lines to change the auto-update behavior
+# zstyle ':omz:update' mode disabled  # disable automatic updates
+# zstyle ':omz:update' mode auto      # update automatically without asking
+# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
+
+# Uncomment the following line to change how often to auto-update (in days).
+# zstyle ':omz:update' frequency 13
+
+# Uncomment the following line if pasting URLs and other text is messed up.
+# DISABLE_MAGIC_FUNCTIONS="true"
+
+# Uncomment the following line to disable colors in ls.
+# DISABLE_LS_COLORS="true"
+
+# Uncomment the following line to disable auto-setting terminal title.
+# DISABLE_AUTO_TITLE="true"
+
+# Uncomment the following line to enable command auto-correction.
+# ENABLE_CORRECTION="true"
+
+# Uncomment the following line to display red dots whilst waiting for completion.
+# You can also set it to another string to have that shown instead of the default red dots.
+# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
+# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
+# COMPLETION_WAITING_DOTS="true"
+
+# Uncomment the following line if you want to disable marking untracked files
+# under VCS as dirty. This makes repository status check for large repositories
+# much, much faster.
+# DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+# Uncomment the following line if you want to change the command execution time
+# stamp shown in the history command output.
+# You can set one of the optional three formats:
+# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
+# or set a custom format using the strftime function format specifications,
+# see 'man strftime' for details.
+# HIST_STAMPS="mm/dd/yyyy"
+
+# Would you like to use another custom folder than $ZSH/custom?
+# ZSH_CUSTOM=/path/to/new-custom-folder
+
+# Which plugins would you like to load?
+# Standard plugins can be found in $ZSH/plugins/
+# Custom plugins may be added to $ZSH_CUSTOM/plugins/
+# Example format: plugins=(rails git textmate ruby lighthouse)
+# Add wisely, as too many plugins slow down shell startup.
+
+# User configuration
+# export MANPATH="/usr/local/man:$MANPATH"
+
+# You may need to manually set your language environment
+export LANG=en_US.UTF-8
+
+export EDITOR=emacsclient
+# Preferred editor for local and remote sessions
+# if [[ -n $SSH_CONNECTION ]]; then
+#   export EDITOR='vim'
+# else
+#   export EDITOR='mvim'
+# fi
+
+# Compilation flags
+# export ARCHFLAGS="-arch x86_64"
+
+# Set personal aliases, overriding those provided by oh-my-zsh libs,
+# plugins, and themes. Aliases can be placed here, though oh-my-zsh
+# users are encouraged to define aliases within the ZSH_CUSTOM folder.
+# For a full list of active aliases, run `alias`.
+
+# Example aliases
+# alias zshconfig="mate ~/.zshrc"
+# alias ohmyzsh="mate ~/.oh-my-zsh"
+plugins=()
+plugins+=(pipenv)
+# plugins+=(1password)
+# plugins+=(adb)
+# plugins+=(ag)
+plugins+=(aliases)
+# plugins+=(alias-finder)
+# plugins+=(ansible)
+# plugins+=(ant)
+# plugins+=(apache2-macports)
+# plugins+=(arcanist)
+# plugins+=(archlinux)
+# plugins+=(argocd)
+# plugins+=(asdf)
+# plugins+=(autoenv)
+# plugins+=(autojump)
+# plugins+=(autopep8)
+# plugins+=(aws)
+# plugins+=(azure)
+# plugins+=(battery)
+# plugins+=(bazel)
+# plugins+=(bbedit)
+# plugins+=(bedtools)
+# plugins+=(bgnotify)
+# plugins+=(bower)
+# plugins+=(branch)
+# plugins+=(brew)
+# plugins+=(bridgetown)
+# plugins+=(bundler)
+# plugins+=(cabal)
+# plugins+=(cake)
+# plugins+=(cakephp3)
+# plugins+=(capistrano)
+# plugins+=(cask)
+# plugins+=(catimg)
+# plugins+=(celery)
+# plugins+=(charm)
+# plugins+=(chruby)
+# plugins+=(chucknorris)
+# plugins+=(cloudfoundry)
+# plugins+=(codeclimate)
+# plugins+=(coffee)
+# plugins+=(colemak)
+# plugins+=(colored-man-pages)
+# plugins+=(colorize)
+# plugins+=(command-not-found)
+# plugins+=(common-aliases)
+# plugins+=(compleat)
+# plugins+=(composer)
+# plugins+=(copybuffer)
+# plugins+=(copyfile)
+# plugins+=(copypath)
+# plugins+=(cp)
+# plugins+=(cpanm)
+# plugins+=(dash)
+# plugins+=(dbt)
+# plugins+=(debian)
+# plugins+=(deno)
+# plugins+=(dircycle)
+plugins+=(direnv)
+# plugins+=(dirhistory)
+# plugins+=(dirpersist)
+# plugins+=(dnf)
+# plugins+=(dnote)
+# plugins+=(docker)
+# plugins+=(docker-compose)
+# plugins+=(docker-machine)
+# plugins+=(doctl)
+# plugins+=(dotenv)
+# plugins+=(dotnet)
+# plugins+=(droplr)
+# plugins+=(drush)
+# plugins+=(eecms)
+plugins+=(emacs)
+# plugins+=(ember-cli)
+plugins+=(emoji)
+# plugins+=(emoji-clock)
+# plugins+=(emotty)
+# plugins+=(encode64)
+# plugins+=(extract)
+# plugins+=(fabric)
+# plugins+=(fancy-ctrl-z)
+# plugins+=(fasd)
+# plugins+=(fastfile)
+# plugins+=(fbterm)
+# plugins+=(fd)
+# plugins+=(fig)
+# plugins+=(firewalld)
+# plugins+=(flutter)
+# plugins+=(fluxcd)
+# plugins+=(fnm)
+# plugins+=(forklift)
+# plugins+=(fossil)
+# plugins+=(frontend-search)
+plugins+=(fzf)
+# plugins+=(gas)
+# plugins+=(gatsby)
+# plugins+=(gcloud)
+# plugins+=(geeknote)
+# plugins+=(gem)
+# plugins+=(genpass)
+plugins+=(gh)
+plugins+=(git)
+# plugins+=(git-auto-fetch)
+# plugins+=(git-escape-magic)
+# plugins+=(git-extras)
+# plugins+=(gitfast)
+# plugins+=(git-flow)
+# plugins+=(git-flow-avh)
+plugins+=(github)
+# plugins+=(git-hubflow)
+# plugins+=(gitignore)
+# plugins+=(git-lfs)
+# plugins+=(git-prompt)
+# plugins+=(glassfish)
+# plugins+=(globalias)
+# plugins+=(gnu-utils)
+# plugins+=(golang)
+# plugins+=(gpg-agent)
+# plugins+=(gradle)
+# plugins+=(grails)
+# plugins+=(grc)
+# plugins+=(grunt)
+# plugins+=(gulp)
+# plugins+=(hanami)
+# plugins+=(hasura)
+# plugins+=(helm)
+# plugins+=(heroku)
+# plugins+=(heroku-alias)
+# plugins+=(history)
+# plugins+=(history-substring-search)
+# plugins+=(hitchhiker)
+# plugins+=(hitokoto)
+# plugins+=(homestead)
+# plugins+=(httpie)
+# plugins+=(invoke)
+# plugins+=(ionic)
+# plugins+=(ipfs)
+# plugins+=(isodate)
+# plugins+=(istioctl)
+# plugins+=(iterm2)
+# plugins+=(jake-node)
+# plugins+=(jenv)
+# plugins+=(jfrog)
+# plugins+=(jhbuild)
+# plugins+=(jira)
+# plugins+=(jruby)
+# plugins+=(jsontools)
+# plugins+=(juju)
+# plugins+=(jump)
+# plugins+=(kate)
+# plugins+=(keychain)
+# plugins+=(kitchen)
+# plugins+=(kn)
+# plugins+=(knife)
+# plugins+=(knife_ssh)
+# plugins+=(kops)
+# plugins+=(kubectl)
+# plugins+=(kubectx)
+# plugins+=(kube-ps1)
+# plugins+=(lando)
+# plugins+=(laravel)
+# plugins+=(laravel4)
+# plugins+=(laravel5)
+# plugins+=(last-working-dir)
+# plugins+=(lein)
+# plugins+=(lighthouse)
+# plugins+=(lol)
+# plugins+=(lpass)
+# plugins+=(lxd)
+# plugins+=(macos)
+# plugins+=(macports)
+# plugins+=(magic-enter)
+# plugins+=(man)
+# plugins+=(marked2)
+# plugins+=(marktext)
+# plugins+=(mercurial)
+# plugins+=(meteor)
+# plugins+=(microk8s)
+# plugins+=(minikube)
+# plugins+=(mix)
+# plugins+=(mix-fast)
+# plugins+=(mongo-atlas)
+# plugins+=(mongocli)
+# plugins+=(mosh)
+# plugins+=(multipass)
+# plugins+=(mvn)
+# plugins+=(mysql-macports)
+# plugins+=(n98-magerun)
+# plugins+=(nanoc)
+# plugins+=(nats)
+# plugins+=(ng)
+# plugins+=(nmap)
+# plugins+=(node)
+# plugins+=(nodenv)
+# plugins+=(nomad)
+# plugins+=(npm)
+# plugins+=(nvm)
+# plugins+=(oc)
+# plugins+=(octozen)
+# plugins+=(operator-sdk)
+# plugins+=(otp)
+plugins+=(pass)
+# plugins+=(paver)
+# plugins+=(pep8)
+# plugins+=(percol)
+# plugins+=(per-directory-history)
+# plugins+=(perl)
+# plugins+=(perms)
+# plugins+=(phing)
+plugins+=(pip)
+plugins+=(pipenv)
+# plugins+=(pj)
+# plugins+=(please)
+# plugins+=(pm2)
+# plugins+=(pod)
+# plugins+=(poetry)
+# plugins+=(postgres)
+# plugins+=(pow)
+# plugins+=(powder)
+# plugins+=(powify)
+plugins+=(pre-commit)
+# plugins+=(profiles)
+# plugins+=(pyenv)
+# plugins+=(pylint)
+plugins+=(python)
+# plugins+=(qrcode)
+# plugins+=(rails)
+# plugins+=(rake)
+# plugins+=(rake-fast)
+# plugins+=(rand-quote)
+# plugins+=(rbenv)
+# plugins+=(rbfu)
+# plugins+=(rbw)
+# plugins+=(react-native)
+# plugins+=(rebar)
+# plugins+=(redis-cli)
+# plugins+=(repo)
+plugins+=(ripgrep)
+# plugins+=(ros)
+plugins+=(rsync)
+# plugins+=(ruby)
+# plugins+=(rust)
+# plugins+=(rvm)
+# plugins+=(safe-paste)
+# plugins+=(salt)
+# plugins+=(samtools)
+# plugins+=(sbt)
+# plugins+=(scala)
+# plugins+=(scd)
+# plugins+=(screen)
+# plugins+=(scw)
+# plugins+=(sdk)
+# plugins+=(sfdx)
+# plugins+=(sfffe)
+# plugins+=(shell-proxy)
+# plugins+=(shrink-path)
+# plugins+=(sigstore)
+# plugins+=(singlechar)
+# plugins+=(skaffold)
+# plugins+=(spring)
+# plugins+=(sprunge)
+plugins+=(ssh-agent)
+# plugins+=(stack)
+# plugins+=(starship)
+# plugins+=(sublime)
+# plugins+=(sublime-merge)
+# plugins+=(sudo)
+# plugins+=(supervisor)
+# plugins+=(suse)
+# plugins+=(svcat)
+# plugins+=(svn)
+# plugins+=(svn-fast-info)
+# plugins+=(swiftpm)
+# plugins+=(symfony)
+# plugins+=(symfony2)
+# plugins+=(systemadmin)
+# plugins+=(systemd)
+# plugins+=(taskwarrior)
+# plugins+=(terminitor)
+# plugins+=(term_tab)
+# plugins+=(terraform)
+# plugins+=(textastic)
+# plugins+=(textmate)
+# plugins+=(thefuck)
+# plugins+=(themes)
+# plugins+=(thor)
+# plugins+=(tig)
+# plugins+=(timer)
+plugins+=(tmux)
+# plugins+=(tmux-cssh)
+# plugins+=(tmuxinator)
+# plugins+=(toolbox)
+# plugins+=(torrent)
+# plugins+=(transfer)
+# plugins+=(tugboat)
+# plugins+=(ubuntu)
+# plugins+=(ufw)
+# plugins+=(universalarchive)
+# plugins+=(urltools)
+# plugins+=(vagrant)
+# plugins+=(vagrant-prompt)
+# plugins+=(vault)
+# plugins+=(vim-interaction)
+# plugins+=(vi-mode)
+# plugins+=(virtualenv)
+# plugins+=(virtualenvwrapper)
+# plugins+=(volta)
+# plugins+=(vscode)
+# plugins+=(vundle)
+# plugins+=(wakeonlan)
+# plugins+=(watson)
+# plugins+=(wd)
+# plugins+=(web-search)
+# plugins+=(wp-cli)
+# plugins+=(xcode)
+# plugins+=(yarn)
+# plugins+=(yii)
+# plugins+=(yii2)
+
+if /usr/bin/command -v dnf &>/dev/null
+then plugins+=(yum)
+fi
+# plugins+=(z)
+# plugins+=(zbell)
+# plugins+=(zeus)
+# plugins+=(zoxide)
+# plugins+=(zsh-interactive-cd)
+# plugins+=(zsh-navigation-tools)
+
+set /etc/os-release ~/.{${HOSTNAME%%.*},$HOSTNAME,$USER}.sh
+for env
+do test -s "$env" || { tput setaf; cat<<<"$env"; tput sgr0 ; continue }
+   shellcheck --format=quiet "$env" || continue
+   . "$env"
+done
+
+# activate oh-my-zsh
+. $ZSH/oh-my-zsh.sh
+
+# mkdir -vp ~/.local/zsh/$$/
+# ln -sfrv /proc/$PPID/exe $_
+
+alias -- foo='stfbuf -oL fd -tf -tx -g yq ~ -H -X env -C ~/bin ln -sfrv | head -1'
+
+path+=(~/bin)
+path+=(~/.local/bin)

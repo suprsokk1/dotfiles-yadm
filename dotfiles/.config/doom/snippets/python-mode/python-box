@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: python-box
+# key: box
+# --
+from box import Box

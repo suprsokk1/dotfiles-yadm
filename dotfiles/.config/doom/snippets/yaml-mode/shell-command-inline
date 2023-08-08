@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
-# name: shell-command-inline
+# name: ansible:pipe
 # key: pipe
 # --
 {{ lookup('ansible.builtin.pipe', '$0') }}

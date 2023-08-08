@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: ruamel.yaml
+# key: yaml
+# --
+from ruamel import yaml
