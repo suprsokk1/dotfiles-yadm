@@ -2,11 +2,13 @@
 ;;; $DOOMDIR/packages.el
 
 
-(package! dotfiles-emacs-macros
-  :recipe (:repo "/home/gepr/git/dotfiles-emacs-macros"))
+(package! mmm-mode)
 
-(package! dotfiles-emacs-bindings
-  :recipe (:repo "/home/gepr/git/dotfiles-emacs-bindings"))
+;; (package! dotfiles-emacs-bindings
+;;   :recipe (:repo "/home/gepr/git/dotfiles-emacs-bindings"))
+
+;; (package! dotfiles-emacs-bindings
+;;   :recipe (:repo "/home/gepr/git/dotfiles-emacs-bindings"))
 
 ;; To install a package with Doom you must declare them here and run 'doom sync'
 ;; on the command line, then restart Emacs for the changes to take effect -- or

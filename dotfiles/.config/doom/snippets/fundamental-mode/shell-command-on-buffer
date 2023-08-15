@@ -2,8 +2,6 @@
 # key: c
 # name: shell-command-on-buffer
 # --
-(progn
-(progn
 (let
 ((REPLACE t)
 (OUTPUT-BUFFER nil)
@@ -11,7 +9,9 @@
 (buffer-substring
 (bol)
 (eol))))
+(beginning-of-line)
+(kill-line)
 (shell-command-on-region
 (point-min)
 (point-max)
-CMD OUTPUT-BUFFER REPLACE))))
+CMD OUTPUT-BUFFER REPLACE))

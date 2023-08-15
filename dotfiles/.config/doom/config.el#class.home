@@ -1,20 +1,16 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
+
 (after! doom-ui
-  (treemacs)
-  (abbrev-mode 1)
-  (blink-cursor-mode 1)
-  ;; (global-hide-mode-line-mode 1)
-  ;; (doom-modeline-mode 1)
-  ;; (global-display-line-numbers-mode -1)
-  (global-hl-line-mode -1)
-  ;; (set (quote doom-font ))
-  ;; (set (quote prog-mode-hook) nil)
-  (set (quote +snippets-dir)
-       (or (expand-file-name "snippets" (file-truename doom-user-dir))
-           (expand-file-name "snippets" (expand-file-name doom-user-dir))))
-  ;; (load-file@silence custom-file)
-  (require '-functions nil t))          ; custom functions
+  (require '-functions nil t)
+  (setq -reloaded (boundp '-reloaded))
+  (setq -toggle (boundp '-reloaded))
+  (setq-hook! (quote conf-mode-hook js-mode)
+    display-line-numbers-type (quote absolute)))
+
+(set (quote +snippets-dir)
+     (or (expand-file-name "snippets" (file-truename doom-user-dir))
+         (expand-file-name "snippets" (expand-file-name doom-user-dir))))
 
 (set (quote doom-theme)
      (quote doom-dracula))
@@ -24,13 +20,14 @@
 
 ;; (set (quote doom-modeline-mode-alist) )
 
-(set (quote custom-file) (expand-file-name "_custom.el" doom-private-dir))
+(set (quote custom-file)
+     (expand-file-name "_custom.el" doom-private-dir))
 
-(set (quote global-hide-mode-line-mode) 1)
+;; (set (quote global-hide-mode-line-mode) 1)
 
-(set (quote initial-buffer-choice)
-     (or (expand-file-name "dashboard.org" doom-user-dir)
-         (expand-file-name "todo.org" org-directory)))
+;; (set (quote initial-buffer-choice)
+;;      (or (expand-file-name "dashboard.org" doom-user-dir)
+;;          (expand-file-name "todo.org" org-directory)))
 
 (set (quote comint-move-point-for-output)
      t)
@@ -48,7 +45,7 @@
      nil)
 
 (set (quote display-line-numbers-type)
-     (quote absolute))
+     nil)
 
 (after! python
   (set (quote +python-ipython-repl-args)
@@ -69,6 +66,8 @@
                (:noweb . "yes")
                (:exports . "code")
                (:cache . "no")
+               (:tangle-mode . 416)     ; (identity #o0640)
+               (:results . "replace")
                (:comments . "link")
                (:hlines . "no")
                (:tangle . "no"))))
@@ -76,14 +75,20 @@
   (set (quote org-babel-default-header-args:python)
        (quote ((:tangle-mode . 448))))
 
-  (set (quote org-babel-default-header-args:shell)
+  (set (quote org-babel-default-header-args:sh)
        (quote ((:session . "none")
                (:tangle-mode . 448)
-               (:results . "replace drawer")
+               (:mkdirp . "yes"))))
+
+  (set (quote org-babel-default-header-args:bash)
+       (quote ((:session . "none")
+               (:tangle-mode . 448)
+               (:prologue . ". ~/.functions;. ~/.aliases")
+               (:results . "raw replace drawer")
                (:mkdirp . "yes"))))
 
   (ignore-errors
-    (org-babel-lob-ingest (or (format "%s/lob.org" doom-user-dir))))
+    (org-babel-lob-ingest (or (format "%s/_lob.org" doom-user-dir))))
 
   (defun ek/babel-ansi ()
     (when-let ((beg (org-babel-where-is-src-block-result nil nil)))
@@ -93,6 +98,15 @@
           (let ((end (org-babel-result-end))
                 (ansi-color-context-region nil))
             (ansi-color-apply-on-region beg end))))))
+
+  (defun -babel-ansi ()
+    "TODO Apply ANSI colors on region after"
+    (save-excursion
+      (when (looking-at org-babel-result-regexp)
+        (let ((end (org-babel-result-end))
+              (ansi-color-context-region nil))
+          (ansi-color-apply-on-region beg end)))))
+
   (add-hook 'org-babel-after-execute-hook 'ek/babel-ansi))
 
 (defmacro sh!! (CMDLINE)
@@ -115,7 +129,7 @@
   (quote (progn
            TODO
            (unless (string= "-" (projectile-project-name))
-                          (recompile))))
+             (recompile))))
   (eval (assoc-default major-mode -compile)))
 
 (defvar -compile
@@ -167,17 +181,11 @@
 
 (global-set-key (kbd "M-RET") #'M-RET!)
 
-
-(after! consult
-  (global-set-key (kbd "H-r") #'consult-recent-file)
-  (global-set-key (kbd "s-r") #'consult-recent-file))
-
 (after! projectile
   (global-set-key (kbd "H-p") #'projectile-find-file)
   (global-set-key (kbd "s-p") #'projectile-find-file)
   (global-set-key (kbd "H-M-p") #'projectile-switch-project)
-  (global-set-key (kbd "s-M-p") #'projectile-switcH-project)
-  (global-set-key (kbd "s-r") #'consult-recent-file))
+  (global-set-key (kbd "s-M-p") #'projectile-switcH-project))
 
 (map!
  "s-SPC TAB" (cmd! (find-file initial-buffer-choice))
@@ -223,7 +231,7 @@
  "s-l" #'display-line-numbers-mode
  "H-M-l" #'toggle-truncate-lines
  "M-s-l" #'toggle-truncate-lines
- "H-m" #'hide-mode-line-mode
+ "H-m" #'+zen/toggle-fullscreen
  "H-<backspace>" #'delete-pair
  "s-<backspace>" #'delete-pair
  "H-[" #'undo
@@ -262,8 +270,6 @@
  "<f5>" #'call-last-kbd-macro
  "M-s-[" #'winner-undo
  "M-s-]" #'winner-redo
- "H-M-k" #'kill-buffer
- "M-s-k" #'kill-buffer
  "H-;" #'company-yasnippet
  "s-;" #'company-yasnippet
  "s-<up>" #'-clone-line-up
@@ -284,7 +290,12 @@
  "s-SPC ~" (cmd! dired "~"))
 
 (map!
+ (:after dired :map dired-mode-map
+         "r" #'dired-do-rename-regexp)
  (:map global-map
+       "H-r" #'consult-buffer
+       "H-M-k" #'doom/kill-this-buffer-in-all-windows
+       "M-s-k" #'doom/kill-this-buffer-in-all-windows
        (:prefix "H-SPC"
                 "i" nil
                 (:prefix "i"
@@ -335,7 +346,8 @@
 (use-package! org-roam
   :if (string-match "sqlite3" (shell-command-to-string "command -v sqlite3"))
   :bind (("s-SPC SPC" . org-roam-node-find)
-         ("H-SPC SPC" . org-roam-node-find))
+         ("H-SPC SPC" . org-roam-node-find)
+         ("H-SPC t"   . org-roam-tag-add))
   :catch (lambda (keyword err)
            (message (error-message-string err))))
 
@@ -411,6 +423,46 @@
         (buffer-substring (match-beginning 0)
                           (match-end 0))))))
 
+;; ;; minor mode to hide
+;; (use-package! so-long
+;;   :custom
+;;   (so-long-minor-modes
+;;    (quote (
+;;            auto-composition-mode
+;;            better-jumper-local-mode
+;;            diff-hl-amend-mode
+;;            diff-hl-flydiff-mode
+;;            diff-hl-mode
+;;            display-line-numbers-mode
+;;            dtrt-indent-mode
+;;            eldoc-mode
+;;            flycheck-mode
+;;            flymake-mode
+;;            flyspell-mode
+;;            glasses-mode
+;;            goto-address-mode
+;;            goto-address-prog-mode
+;;            hi-lock-mode
+;;            highlight-changes-mode
+;;            highlight-indent-guides-mode
+;;            highlight-numbers-mode
+;;            hl-fill-column-mode
+;;            hl-line-mode
+;;            hl-sexp-mode
+;;            idle-highlight-mode
+;;            linum-mode
+;;            nlinum-mode
+;;            prettify-symbols-mode
+;;            rainbow-delimiters-mode
+;;            smartparens-mode
+;;            smartparens-strict-mode
+;;            spell-fu-mode
+;;            undo-tree-mode
+;;            visual-line-mode
+;;            whitespace-mode
+;;            ws-butler-mode
+;;            ))))
+
 (use-package! -functions
   :no-require t
   :config
@@ -418,7 +470,6 @@
     "TODO add `-refresh' as hook to `display-buffer'"
     (interactive)
     (ignore-errors (doom/reload-font))
-
     (when (region-active-p)
       (yas-new-snippet))
 
@@ -430,6 +481,8 @@
              (indirect-buffer (message "TODO")))
         (widen)
         (whitespace-cleanup)
+        (bookmark-save)
+        ;; (sh!! "git rev-parse --show-toplevel")
         (cond (one-window (cond
                            (writeroom
                             (writeroom-mode 1))
@@ -453,7 +506,7 @@
     (message "clone-line-up %s" (quote args))
     (save-excursion
       (beginning-of-line)
-      (insert (line!) "\n")))
+      (insert (buffer-substring (eol)(bol)) "\n")))
 
   (defun -clone-line-up ()
     (interactive "*p")
@@ -464,7 +517,7 @@
     (interactive
      (insert
       (completing-read "Insert filename:"
-                              (-fd "-tf --max-depth=${_FD_MAX_DEPTH:-4} . $HOME/")))))
+                       (-fd "-tf --max-depth=${_FD_MAX_DEPTH:-4} . $HOME/")))))
 
   (defun -fd (&rest ARGS)
     (let ((exe "fd")
@@ -485,7 +538,7 @@
        "Apply script on buffer:"
        (split-string-and-unquote (shell-command-to-string "bash -c 'compgen -A command'"))))))
 
-  (defun -script-on-bufferw (&rest list)
+  (defun -script-on-buffer (&rest list)
     (interactive
      (-cmd-on-buffer
       (completing-read
