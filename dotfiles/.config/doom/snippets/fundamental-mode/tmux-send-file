@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: tmux-send-file
+# key: tmux
+# --
+cat | tee /dev/stderr | xargs -0 tmux send ${0:c}

@@ -1,0 +1,4 @@
+.git
+[00;39mflycheck*
+[00;39m.*.el
+/dotfiles/.config/doom/snippets/fundamental-mode/.yas-compiled-snippets.el
