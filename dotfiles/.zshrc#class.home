@@ -1,6 +1,9 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
+ZSH_THEME="random"
+export ZSH="${ZSH-$HOME/.oh-my-zsh}"
+
 # Path to your oh-my-zsh installation.
 
 # Set name of the theme to load --- if set to "random", it will
@@ -89,14 +92,6 @@
 # activate oh-my-zsh
 . $ZSH/oh-my-zsh.sh
 
-command_not_found_handle() {
-    :
-}
-
-for ext in el .{,ba,z}shrc
-do alias -s $ext=,
-done
-
 TRAPERR() {
     case $# in
         0) exit 1;; # !?
@@ -113,7 +108,8 @@ if [[ $(readlink /proc/$PPID/exe) =~ tmux$ ]] && ! [[ $TMUX_PANE ]]; then
     __tmux_menu
 fi
 
-FZF_DEFAULT_OPTS="--reverse --lines 10"
+# FZF_DEFAULT_OPTS="--reverse --lines 10"
+FZF_DEFAULT_OPTS="--reverse"
 FZF_DEFAULT_OPTIONS="$FZF_DEFAULT_OPTS"
 
 hash jq=~/bin/jq
