@@ -1,0 +1,26 @@
+# --engine=pcre2
+--engine=default
+--color=auto
+--max-depth=3
+--one-file-system
+--hidden
+--search-zip
+--glob=!*[~#-]
+# --debug
+# --glob='!*\~'
+# --glob='!.*~'
+# --glob='!*~'
+# --glob='!*#'
+# --glob='!*.mkv'
+# --glob='!*/?*.????'
+# --glob='!*.jpeg'
+# --glob='!*.jpg'
+# --glob='!*.png'
+# --glob='!*.gpg'
+# --glob='!*.nfo'
+# --glob='!*.bin'
+# --glob='!*.iso'
+# --glob='!*/?*.disabled*'
+# --glob='!*.org*'
+# --glob='!*/.git/*'
+# --glob='!*/*-/*'
