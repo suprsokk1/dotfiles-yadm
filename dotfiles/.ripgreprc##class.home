@@ -1,11 +1,13 @@
-# --engine=pcre2
---engine=default
+# -*- mode: conf -*-
+--engine=pcre2
+# --engine=default
 --color=auto
---max-depth=3
 --one-file-system
 --hidden
 --search-zip
 --glob=!*[~#-]
+
+# --max-depth=3
 # --debug
 # --glob='!*\~'
 # --glob='!.*~'
