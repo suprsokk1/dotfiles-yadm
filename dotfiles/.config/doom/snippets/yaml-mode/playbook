@@ -1,0 +1,15 @@
+# key: .
+# name: playbook
+# --
+- hosts: localhost
+  connection: local
+  handlers:
+  - meta: noop
+  vars:
+  - meta: noop
+  pre_tasks:
+  - meta: noop
+  tasks:
+  - meta: noop
+  post_tasks:
+  - meta: noop

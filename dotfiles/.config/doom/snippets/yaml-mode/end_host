@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: end_host
+# key: .
+# --
+- meta: end_host
