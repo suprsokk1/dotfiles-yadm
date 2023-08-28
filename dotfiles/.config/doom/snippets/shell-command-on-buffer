@@ -1,0 +1,15 @@
+# type: command
+# key: c
+# name: shell-command-on-buffer
+# --
+(let
+((REPLACE t)
+(OUTPUT-BUFFER nil)
+(CMD
+(buffer-substring
+(bol)
+(eol))))
+(shell-command-on-region
+(point-min)
+(point-max)
+CMD OUTPUT-BUFFER REPLACE))
