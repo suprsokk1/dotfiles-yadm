@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: replace-home-var
+# type: command
+# key: ~
+# condition: t
+# --
+(let
+((REPLACE t)
+(OUTPUT-BUFFER nil)
+(CMD (format "sed -E '/%s/{s##~#}'" (getenv "HOME"))))
+(beginning-of-line)
+(kill-line)
+(shell-command-on-region
+(point-min)
+(point-max)
+CMD OUTPUT-BUFFER REPLACE))
