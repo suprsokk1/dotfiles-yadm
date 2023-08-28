@@ -1,0 +1,18 @@
+#+title: Library of babel
+
+#+begin_src elisp
+(setenv "DEBUG" "0")
+#+end_src
+
+#+name: head
+#+begin_src bash
+#+end_src
+
+#+RESULTS: head
+| DEBUGINFOD_URLS=https://debuginfod.fedoraproject.org/ |
+| DEBUG=1                                               |
+
+#+name: post
+#+begin_src python :results output raw :var
+
+#+end_src

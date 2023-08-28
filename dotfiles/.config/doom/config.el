@@ -8,6 +8,9 @@
   (setq-hook! (quote conf-mode-hook js-mode)
     display-line-numbers-type (quote absolute)))
 
+;; (add-to-list 'default-frame-alist
+;;              '(font . ""))
+
 (set (quote +snippets-dir)
      (or (expand-file-name "snippets" (file-truename doom-user-dir))
          (expand-file-name "snippets" (expand-file-name doom-user-dir))))
@@ -55,8 +58,10 @@
        (quote ("--simple-prompt"))))
 
 (after! org
-  (set (quote org-agenda-files)
-       (expand-file-name "agenda.lst" doom-user-dir))
+  (let ((% (expand-file-name "agenda.lst" doom-user-dir)))
+    (unless (file-exists-p %)
+      (write-file % nil))
+    (set (quote org-agenda-files) %))
 
   (set (quote default)
        (quote ((org-babel-default-header-args . (default-value (quote org-babel-default-header-args))))))
@@ -65,6 +70,7 @@
        (quote ((:session . "none")
                (:noweb . "yes")
                (:exports . "code")
+               (:mkdirp . "yes")
                (:cache . "no")
                (:tangle-mode . 416)     ; (identity #o0640)
                (:results . "replace")
@@ -127,14 +133,20 @@
   "Default M-RET action"
   (interactive)
   (quote (progn
-           TODO
            (unless (string= "-" (projectile-project-name))
              (recompile))))
   (eval (assoc-default major-mode -compile)))
 
+(defun M-RET! (&rest BODY)
+  "Default M-RET action"
+  (interactive)
+  (let ((compile-command (format "command /usr/bin/env , %s" (buffer-file-name))))
+    (recompile)))
+
 (defvar -compile
-  '(
-    ;; EXPECT- / TCL-MODE
+  (quote
+   (
+    ;; EXPECT / TCL
     (tcl-mode . (recompile))
 
     ;; YAML
@@ -177,17 +189,17 @@
                            (when (eq 1 (count-windows))
                              (split-window-sensibly))
                            (switch-to-buffer-other-window
-                            (-get-buffer python-shell-buffer-name)))))))))
+                            (-get-buffer python-shell-buffer-name))))))))))
 
 (global-set-key (kbd "M-RET") #'M-RET!)
 
-(after! projectile
-  (global-set-key (kbd "H-p") #'projectile-find-file)
-  (global-set-key (kbd "s-p") #'projectile-find-file)
-  (global-set-key (kbd "H-M-p") #'projectile-switch-project)
-  (global-set-key (kbd "s-M-p") #'projectile-switcH-project))
+(global-set-key (kbd "s-p") (quote projectile-find-file))
 
 (map!
+ "H-p"   #'projectile-find-file
+ "s-p"   #'projectile-find-file
+ "H-M-p" #'projectile-switch-project
+ "s-M-p" #'projectile-switch-project
  "s-SPC TAB" (cmd! (find-file initial-buffer-choice))
  "s-SPC b" #'doom-big-font-mode
  "s-SPC q" #'delete-other-windows
@@ -237,11 +249,11 @@
  "H-[" #'undo
  "H-]" #'undo-redo
  "H-/" #'+default/search-buffer
- "s-/" #'+default/searcH-buffer
+ "s-/" #'+default/search-buffer
  "H-SPC p" #'doom/goto-private-packages-file
  "s-SPC p" #'doom/goto-private-packages-file
- "H-SPC i" #'doom/goto-private-init-file
- "s-SPC i" #'doom/goto-private-init-file
+ ;; "H-SPC i" #'doom/goto-private-init-file
+ ;; "s-SPC i" #'doom/goto-private-init-file
  "H-SPC c" #'doom/goto-private-config-file
  "s-SPC c" #'doom/goto-private-config-file
  "H-SPC x" #'doom/open-scratch-buffer
@@ -294,16 +306,17 @@
          "r" #'dired-do-rename-regexp)
  (:map global-map
        "H-r" #'consult-buffer
+       "s-r" #'consult-buffer
        "H-M-k" #'doom/kill-this-buffer-in-all-windows
        "M-s-k" #'doom/kill-this-buffer-in-all-windows
        (:prefix "H-SPC"
                 "i" nil
+                "H-q" #'delete-other-windows
                 (:prefix "i"
                          "f" #'-list
                          "u" #'insert-char)
-                "H-q" #'delete-other-windows
-                (:prefix
-                 )))
+                "H-a" (cmd! (org-agenda nil "t"))
+                ))
 
  (:map dired-mode-map
        "]"   #'dired-next-marked-file
@@ -333,12 +346,24 @@
   :custom
   (dockerfile-mode-command "docker buildx build"))
 
+;; (use-package! ob-shell
+;;   :custom
+;;   (org-babel-shell-names (quote "sh tmux bash zsh fish csh ash dash ksh mksh posh")))
+
 (use-package! org
+  :requires ob-shell
   :config (progn
             (defun my/org-mode-hook ()
               (setq truncate-lines t
                     display-line-numbers-mode -1)))
   :hook ((org-mode . my/org-mode-hook))
+  :config
+
+  (add-to-list (quote org-babel-shell-names)
+               (quote "tmux"))
+  (add-to-list (quote so-long-minor-modes)
+               (quote display-line-numbers-mode))
+
   :custom
   (display-line-numbers-mode -1)
   (org-mode-hook nil))
@@ -378,11 +403,10 @@
 
 (use-package! modus-themes
   :ensure t
-  :load-path "~/git/modus-themes"
-  :config
-  (modus-themes-select 'modus-vivendi-tinted)
-  (setq modus-themes-variable-pitch-ui t)
+  :load-path "~/src/modus-themes"
+  :config (modus-themes-select 'modus-vivendi-tinted)
   :custom
+  (modus-themes-variable-pitch-ui t)
   (modus-themes-to-toggle (quote (modus-operandi-tinted modus-vivendi-tinted))))
 
 (use-package! writeroom
@@ -391,7 +415,9 @@
          ("H-SPC w" . #'writeroom-mode)))
 
 (use-package! vterm
-  :bind (("H-\\" . #'+vterm/toggle))
+  :defer 10
+  :bind (("H-\\" . #'+vterm/toggle)
+         ("s-\\" . #'+vterm/toggle))
   :custom
   (vterm-shell "/bin/zsh"))
 

@@ -1,6 +1,7 @@
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
 
+(package! systemd-mode)
 
 (package! mmm-mode)
 
