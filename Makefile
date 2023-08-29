@@ -2,11 +2,7 @@ include /etc/os-release
 distro = ${ID}
 
 define tar-transform
-s/^\.\(z?profile|zshrc\)/\0##default/;s|^\.doom\.d|.config/doom|
-endef
-
-define tar-transform
-s|.doom.d|.config/doom|;s,^\.(z.*|profile),\0##default,
+s/^\.\(\(z\|sway\).*\|functions\|ripgreprc\|tmux\.conf\|profile\|aliases\|fdignore\)/\0##default/;s|^\.doom\.d|.config/doom|
 endef
 
 files  = .profile
@@ -27,12 +23,10 @@ tar_opts += --exclude-caches-all
 tar_opts += --transform='$(call tar-transform)'
 
 help:
-	@ echo type "make sync or make dry run"
+	@ echo type "'make sync'" or "'make dry run'"
 
 dry-run:
-	timeout 2 tar ${tar_opts} -cf - ${files} | tar -tvf -
-
+	timeout 2 tar ${tar_opts} -cf - ${files} | tar -tvf - | tac
 
 sync:
-	tar ${tar_opts} -cf - ${files} | \
-		tar -C ${PWD}/dotfiles -xvf -
+	tar ${tar_opts} -cf - ${files} | tar -C ${PWD}/dotfiles -xvf -
