@@ -1,19 +1,23 @@
 include /etc/os-release
 distro = ${ID}
 
-define tar-transform
-s/^\.\(\(z\|sway\).*\|functions\|ripgreprc\|tmux\.conf\|profile\|aliases\|fdignore\)/\0##default/;s|^\.doom\.d|.config/doom|
+define regex
+\(\.\(aliases\|f\(dignore\|unctions\)\|profile\|ripgreprc\|sway/config\|tmux\.conf\|z\(profile\|sh\(env\|rc\)\)\)\)
 endef
 
-files  = .profile
-files += .aliases .functions
-files += .zshrc .zshenv .zprofile
-files += .tmux.conf .config/tmux/tmux.conf
-files += .sway/config
-files += .fdignore
-files += .ripgreprc .regexp.lst
-files += .doom.d
-files += bin/,
+define tar-transform
+s|$(call regex)|\0##default|;s|^\.doom\.d|.config/doom|
+endef
+
+dotfiles  = .profile
+dotfiles += .aliases .functions
+dotfiles += .zshrc .zshenv .zprofile
+dotfiles += .tmux.conf .config/tmux/tmux.conf
+dotfiles += .sway/config
+dotfiles += .fdignore
+dotfiles += .ripgreprc .regexp.lst
+dotfiles += .doom.d
+dotfiles += bin/,
 
 tar_opts  = --directory=${HOME}
 tar_opts += --exclude-vcs
@@ -26,7 +30,7 @@ help:
 	@ echo type "'make sync'" or "'make dry run'"
 
 dry-run:
-	timeout 2 tar ${tar_opts} -cf - ${files} | tar -tvf - | tac
+	timeout 2 tar ${tar_opts} -cf - ${dotfiles} | tar -tvf - | tac
 
 sync:
-	tar ${tar_opts} -cf - ${files} | tar -C ${PWD}/dotfiles -xvf -
+	tar ${tar_opts} -cf - ${dotfiles} | tar -C ${PWD}/dotfiles -xvf -
