@@ -36,13 +36,16 @@ function runPlay {
 }
 
 
-
 case $name in
     SUDO_ASKPASS|sudo-askpass)
         pass local
     ;;
     ,)
         case $parent in
+            *cronie*)
+                # TODO
+                :
+                ;;
             *fzf*)
                 highlight -O ansi --force
             ;;
@@ -51,25 +54,15 @@ case $name in
                     echo $GIT_DIR
                 fi
 
-
-
                 case $ext in
                     sh)
                         eval "$1"
                         exit
-                    ;;
+                        ;;
                     yml|yaml)
-                        case $1 in
-                            */local.*)
-                                runPlay "$1"
-                            exit $?
-                            ;;
-                            *)
-                                if grep -- '---' "$1" && grep -- '^- hosts:' "$_"; then
-                                    runPlay "$1"
-                                fi
-                        esac
-                        
+                        if grep -- '---' "$1" && grep -- '^- hosts:' "$_"; then
+                            runPlay "$1"
+                        fi
                         ;;
                     py)
                         python3 "$1"
@@ -106,271 +99,3 @@ case $# in
     *)
         exit
 esac
-
-exit
-
-case $# in
-    1)
-        case ${#1} in
-            1)
-                case $1 in
-                    [,\|-_:\(\)])
-                    # IGNORE
-                        ;;
-                    *)
-                        command cut -d "$1" -f2-
-                esac
-
-                ;;
-            *)
-        esac
-
-    ;;
-    
-    2);;
-    3)
-        ;;
-    *)
-
-esac
-
-exit
-
-BASH_XTRACEFD=2
-set -o pipefail -o errexit ${DEBUG:+-o xtrace}
-trap 'TRAPERR' ERR
-
-function rename {
-    {
-        stdbuf -oL env -C $PWD $(command -v fd) -e $1 &
-        stdbuf -oL env -C $PWD $(command -v rg) &
-    }
-}
-
-# set -x
-# FZF_DEFAULT_COMMAND='fd . ~/'
-# FZF_DEFAULT_COMMAND="fc-list | sed -E '/*.:/'"
-TRAPERR() {
-    # exec 2>/dev/null
-    echo FOO "$@"
-}
-
-file_handle() {
-    echo file: $@ >&2
-}
-
-
-
-command_not_found_handle() {
-    eval "__$1__$2"
-    shift 2
-    echo $@
-}
-
-__list_src__systemd() {
-    :
-}
-
-__add__package() {
-    list=${HOME}/.local/,/packages
-    mkdir -p "$(dirname \"$list\")"
-    touch "$list"
-    tmp=$(mktemp)
-    cat <(<<< "$@pp") "$list" | sort > $tmp
-    comm -{1,2} $tmp "$list"
-}
-
-# case $(readlink $0 | sed -E '/.*\//{s###}') in
-#     jq)
-#         eval "command jq --from-file ~/.functions.jq $@"
-#         ;;
-#     *)
-# esac
-
-# if [ $# -gt 0 ]; then
-#     for f; do
-#         f=$(eval echo "$f")
-#         test -f "$f" || continue
-#         file_handle "$f"
-#     done
-#     exit
-# fi
-
-# args=("$@")
-
-# for f
-# do ext="${f##*.}"
-#    base="${f##*/}"
-#    stem=${base/${ext}/}
-# done
-
-# case ${ext^^} in
-#     TTF)
-#         FONT="${@/ /}"
-#         ;;
-#     *)
-
-# esac
-
-# if [[ $FONT ]] ; then
-#     FZF_DEFAULT_COMMAND="fc-list | sed -E '/.*:(.*?):.*/s##\1#'"
-#     FONT="${FONT/ /}"
-#     file=~/.config/alacritty/alacritty.yml
-
-#     sed -E '/(family: ?).*/s##\1'"${FONT:-Iosevka Nerd Font Mono}"'#' "$file" |
-#         tee /dev/stderr |
-#         sponge "$file" |
-#         highlight --syntax=yaml --force -O ansi
-
-# else
-#     fzf --ansi --preview "~/bin/, {}"
-# fi
-
-####!/usr/bin/env -S PS4=':${LINENO}:${BASH_ARGV:+}:${FUNCNAME:+$FUNCNAME(${*:+$*}):}' BASH_XTRACEFD=2 bash --posix --noprofile `#-*- mode: value -*-`
-# # exec 2>&1
-
-# interactive() {
-#     case ${0##*/} in
-#         SUDO_ASKPASS)
-#             ;;
-#         *)
-#     esac
-# }
-
-# pipe() {
-#     case ${0##*/} in
-#         SUDO_ASKPASS)
-#             pass local
-#         ;;
-#         *)
-
-#     esac
-# }
-
-# start() {
-#     echo $-
-#     # tty
-#     echo /dev/std{out,err,in} | xargs realpath
-
-#     return
-
-#     case $-  in
-#         *i*)
-#             # interactive
-#             return
-#             ;;
-#         *)
-#             # pipe
-#     esac
-#     exit
-
-#     case "$-"  in
-#         *i*)
-#             interactive
-#             ;;
-#         *)
-#             pipe
-#     esac
-
-#     exit
-
-#     eval "${0##*/}" && exit 0
-
-#     compgen -A function | sort | while read func
-#     do case $1 in
-#            [A-Z][A-Z][A-Z][A-Z]__*|[A-Z][A-Z][A-Z]__*)
-#                 eval "${func}"
-#                 echo "$@"
-#                 ;;
-#             *)
-#                 continue
-#         esac
-
-#     done
-#     # eval "ARGS__${@//$' '/_}"
-
-
-
-# }
-
-# command_not_found_handle() {
-#     return 0
-
-#     eval "$@"
-#     exit $?
-#     echo "$(tput setaf 1)$@$(tput sgr0)"
-# }
-
-# LINK__sudo_askpass() {
-#     exit 0
-# }
-
-
-
-# RC__sudo_askpass__0() {
-#     pass local
-# }
-
-# args() {
-#     :
-# }
-
-# joinstring() {
-#     :
-# }
-
-# is_symlink() {
-#     test -L $1
-# }
-
-# realpath() {
-#     is_symlink $1 && realpath $(command readlink $1) && return 0
-#     echo $1
-# }
-
-# contain() {
-#     read -r contents < "$2"
-#     case "$contents" in
-#         *$1*)
-#             return 0
-#             ;;
-#         *)
-#             return 1
-#     esac
-
-# }
-
-# install() {
-#     local args
-#     args=(install -D --no-target-directory)
-#     if ! tty --silent
-#     then
-#         command ${args[*]} /dev/stdin ${!#}
-#     else
-#         command ${args[*]} ${!#}
-#     fi
-# }
-
-# ENV__SUDO_ASKPASS() {
-#     if [ -k $ZSH_VERSION ]; then
-#         rc=zsh
-#     fi
-
-#     if [ -k $BASH_VERSION ]; then
-#         rc=bash
-#     fi
-
-#     if ! contain SUDO_ASKPASS ~/.${rc}rc; then
-#         return 0
-#     else
-#         ln -srvf -- $0 ~/bin/sudo-askpass
-# printf '%q' <<.HEREDOC
-# set "SUDO_ASKPASS=" "export SUDO_ASKPASS"
-# printf '%s\n' \$@
-# .HEREDOC
-
-#     fi
-# }
-
-# ### SCRIPT STARTS HERE ###
-# start
