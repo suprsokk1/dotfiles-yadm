@@ -5,6 +5,8 @@
 
 (package! mmm-mode)
 
+(package! sway)
+
 ;; (package! dotfiles-emacs-bindings
 ;;   :recipe (:repo "/home/gepr/git/dotfiles-emacs-bindings"))
 
