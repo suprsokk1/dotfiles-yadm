@@ -30,16 +30,14 @@ tar_opts += --transform='$(call transform)'
 help:
 	@ echo type "'make sync'" or "'make dry run'"
 
-archive: fifo
-	tar ${tar_opts} -cf $^ ${dotfiles} &
+archive:
+	@ test -p $@ || mkfifo $@
+	tar ${tar_opts} -cf $@ ${dotfiles} &
 
 dry-run: archive
-	tar -tvf fifo | tac
+	tar -tvf $^ | tac
 
 sync: archive
-	tar -C ${PWD}/dotfiles -xvf fifo
-
-fifo:
-	mkfifo $@
+	tar -C ${PWD}/dotfiles -xvf $^
 
 .PHONY: archive dry-run help sync
