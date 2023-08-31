@@ -1,7 +1,7 @@
 # -*- mode: sh -*-
 alias -- docker='echo podman; command $_'
 
-alias -- grep='echo rg ; command rg'
+# alias -- grep='echo rg ; command rg' # FIXME
 
 alias -- ls='echo exa ; command exa'
 
@@ -31,4 +31,5 @@ alias -- edit='command ${EDITOR:-${VISUAL:-vi}}'
 alias -- ,json="echo grep ; command grep -Poz '{[\s\S]+}'"
 
 alias -- jq='echo jq ; command jq --from-file ~/.functions.jq'
+
 alias md=mkdir
