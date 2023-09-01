@@ -1,0 +1,11 @@
+.[Cc]ache
+*[cC]ache*
+*final*
+*archived*
+.local
+.git
+.*hist*
+*-
+*-
+.config/Microsoft
+.config/Slack

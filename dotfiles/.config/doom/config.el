@@ -21,6 +21,8 @@
 (set (quote doom-scratch-initial-major-mode)
      (quote fundamental-mode))
 
+(global-set-key (kbd "H-b") 'backward-word) ; H is for hyper
+
 ;; (set (quote doom-modeline-mode-alist) )
 
 (set (quote custom-file)
@@ -145,9 +147,8 @@
 
 (defvar -compile
   (quote
-   (
-    ;; EXPECT / TCL
-    (tcl-mode . (recompile))
+     ;; EXPECT / TCL
+   ((tcl-mode . (recompile))
 
     ;; YAML
     (yaml-mode .  (progn (when nil
@@ -250,8 +251,8 @@
  "H-]" #'undo-redo
  "H-/" #'+default/search-buffer
  "s-/" #'+default/search-buffer
- "H-SPC p" #'doom/goto-private-packages-file
- "s-SPC p" #'doom/goto-private-packages-file
+ ;; "H-SPC p" #'doom/goto-private-packages-file
+ ;; "s-SPC p" #'doom/goto-private-packages-file
  ;; "H-SPC i" #'doom/goto-private-init-file
  ;; "s-SPC i" #'doom/goto-private-init-file
  "H-SPC c" #'doom/goto-private-config-file

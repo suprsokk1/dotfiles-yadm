@@ -13,7 +13,7 @@ alias -- @P='/usr/bin/env xargs --max-procs=8'
 
 alias -- cpus='pushd /sys/class/cpuid &>/dev/null; set *; echo $#; popd &>/dev/null #'
 
-alias -- tar='echo tar ; command tar --exclude-vcs-ignores'
+alias -- tar='echo tar ; command tar --exclude-from=${HOME}/.config/ignore --exclude-vcs-ignores'
 
 alias -- reload='. ~/.${BASH_VERSION:+bash}${ZSH_VERSION:+zsh}rc'
 alias -- rl='reload'
@@ -22,7 +22,7 @@ alias -- append='f() { { env; set; } | grep -i -e ${SHELL##*/} -e "$@" | while I
 
 alias -- ,man='tmux display-popup '
 
-alias -- cat='echo highlight ; command highlight -O ansi --force'
+# alias -- cat='echo highlight ; command highlight -O ansi --force' # FIXME
 
 alias -- buf='echo stdbuf ; command stdbuf -oL'
 
