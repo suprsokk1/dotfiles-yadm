@@ -1,0 +1,146 @@
+# -*- mode: sh[bash] -*-
+
+command_not_found_handle() {
+    case $1 in
+        tmux)
+            pushd $(mktemp -d)
+            coproc nohup sudo dnf install --assumeyes tmux
+            popd
+            ;;
+        regex2json)
+            go install gitlab.com/tozd/regex2json/cmd/regex2json@main
+            ;;
+        exa|fswatch|gotty|highlight|tar|fzf|fd|mako|rg|pass)
+            tmux neww sudo dnf install --assumeyes "$1"
+            eval "$@"
+            ;;
+        yadm)
+            brew install "$1"
+            ;;
+        *)
+    esac
+
+    eval "$@"
+
+}
+
+
+__get_logopt__tmux() {
+    tmux capture-pane -p |
+        sed -E '/[^[:space:]]/!d;s,.*~,,'
+}
+
+
+tidy() {
+    command tr --delete '["]' |
+        command tr --squeeze-repeats '[[:space:]]'
+}
+
+
+getPpid() {
+    grep -Pioz '(?<=Ppid:).*' /proc/${1:-$$}/status |
+        tr --delete '[[:space:]]'
+}
+
+
+TODO() {
+    :
+}
+
+--csv2json() {
+    TODO
+}
+
+--json2csv() {
+    TODO
+}
+
+--init2json() {
+    TODO
+}
+
+
+--set-theme---zsh() {
+    command sed -E "/ZSH_THEME/d;iZSH_THEME=\"${@}\";N" ~/.zshrc
+}
+
+
+--ls--files--fd() {
+    eval "command stdbuf -oL /usr/bin/env --ignore-environment $(command -v fd) $@"
+}
+
+--ls--unit-files() {
+    command jc systemctl list-unit-files |
+        jq '.[]' -c
+}
+
+--ls--env() {
+    {
+        env
+        set
+    } | jc --env  |
+        jq -c '.[]'
+}
+
+--cache() {
+    TODO
+}
+
+--ls--files--all() {
+    --ls--files--fd --one-file-system -uuu `# -X exa -l` . "${@:-$PWD}"
+
+        # command jc --ls |
+        # command jq -c '.[]'
+}
+
+--ls--files--git-repositories() {
+    --ls--files--fd --hidden -tf --glob config "${@:-$PWD}" |
+        LC_ALL=C command rg --line-buffered -- '.git/config' |
+        sed -E 's#..git.config$##' |
+        command jc --ls |
+        command jq -c '.[]'
+}
+
+--ls--files() {
+    --ls--files--fd |
+        command jc --ls  |
+        jq '.[]' -c
+}
+
+--ls--files--executable() {
+    command fd --type f  -tx |
+        command jc --ls  |
+        jq '.[]' -c
+}
+
+
+--ls--functions() {
+    case ${SHELL##*/} in
+        zsh)
+            cmd='print -ln ${(k)functions}'
+            ;;
+        *)
+            cmd="compgen -A function"
+    esac
+    eval $cmd
+}
+
+
+# jq() {
+#     command jq
+# }
+
+--refresh() {
+    --ls--functions | rg --line-buffered '^-{2}ls--' |
+        while read line
+        do :
+        done
+}
+
+
+--ls--files--changed-today() {
+    --ls--files--fd --one-file-system --hidden --no-ignore-vcs --changed-within='1day' ${1:-.} "${2:-$PWD}"
+
+        # command jc --ls |
+        # command jq -c '.[]'
+}

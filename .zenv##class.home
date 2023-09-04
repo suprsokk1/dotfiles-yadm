@@ -1,0 +1,36 @@
+#  -*- mode: sh[zsh] -*-
+export LANG=en_US.UTF-8
+export EDITOR=emacsclient
+export ALTERNATE_EDITOR=vim
+export TMPDIR=${XDG_RUNTIME_DIR:-$TMPDIR}
+
+set - ~/{,go,.{local,cargo}/}bin
+for p
+do if ! [[ $p =~ $path ]]; then
+       path+=("$p")
+   fi
+done
+
+if command -v most &>/dev/null; then
+    export PAGER=most
+fi
+
+# cleanup env for non tmux terminals
+case $(readlink /proc/$PPID/exe) in
+    *tmux*)
+        ;;
+    *)
+        case ${#TMUX} in
+            0);;
+            *)
+                eval "$(set | sed -E '/^(TMUX[^=]*).*/!d;{s##unset \\1#}')"
+        esac
+esac
+
+if [[ $- =~ i ]]; then
+    . ~/.aliases
+    # . <(sed -E '/[[:space:]](-{2})[[:space:]][[:<:]],/!s...' < ~/.aliases)
+    . ~/.functions
+    . ~/.zsh_plugins
+fi
+

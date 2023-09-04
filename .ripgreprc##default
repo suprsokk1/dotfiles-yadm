@@ -1,0 +1,27 @@
+--pcre2
+--color=auto
+--one-file-system
+--hidden
+--search-zip
+--no-ignore-vcs
+--no-ignore-dot
+--ignore-file ${HOME}/config/ignore
+# --debug
+# --file ${HOME}/.regex.lst
+# --engine=auto
+# --engine=pcre2
+# --engine=default
+# --max-depth=3
+# --glob='!*~'
+# --glob='!*#'
+# --glob='!*.jpeg'
+# --glob='!*.jpg'
+# --glob='!*.png'
+# --glob='!*.gpg'
+# --glob='!*.nfo'
+# --glob='!*.bin'
+# --glob='!*.iso'
+# --glob='!*/?*.disabled*'
+# --glob='!*.org*'
+# --glob='!*/.git/*'
+# --glob='!*/*-/*'

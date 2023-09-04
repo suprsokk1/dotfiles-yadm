@@ -1,0 +1,2 @@
+BROWSER=qutebrowser
+SHELL=/bin/zsh
