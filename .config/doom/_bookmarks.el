@@ -2,10 +2,10 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("~/.doom.d"
- (filename . "~/.doom.d/")
- (front-context-string . "init.el\n  -rw-r-")
- (rear-context-string . "55 Aug 20 11:36 ")
+(("~/.config/doom"
+ (filename . "~/.config/doom")
+ ;; (front-context-string . "init.el\n  -rw-r-")
+ ;; (rear-context-string . "55 Aug 20 11:36 ")
  (position . 338)
  (last-modified 25833 62600 210036 962000))
 ("ripgreprc"
@@ -64,9 +64,9 @@
  (rear-context-string . "ng.\n  history: 0")
  (position . 625))
 ("org-capture-last-stored"
- (filename . "~/git/org/notes.org")
- (front-context-string . "** [2023-08-27 S")
- (rear-context-string . "indent\n\n* Inbox\n")
- (position . 135)
- (last-modified 25834 63177 833567 635000))
+ (filename . "~/org/roam/20230903153209-coreos_bootstrap_with_butane.org")
+ (front-context-string)
+ (rear-context-string . "rap with butane\n")
+ (position . 108)
+ (last-modified 25844 35545 876453 218000))
 )

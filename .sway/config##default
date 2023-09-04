@@ -5,7 +5,8 @@ set $border_px 3
 
 default_border pixel $border_px
 
-font Iosevka:size=0
+# font Iosevka:size=0
+font Iosevka 0
 
 #: default|stacking|tabbed
 workspace_layout default
@@ -109,8 +110,8 @@ input type:touchpad {
 
 exec_always /bin/bash /home/gepr/.local/bin/exec_always
 
-include $HOME/.sway/config.d/*.conf
-include $HOME/.i3/config.d/*.conf
+# include $HOME/.sway/config.d/*.conf
+# include $HOME/.i3/config.d/*.conf
 
 for_window [class=".*"] border_pixel $border_px
 For_window [class="^Menu$"] floating enabled

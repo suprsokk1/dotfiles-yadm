@@ -25,8 +25,10 @@
 
 ;; (set (quote doom-modeline-mode-alist) )
 
+(mkdir "~/.local/emacs" t)
+
 (set (quote custom-file)
-     (expand-file-name "_custom.el" doom-private-dir))
+     (expand-file-name "custom.el" "~/.local/emacs"))
 
 ;; (set (quote global-hide-mode-line-mode) 1)
 
@@ -197,110 +199,108 @@
 (global-set-key (kbd "s-p") (quote projectile-find-file))
 
 (map!
- "H-p"   #'projectile-find-file
- "s-p"   #'projectile-find-file
- "H-M-p" #'projectile-switch-project
- "s-M-p" #'projectile-switch-project
- "s-SPC TAB" (cmd! (find-file initial-buffer-choice))
- "s-SPC b" #'doom-big-font-mode
- "s-SPC q" #'delete-other-windows
- "s-SPC s-q" #'delete-other-frames
- "s-<down>" #'-clone-line-down
- "s-<up>" #'-clone-line-up
- "s-SPC s" #'org-narrow-to-subtree
- "s-M-k" #'doom/kill-this-buffer-in-all-windows
- "s-8" #'-mark-all-like-this
- "H-SPC TAB" (cmd! (find-file initial-buffer-choice))
- "H-SPC b" #'doom-big-font-mode
- "H-SPC q" #'delete-other-windows
- "H-SPC H-q" #'delete-other-frames
- "H-<down>" #'-clone-line-down
- "H-<up>" #'-clone-line-up
- "H-SPC s" #'org-narrow-to-subtree
- "H-M-k" #'doom/kill-this-buffer-in-all-windows
- "M-s-k" #'doom/kill-this-buffer-in-all-windows
- "H-8" #'-mark-all-like-this
- "H-i f" #'+default/insert-file-path
- "s-i f" #'+default/insert-file-path
- "H-SPC ]" #'mc/edit-enda-of-lines
- "H-SPC [" #'mc/edit-beginnings-of-lines
- "H-SPC a" #'mc/edit-beginnings-of-lines
- "H-SPC e" #'mc/edit-enda-of-lines
- "s-SPC [" #'mc/edit-beginnings-of-lines
- "s-SPC ]" #'mc/edit-enda-of-lines
- "s-SPC a" #'mc/edit-beginnings-of-lines
- "s-SPC e" #'mc/edit-enda-of-lines
- "H-}" #'flycheck-next-error
- "H-{" #'flycheck-previous-error
- "C-<tab>" #'flycheck-next-error
+ "<f12>"           #'flycheck-list-errors
+ "<f5>"            #'call-last-kbd-macro
+ "C-."             #'mc/mark-next-like-this
  "C-<iso-lefttab>" #'flycheck-previous-error
- "H-SPC n" #'org-capture
- "H-SPC m" #'mc/mark-all-like-this ;FIXME
- "H-." #'dired-jump
- "s-." #'dired-jump
- "H-<return>" #'bookmark-jump
- "s-<return>" #'bookmark-jump
- "H-l" #'display-line-numbers-mode
- "s-l" #'display-line-numbers-mode
- "H-M-l" #'toggle-truncate-lines
- "M-s-l" #'toggle-truncate-lines
- "H-m" #'+zen/toggle-fullscreen
- "H-<backspace>" #'delete-pair
- "s-<backspace>" #'delete-pair
- "H-[" #'undo
- "H-]" #'undo-redo
- "H-/" #'+default/search-buffer
- "s-/" #'+default/search-buffer
- ;; "H-SPC p" #'doom/goto-private-packages-file
- ;; "s-SPC p" #'doom/goto-private-packages-file
- ;; "H-SPC i" #'doom/goto-private-init-file
- ;; "s-SPC i" #'doom/goto-private-init-file
- "H-SPC c" #'doom/goto-private-config-file
- "s-SPC c" #'doom/goto-private-config-file
- "H-SPC x" #'doom/open-scratch-buffer
- "s-SPC x" #'doom/open-scratcH-buffer
- "H-SPC l" #'-open-library-of-babel
- "H-0" #'balance-windows
- "H-n" #'split-window-horizontally
- "H-n" #'split-window-horizontally
- "H-M-n" #'split-window-vertically
- "M-s-n" #'split-window-vertically
- "H-k" #'delete-window
- "H-M-[" #'winner-undo
- "H-M-]" #'winner-redo
- "s-]" 'undo-redo
- "s-[" 'undo
- "s-n" #'split-window-horizontally
- "M-s-n" #'split-window-vertically
- "M-]" #'next-error
- "M-[" #'previous-error
- "s-0" #'balance-windows
- "M-s-0" #'balance-windows-area
- "H-M-0" #'balance-windows-area
- "s-<return>" #'bookmark-jump
- "M-s-<return>" #'org-roam-node-find
- "<f12>" #'flycheck-list-errors
- "<f5>" #'call-last-kbd-macro
- "M-s-[" #'winner-undo
- "M-s-]" #'winner-redo
- "H-;" #'company-yasnippet
- "s-;" #'company-yasnippet
- "s-<up>" #'-clone-line-up
- "s-k" #'delete-window
- "s-m s-m" #'mc/mark-all-like-this
- "C-." #'mc/mark-next-like-this
- "C-c SPC SPC" #'-refresh
- "H-SPC H-SPC" #'-refresh
- "H-SPC h" (cmd! (dired "~"))
+ "C-<tab>"         #'flycheck-next-error
+ "C-c SPC SPC"     #'-refresh
+ "H-."             #'dired-jump
+ "H-/"             #'+default/search-buffer
+ "H-0"             #'balance-windows
+ "H-8"             #'-mark-all-like-this
+ "H-;"             #'company-yasnippet
+ "H-<backspace>"   #'delete-pair
+ "H-<down>"        #'-clone-line-down
+ "H-<return>"      #'bookmark-jump
+ "H-<up>"          #'-clone-line-up
+ "H-M-0"           #'balance-windows-area
+ "H-M-["           #'winner-undo
+ "H-M-]"           #'winner-redo
+ "H-M-k"           #'doom/kill-this-buffer-in-all-windows
+ "H-M-l"           #'toggle-truncate-lines
+ "H-M-n"           #'split-window-vertically
+ "H-M-p"           #'projectile-switch-project
+ "H-SPC ."         #'dired-jump
+ "H-SPC H-SPC"     #'-refresh
+ "H-SPC H-q"       #'delete-other-frames
+ "H-SPC TAB" (cmd! (find-file initial-buffer-choice))
+ "H-SPC ["         #'mc/edit-beginnings-of-lines
+ "H-SPC ]"         #'mc/edit-enda-of-lines
+ "H-SPC a"         #'mc/edit-beginnings-of-lines
+ "H-SPC b"         #'doom-big-font-mode
+ "H-SPC c"         #'doom/goto-private-config-file
+ "H-SPC e"         #'mc/edit-enda-of-lines
+ "H-SPC h"         #'(cmd! (dired "~"))
+ "H-SPC l"         #'-open-library-of-babel
+ "H-SPC m"         #'mc/mark-all-like-this ;FIXME
+ "H-SPC n"         #'org-capture
+ "H-SPC q"         #'delete-other-windows
  "H-SPC r" nil
- "H-SPC ~" (cmd! (dired "~"))
- "s-SPC r" nil
- "s-g" #'magit-status
- "H-g" #'magit-status
- "s-<down>"  #'-clone-line-down
- "s-SPC h" (cmd! dired "~")
- "s-SPC s-SPC" #'-refresh
- "s-SPC ~" (cmd! dired "~"))
+ "H-SPC s"         #'org-narrow-to-subtree
+ "H-SPC x"         #'doom/open-scratch-buffer
+ "H-SPC ~"         #'(cmd! (dired "~"))
+ "H-["             #'undo
+ "H-]"             #'undo-redo
+ "H-g"             #'magit-status
+ "H-i f"           #'+default/insert-file-path
+ "H-k"             #'delete-window
+ "H-l"             #'display-line-numbers-mode
+ "H-m"             #'+zen/toggle-fullscreen
+ "H-n"             #'split-window-horizontally
+ "H-p"             #'projectile-find-file
+ "H-{"             #'flycheck-previous-error
+ "H-}"             #'flycheck-next-error
+ "M-["             #'previous-error
+ "M-]"             #'next-error
+ "M-s-0"           #'balance-windows-area
+ "M-s-<return>"    #'org-roam-node-find
+ "M-s-["           #'winner-undo
+ "M-s-]"           #'winner-redo
+ "M-s-k"           #'doom/kill-this-buffer-in-all-windows
+ "M-s-l"           #'toggle-truncate-lines
+ "M-s-n"           #'split-window-vertically
+ "s-."             #'dired-jump
+ "s-/"             #'+default/search-buffer
+ "s-0"             #'balance-windows
+ "s-8"             #'-mark-all-like-this
+ "s-;"             #'company-yasnippet
+ "s-<backspace>"   #'delete-pair
+ "s-<down>"        #'-clone-line-down
+ "s-<return>"      #'bookmark-jump
+ "s-<up>"          #'-clone-line-up
+ "s-M-k"           #'doom/kill-this-buffer-in-all-windows
+ "s-M-p"           #'projectile-switch-project
+ "s-SPC ."         #'dired-jump
+ "s-SPC TAB"       #'(cmd! (find-file initial-buffer-choice))
+ "s-SPC ["         #'mc/edit-beginnings-of-lines
+ "s-SPC ]"         #'mc/edit-enda-of-lines
+ "s-SPC a"         #'mc/edit-beginnings-of-lines
+ "s-SPC b"         #'doom-big-font-mode
+ "s-SPC c"         #'doom/goto-private-config-file
+ "s-SPC e"         #'mc/edit-enda-of-lines
+ "s-SPC h"         #'(cmd! (dired "~"))
+ "s-SPC q"         #'delete-other-windows
+ "s-SPC r"         nil
+ "s-SPC s"         #'org-narrow-to-subtree
+ "s-SPC s-SPC"     #'-refresh
+ "s-SPC s-q"       #'delete-other-frames
+ "s-SPC x"         #'doom/open-scratcH-buffer
+ "s-SPC ~"         #'(cmd! (dired "~"))
+ "s-["             'undo
+ "s-]"             'undo-redo
+ "s-g"             #'magit-status
+ "s-i f"           #'+default/insert-file-path
+ "s-k"             #'delete-window
+ "s-l"             #'display-line-numbers-mode
+ "s-m s-m"         #'mc/mark-all-like-this
+ "s-n"             #'split-window-horizontally
+ "s-p"             #'projectile-find-file
+ )
+ ;; "H-SPC i" #'doom/goto-private-init-file
+ ;; "H-SPC p" #'doom/goto-private-packages-file
+ ;; "s-SPC i" #'doom/goto-private-init-file
+ ;; "s-SPC p" #'doom/goto-private-packages-file
 
 (map!
  (:after dired :map dired-mode-map
@@ -425,6 +425,20 @@
 (use-package! flycheck
   :custom
   (flycheck-mode-hook nil))
+
+(use-package tramp
+  :init
+  (defun yadm ()
+    (interactive)
+    (magit-status "/yadm::"))
+  :config
+  (add-to-list 'tramp-methods
+               '("yadm"
+                 (tramp-login-program "yadm")
+                 (tramp-login-args (("enter")))
+                 (tramp-login-env (("SHELL") ("/bin/sh")))
+                 (tramp-remote-shell "/bin/sh")
+                 (tramp-remote-shell-args ("-c")))))
 
 (use-package! -macros
   :no-require t
