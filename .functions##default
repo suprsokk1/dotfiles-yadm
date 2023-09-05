@@ -138,6 +138,8 @@ TODO() {
     --ls--files--fd --one-file-system --hidden --no-ignore-vcs --changed-within='1day' ${1:-.} "${2:-$PWD}"
 }
 
+
+unalias ls &>/dev/null ||:
 ls() {
     # translate ls arguments to exa
     # mainly '-t' => '--time modified'
@@ -159,5 +161,66 @@ ls() {
         fi
     done
     eval "exa ${exa}"
+}
 
+__tmux_menu() {
+    PS1=
+    PS2=
+    PS3=
+    PS4=
+    PS5=
+    TRAPEXIT() { tmux set synchronize-panes 0; }
+    TRAPINT() { exit; }
+    0() { tput cup 0 0; }
+    clr() {
+        chars=()
+    }
+    chars=()
+    cmd=()
+    hist=()
+    setopt pipefail
+    tmux set synchronize-panes 1
+
+    __get_logopt__tmux
+    sleep 1
+
+    # disable cursor
+    tput civis
+
+    while read -sk x
+    do
+        # terminate
+        case $x in
+            $'\025') ;;
+            $'\ 025') ;;
+            :) clear ;;
+            .) cmd=() ;;
+            *) chars+=("$x") ;;
+        esac
+
+        case $chars in
+            :*) cmd+=("$x") ;;
+            *)  chars+=("$x");;
+        esac
+
+        tput cup 0 0
+        CLEAR_LINE='\033[1K'
+        clr=clear_line
+
+        case ${#cmd} in
+            0)
+
+            ;;
+            *)
+                printf '%s' "$cmd[@]"
+        esac
+
+        echo
+        chars+=("$x")
+
+    done
+
+    tput cnorm
+
+    exit
 }

@@ -1,4 +1,6 @@
 # -*- mode: sh -*-
+unalias ls
+
 alias -- docker='command $_'
 
 # alias -- grep='command rg' # FIXME

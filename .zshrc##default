@@ -83,6 +83,8 @@ then git clone https://github.com/zsh-users/zsh-autosuggestions $_
 fi
 
 plugins+=(zsh-autosuggestions)
+plugins+=(git)
+plugins+=(direnv)
 # plugins-=(pipenv)
 
 
@@ -101,126 +103,34 @@ TRAPERR() {
     esac
 }
 
-# FZF_DEFAULT_OPTS="--reverse --lines 10"
-FZF_DEFAULT_OPTS="--reverse"
-FZF_DEFAULT_OPTIONS="$FZF_DEFAULT_OPTS"
-
-# hash jq=~/bin/jq
-
-setterm --linewrap off
-
 # zstyle
 # syntax:
 # $ zstyle :completion:<function>:<completer>:<command>:<argument>:<tag>
-
-# zstyle :completion:<function>:<completer>:<command>:<argument>:<tag>
-
-# unalias jq
 
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' squeeze-slashes true
 zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh/.zcompcache"
 
 zstyle ':completion:*:*:foo:*' file-sort size
-
 zstyle ':completion:*:*:fzf:*' file-sort size
 
-__tmux_menu() {
-    PS1=
-    PS2=
-    PS3=
-    PS4=
-    PS5=
-    TRAPEXIT() { tmux set synchronize-panes 0; }
-    TRAPINT() { exit; }
-    0() { tput cup 0 0; }
-    clr() {
-        chars=()
-    }
-    chars=()
-    cmd=()
-    hist=()
-    setopt pipefail
-    tmux set synchronize-panes 1
-
-    __get_logopt__tmux
-    sleep 1
-
-    # disable cursor
-    tput civis
-
-    while read -sk x
-    do
-        # terminate
-        case $x in
-            $'\025') ;;
-            $'\ 025') ;;
-            :) clear ;;
-            .) cmd=() ;;
-            *) chars+=("$x") ;;
-        esac
-
-        case $chars in
-            :*) cmd+=("$x") ;;
-            *)  chars+=("$x");;
-        esac
-
-        tput cup 0 0
-        CLEAR_LINE='\033[1K'
-        clr=clear_line
-
-        case ${#cmd} in
-            0)
-
-            ;;
-            *)
-                printf '%s' "$cmd[@]"
-        esac
-
-        echo
-        chars+=("$x")
-
-    done
-
-    tput cnorm
-
-    exit
-}
-
-linkParent() {
-    set - ${1:-$$}
-
-    ppid=$(getPpid)
-    mkdir -p ~/.local/proc/$1
-    ln -svf /proc/$1 $_/pid
-    ln -svf /proc/$ppid $_/pid
-    sleep 1
-    linkParent $ppid
-}
-
-
-exe() {
-    command stdbuf -oL fd -tf -tx -g $1 ~ -H -X env -C ~/bin ln -sfrv |
-        head -1
-}
-
-source ~/.aliases
 source ~/.functions
-
-# bindkey
-
-alias -s git='command git -C ~/src clone --depth 1'
+source ~/.aliases
 
 if [[ $(readlink /proc/$PPID/exe) =~ tmux$ ]] && ! [[ $TMUX_PANE ]]; then
     tmux source-file ~/.config/tmux/tmux.conf
     __tmux_menu
 fi
 
-alias -- git='git ${GIT_WORK_TREE:+--work-tree=$GIT_WORK_TREE} ${GIT_DIR:+--git-dir=${GIT_DIR}}'
+# FZF_DEFAULT_OPTS="--reverse --lines 10"
+FZF_DEFAULT_OPTS="--reverse"
+FZF_DEFAULT_OPTIONS="$FZF_DEFAULT_OPTS"
 
 FZF_DEFAULT_COMMAND=$HOME/bin/,
 if command -v incrontab; then
 incrontab <<'INCRONTAB'
-# ${HOME} IN_CREATE,recursive=false /usr/bin/env , $#
+# ${HOME} IN_CREATE,recursive=false /usr/bin/env , $#2
 INCRONTAB
 fi
+
+setterm --linewrap off
