@@ -126,10 +126,6 @@ TODO() {
 }
 
 
-# jq() {
-#     command jq
-# }
-
 --refresh() {
     --ls--functions | rg --line-buffered '^-{2}ls--' |
         while read line
@@ -140,7 +136,28 @@ TODO() {
 
 --ls--files--changed-today() {
     --ls--files--fd --one-file-system --hidden --no-ignore-vcs --changed-within='1day' ${1:-.} "${2:-$PWD}"
+}
 
-        # command jc --ls |
-        # command jq -c '.[]'
+ls() {
+    # translate ls arguments to exa
+    # mainly '-t' => '--time modified'
+    local exa
+    exa=()
+    for arg; do
+        if  [[ $arg =~ ^-- ]]; then
+            exa+=("$arg")
+        elif [[ $arg =~ ^-[a-zA-Z] ]]; then
+            case $arg in
+                *t*)
+                    exa+=("${arg//t/}")
+                    exa+=(--time modified)
+                    ;;
+                *)
+            esac
+        else
+            exa+=("$arg")
+        fi
+    done
+    eval "exa ${exa}"
+
 }
