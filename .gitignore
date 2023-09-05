@@ -1,3 +1,16 @@
 # *
-!bin/*
-!dotfiles/**.\#\#*
+
+!.config/
+!.config/doom/
+!.config/doom/*
+
+*-
+*[cC]ache*
+*archived*
+*final*
+.*hist*
+.[Cc]ache
+.git
+.local
+/.config/Microsoft
+/.config/Slack
