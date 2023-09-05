@@ -1,11 +1,9 @@
 # -*- mode: sh -*-
-alias -- docker='echo podman; command $_'
+alias -- docker='command $_'
 
-# alias -- grep='echo rg ; command rg' # FIXME
+# alias -- grep='command rg' # FIXME
 
-alias -- ls='echo exa ; command exa'
-
-alias -- top='echo btop ; command btop'
+alias -- top='command btop'
 
 alias -- @='/usr/bin/env xargs'
 alias -- @0='/usr/bin/env xargs --null'
@@ -13,7 +11,7 @@ alias -- @P='/usr/bin/env xargs --max-procs=8'
 
 alias -- cpus='pushd /sys/class/cpuid &>/dev/null; set *; echo $#; popd &>/dev/null #'
 
-alias -- tar='echo tar ; command tar --exclude-from=${HOME}/.config/ignore --exclude-vcs-ignores'
+alias -- tar='command tar --exclude-from=${HOME}/.config/ignore --exclude-vcs-ignores'
 
 alias -- reload='. ~/.${BASH_VERSION:+bash}${ZSH_VERSION:+zsh}rc'
 alias -- rl='reload'
@@ -22,14 +20,14 @@ alias -- append='f() { { env; set; } | grep -i -e ${SHELL##*/} -e "$@" | while I
 
 alias -- ,man='tmux display-popup '
 
-# alias -- cat='echo highlight ; command highlight -O ansi --force' # FIXME
+# alias -- cat='command highlight -O ansi --force' # FIXME
 
-alias -- buf='echo stdbuf ; command stdbuf -oL'
+alias -- buf='command stdbuf -oL'
 
 alias -- edit='command ${EDITOR:-${VISUAL:-vi}}'
 
-alias -- ,json="echo grep ; command grep -Poz '{[\s\S]+}'"
+alias -- ,json="command grep -Poz '{[\s\S]+}'"
 
-alias -- jq='echo jq ; command jq --from-file ~/.functions.jq'
+alias -- jq='command jq --from-file ~/.functions.jq'
 
 alias md=mkdir
