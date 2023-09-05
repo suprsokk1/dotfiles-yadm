@@ -432,13 +432,13 @@
     (interactive)
     (magit-status "/yadm::"))
   :config
-  (add-to-list 'tramp-methods
-               '("yadm"
-                 (tramp-login-program "yadm")
-                 (tramp-login-args (("enter")))
-                 (tramp-login-env (("SHELL") ("/bin/sh")))
-                 (tramp-remote-shell "/bin/sh")
-                 (tramp-remote-shell-args ("-c")))))
+  (add-to-list (quote tramp-methods)
+               (quote ("yadm"
+                       (tramp-login-program "yadm")
+                       (tramp-login-args (("enter")))
+                       (tramp-login-env (("SHELL") ("/bin/sh")))
+                       (tramp-remote-shell "/bin/sh")
+                       (tramp-remote-shell-args ("-c"))))))
 
 (use-package! -macros
   :no-require t
