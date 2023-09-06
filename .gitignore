@@ -39,3 +39,8 @@
 /git/
 /org/
 /src/
+
+## PROTECTED FILES ##
+/.gitignore
+/.gitconfig
+/.config/gh/
