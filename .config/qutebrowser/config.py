@@ -14,6 +14,9 @@
 # config.load_autoconfig(False)
 config.load_autoconfig(True)
 
+# import custom functions
+from custom import *
+
 # Position of the tab bar.
 # Type: Position
 # Valid values:
@@ -22,6 +25,9 @@ config.load_autoconfig(True)
 #   - left
 #   - right
 c.tabs.position = 'right'
+
+# darkmode enabled for supported pages
+config.set('colors.webpage.darkmode.enabled', True)
 
 # Which cookies to accept. With QtWebEngine, this setting also controls
 # other features with tracking capabilities similar to those of cookies;
@@ -149,7 +155,3 @@ config.set('content.javascript.enabled', True, 'chrome://*/*')
 config.set('content.javascript.enabled', True, 'qute://*/*')
 
 config.set('content.headers.user_agent', 'Mozilla/5.0 ({os_info}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99 Safari/537.36', 'https://*.slack.com/*')
-
-from custom import *
-
-config.set('colors.webpage.darkmode.enabled', True)
