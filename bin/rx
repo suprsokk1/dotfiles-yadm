@@ -1,0 +1,9 @@
+#!/usr/bin/env emacs --script
+;; FROM: https://emacs.stackexchange.com/questions/54052/slurp-standard-input-into-a-buffer
+(defun slurp-stdin ()
+  (condition-case nil (while t (insert (read-from-minibuffer "") "\n"))
+    (error)))
+
+(with-temp-buffer
+  (slurp-stdin)
+  (print (eval `(rx (or ,@(split-string (buffer-string)))))))
