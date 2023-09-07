@@ -12,6 +12,10 @@
 *final*
 .*hist*
 
+# scripts
+/bin/,
+/bin/rx
+
 # all root folders
 /*/
 /.*/
