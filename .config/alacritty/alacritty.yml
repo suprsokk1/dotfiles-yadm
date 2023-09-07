@@ -35,9 +35,8 @@ font:
       alphabet: "jfkdls;ahgurieowpq"
     enabled:
     - regex: >-
-        (gepr)
       hyperlinks: true
-      command: /home/gepr/,
+      command: ~/bin/,
       post_processing: true
       mouse:
         enabled: true
@@ -46,7 +45,7 @@ font:
     - regex: >-
         \b(1000?)\b
       hyperlinks: true
-      command: /home/gepr/,
+      command: ~/bin/,
       post_processing: true
 
     - regex: |
