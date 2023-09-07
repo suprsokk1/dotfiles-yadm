@@ -41,6 +41,8 @@ bindsym --to-code $Super+Tab        focus next
 bindsym --to-code $Super+f          fullscreen toggle
 # bindsym --to-code $Hyper+$Meta+c    reload
 bindsym --to-code $Meta+$Hyper+c    reload
+bindsym --to-code $Meta+$Super+c    reload
+
 # bindsym --to-code $Hyper+$Meta+c    mode "restart"
 
 bindsym --to-code Mod4+j exec --no-startup-id "rofi -show drun -modi drun,window,ssh"
@@ -89,8 +91,6 @@ input type:touchpad {
       # set mouse sensitivity (between -1 and 1)
       pointer_accel 0.5
 }
-
-exec_always /bin/bash /home/gepr/.local/bin/exec_always
 
 # include $HOME/.sway/config.d/*.conf
 # include $HOME/.i3/config.d/*.conf
