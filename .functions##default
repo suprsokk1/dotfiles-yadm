@@ -1,6 +1,19 @@
 # -*- mode: sh[bash] -*-
 
+TRAPERR() {
+    case $# in
+        0) exit 1;; # !?
+        *)
+            case $@ in
+                *)
+                ;;
+                *)
+            esac
+    esac
+}
+
 command_not_found_handle() {
+    # test -f /etc/redhat-release
     case $1 in
         tmux)
             pushd $(mktemp -d)
