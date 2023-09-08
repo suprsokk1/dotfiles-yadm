@@ -1,4 +1,7 @@
 # -*- mode: conf -*-
+
+output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+
 xwayland enable
 
 set $border_px 3
@@ -98,12 +101,20 @@ input type:touchpad {
 for_window [class=".*"] border_pixel $border_px
 For_window [class="^Menu$"] floating enabled
 
-output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+
 
 # bindsym --to-code Mod4+0 exec --no-startup-id "alacritty --class=Menu"
 include /etc/sway/config.d/*.
 
-exec waybar
+exec_always {
+  # pgrep waybar || waybar
+  # pkill --signal SIGUSR1 --exact waybar
+  # pkill --signal SIGUSR --exact waybar
+  pkill --signal SIGUSR2 --exact waybar
+}
+
+
+
 
 # # mute
 # bindsym --to-code --locked XF86AudioMute          exec pactl set-sink-mute @DEFAULT_SINK@ toggle
