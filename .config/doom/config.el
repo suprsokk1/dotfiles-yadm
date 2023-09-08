@@ -1,6 +1,5 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-
 (after! doom-ui
   (require '-functions nil t)
   (setq -reloaded (boundp '-reloaded))
