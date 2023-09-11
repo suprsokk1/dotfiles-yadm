@@ -2,12 +2,26 @@
 
 (after! doom-ui
   (require '-functions nil t)
-  (setq -reloaded (boundp '-reloaded))
-  (setq -toggle (boundp '-reloaded))
+  (setq -reloaded (boundp '-reloaded)
+        -toggle (boundp '-reloaded))
+  (blink-cursor-mode 1)
+  (global-hide-mode-line-mode 1)
+  (set-frame-parameter nil 'alpha-background 100)
+  ;; (set-frame-parameter nil 'alpha-background 90) ;uncomment to enable opacity
+  ;; (add-to-list (quote so-long-minor-modes) (quote smartparens-mode))
   (setq-hook! (quote conf-mode-hook js-mode)
     display-line-numbers-type (quote absolute)))
 
-;; (add-to-list 'default-frame-alist
+;; EXAMPLE
+(quote
+ (setq doom-font            (font-spec :family "Input Mono Narrow" :size 12 :weight 'semi-light)
+  doom-variable-pitch-font (font-spec :family "Fira Sans") ; inherits `doom-font''s :size
+  doom-unicode-font        (font-spec :family "Input Mono Narrow" :size 12)
+  doom-big-font            (font-spec :family "Fira Mono" :size 19)))
+
+(setq doom-font (font-spec :family "Iosevka Nerd Font" :size 13 :weight (quote light)))
+
+  ;; (add-to-list 'default-frame-alist
 ;;              '(font . ""))
 
 (set (quote +snippets-dir)
@@ -41,6 +55,8 @@
 (set (quote doom-modeline-major-mode-icon)
      t)
 
+(set (quote dired-listing-switches) "-ahl -v --group-directories-first")
+
 (set (quote doom-projectile-cache-blacklist)
      (quote ("/tmp")))
 
@@ -52,6 +68,193 @@
 
 (set (quote display-line-numbers-type)
      nil)
+
+(set-ligatures! (quote org-mode)
+  :src_block "#+src_begin"
+  :true "yes" :false "no"
+  )
+
+(plist-put! +ligatures-extra-symbols
+  ;; org
+  :name          "»"
+  :src_block     "»"
+  :src_block_end "«"
+  :quote         "“"
+  :quote_end     "”"
+  ;; ;; Functional
+  ;; :lambda        "λ"
+  ;; :def           "ƒ"
+  ;; :composition   "∘"
+  ;; :map           "↦"
+  ;; ;; Types
+  ;; :null          "∅"
+  ;; :true          "𝕋"
+  ;; :false         "𝔽"
+  ;; :int           "ℤ"
+  ;; :float         "ℝ"
+  ;; :str           "𝕊"
+  ;; :bool          "𝔹"
+  ;; :list          "𝕃"
+  ;; ;; Flow
+  ;; :not           "￢"
+  ;; :in            "∈"
+  ;; :not-in        "∉"
+  ;; :and           "∧"
+  ;; :or            "∨"
+  ;; :for           "∀"
+  ;; :some          "∃"
+  ;; :return        "⟼"
+  ;; :yield         "⟻"
+  ;; ;; Other
+  ;; :union         "⋃"
+  ;; :intersect     "∩"
+  ;; :diff          "∖"
+  ;; :tuple         "⨂"
+  ;; :pipe          "" ;; FIXME: find a non-private char
+  ;; :dot           "•"
+  )
+
+;; (highlight-regexp
+;;  (rx ?' ?\\  ?' ?')
+;;  'hi-pink
+;;  )
+
+;; '\''
+
+(quote (setq +ligatures-extra-alist
+      (quote
+       (
+        (emacs-lisp-mode
+         ("lambda" . "λ")
+         ("'\\\\''" . "⍞")
+         )
+        (org-mode
+         ("#+BEGIN_QUOTE" . "“")
+         ("#+BEGIN_SRC" . "»")
+         ("#+END_QUOTE" . "”")
+         ("#+END_SRC" . "«")
+         ("#+NAME:" . "»")
+         ("#+NAME:" . "»"))
+        ("#+begin_quote" . "“")
+        ("#+begin_src" . "»")
+        ("#+end_quote" . "”")
+        ("#+end_src" . "«")
+        ("#+name:" . "»")
+        ("no" . "𝔽")
+        ("yes" . "𝕋")
+        (sh-mode
+         ("function" . "ƒ")
+         ("true" . "𝕋")
+         ("false" . "𝔽")
+         ("!" . "￢")
+         ("&&" . "∧")
+         ("||" . "∨")
+         ("in" . "∈")
+         ("for" . "∀")
+         ("return" . "⟼")
+         ("." . "•")
+         ("source" . "•")
+         ("function" . "ƒ")
+         ("true" . "𝕋")
+         ("false" . "𝔽")
+         ("!" . "￢")
+         ("&&" . "∧")
+         ("||" . "∨")
+         ("in" . "∈")
+         ("for" . "∀")
+         ("return" . "⟼")
+         ("." . "•")
+         ("source" . "•")
+         ("function" . "ƒ")
+         ("true" . "𝕋")
+         ("false" . "𝔽")
+         ("!" . "￢")
+         ("&&" . "∧")
+         ("||" . "∨")
+         ("in" . "∈")
+         ("for" . "∀")
+         ("return" . "⟼")
+         ("." . "•")
+         ("source" . "•")
+         ("." . "•")
+         ("return" . "⟼")
+         ("for" . "∀")
+         ("in" . "∈")
+         ("||" . "∨")
+         ("&&" . "∧")
+         ("!" . "￢")
+         ("false" . "𝔽")
+         ("true" . "𝕋")
+         ("function" . "ƒ"))
+        (t)))))
+
+
+(quote (setq +ligatures-extra-alist
+      (quote
+       (
+        (emacs-lisp-mode
+         ("lambda" . "λ")
+         ("'\\\\''" . "⍞")
+         )
+        (org-mode
+         ("#+BEGIN_QUOTE" . "“")
+         ("#+BEGIN_SRC" . "»")
+         ("#+END_QUOTE" . "”")
+         ("#+END_SRC" . "«")
+         ("#+NAME:" . "»")
+         ("#+NAME:" . "»"))
+        ("#+begin_quote" . "“")
+        ("#+begin_src" . "»")
+        ("#+end_quote" . "”")
+        ("#+end_src" . "«")
+        ("#+name:" . "»")
+        ("no" . "𝔽")
+        ("yes" . "𝕋")
+        (sh-mode
+         ("function" . "ƒ")
+         ("true" . "𝕋")
+         ("false" . "𝔽")
+         ("!" . "￢")
+         ("&&" . "∧")
+         ("||" . "∨")
+         ("in" . "∈")
+         ("for" . "∀")
+         ("return" . "⟼")
+         ("." . "•")
+         ("source" . "•")
+         ("function" . "ƒ")
+         ("true" . "𝕋")
+         ("false" . "𝔽")
+         ("!" . "￢")
+         ("&&" . "∧")
+         ("||" . "∨")
+         ("in" . "∈")
+         ("for" . "∀")
+         ("return" . "⟼")
+         ("." . "•")
+         ("source" . "•")
+         ("function" . "ƒ")
+         ("true" . "𝕋")
+         ("false" . "𝔽")
+         ("!" . "￢")
+         ("&&" . "∧")
+         ("||" . "∨")
+         ("in" . "∈")
+         ("for" . "∀")
+         ("return" . "⟼")
+         ("." . "•")
+         ("source" . "•")
+         ("." . "•")
+         ("return" . "⟼")
+         ("for" . "∀")
+         ("in" . "∈")
+         ("||" . "∨")
+         ("&&" . "∧")
+         ("!" . "￢")
+         ("false" . "𝔽")
+         ("true" . "𝕋")
+         ("function" . "ƒ"))
+        (t)))))
 
 (after! python
   (set (quote +python-ipython-repl-args)
@@ -75,7 +278,7 @@
                (:exports . "code")
                (:mkdirp . "yes")
                (:cache . "no")
-               (:tangle-mode . 416)     ; (identity #o0640)
+               (:tangle-mode . 384)     ; (identity #o0600)
                (:results . "replace")
                (:comments . "link")
                (:hlines . "no")
@@ -194,7 +397,6 @@
                             (-get-buffer python-shell-buffer-name))))))))))
 
 (global-set-key (kbd "M-RET") #'M-RET!)
-
 (global-set-key (kbd "s-p") (quote projectile-find-file))
 
 (map!
@@ -210,9 +412,9 @@
  "H-8"             #'-mark-all-like-this
  "H-;"             #'company-yasnippet
  "H-<backspace>"   #'delete-pair
- "H-<down>"        #'-clone-line-down
+ "H-<down>"        #'-clone-line-down "s-<down>"        #'-clone-line-down
  "H-<return>"      #'bookmark-jump
- "H-<up>"          #'-clone-line-up
+ "H-<up>"          #'-clone-line-up "s-<up>" #'-clone-line-up
  "H-M-0"           #'balance-windows-area
  "H-M-["           #'winner-undo
  "H-M-]"           #'winner-redo
@@ -265,9 +467,9 @@
  "s-8"             #'-mark-all-like-this
  "s-;"             #'company-yasnippet
  "s-<backspace>"   #'delete-pair
- "s-<down>"        #'-clone-line-down
+
  "s-<return>"      #'bookmark-jump
- "s-<up>"          #'-clone-line-up
+
  "s-M-k"           #'doom/kill-this-buffer-in-all-windows
  "s-M-p"           #'projectile-switch-project
  "s-SPC ."         #'dired-jump
@@ -284,7 +486,7 @@
  "s-SPC s"         #'org-narrow-to-subtree
  "s-SPC s-SPC"     #'-refresh
  "s-SPC s-q"       #'delete-other-frames
- "s-SPC x"         #'doom/open-scratcH-buffer
+ "s-SPC x"         #'doom/open-scratch-buffer
  "s-SPC ~"         #'(cmd! (dired "~"))
  "s-["             'undo
  "s-]"             'undo-redo
@@ -300,6 +502,10 @@
  ;; "H-SPC p" #'doom/goto-private-packages-file
  ;; "s-SPC i" #'doom/goto-private-init-file
  ;; "s-SPC p" #'doom/goto-private-packages-file
+(after! conf-mode
+  (highlight-phrase "bindsym" 'bold )
+  ;; (highlight-phrase "")
+  )
 
 (map!
  (:after dired :map dired-mode-map
@@ -329,7 +535,27 @@
                 "." #'dired-up-directory)
        (:prefix "/"
                 "/" #'dired-mark-files-regexp
-                "." #'dired-mark-files-containing-regexp)))
+                "." #'dired-mark-files-containing-regexp))
+
+ (:mode multiple-cursors-mode
+  :prefix "s-SPC"
+        )
+
+ (:mode multiple-cursors-mode
+  :prefix "H-SPC"
+  "c" 'mc/insert-numbers
+  )
+
+ (:mode multiple-cursors-mode
+  :prefix "s-m"
+  "c" 'mc/insert-numbers
+  "l" 'mc/insert-letters
+  )
+ (:mode multiple-cursors-mode
+  :prefix "H-m"
+  "c" 'mc/insert-numbers
+  )
+ )
 
 (use-package! doom-ui
   :custom

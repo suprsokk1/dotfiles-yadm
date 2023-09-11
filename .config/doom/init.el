@@ -8,10 +8,12 @@
        vertico
 
        :ui
+       indent-guides
        hl-todo
        modeline
        treemacs
        zen
+       (ligatures +extra +fira +iosevka)
        (popup +defaults)
 
        :editor
@@ -34,7 +36,6 @@
 
        :tools
        ansible
-
        magit
        direnv
        editorconfig
@@ -48,9 +49,7 @@
        data
        emacs-lisp
        yaml
-
        (org +roam2)
-       (dart +flutter)
        (python +lsp +pyenv +pyright +tree-sitter)
        (sh +lsp)
        (go +lsp)
