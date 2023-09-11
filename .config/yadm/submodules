@@ -1,0 +1,104 @@
+[submodule "emacs/org-mode.git"]
+	url = https://git.savannah.gnu.org/git/emacs/org-mode.git
+[submodule "highlight-parentheses.el"]
+	url = https://git.sr.ht/~tsdh/highlight-parentheses.el
+[submodule "Alexays/Waybar.git"]
+	url = https://github.com/Alexays/Waybar.git
+[submodule "AppleDesignResources/SanFranciscoFont"]
+	url = https://github.com/AppleDesignResources/SanFranciscoFont
+[submodule "Grumbel/jstest-gtk"]
+	url = https://github.com/Grumbel/jstest-gtk
+[submodule "Hummer12007/brightnessctl"]
+	url = https://github.com/Hummer12007/brightnessctl
+[submodule "JaidedAI/EasyOCR"]
+	url = https://github.com/JaidedAI/EasyOCR
+[submodule "LEW21/pydbus"]
+	url = https://github.com/LEW21/pydbus.git
+[submodule "OmarCastro/rofi-blocks"]
+	url = https://github.com/OmarCastro/rofi-blocks
+[submodule "ReimuNotMoe/ydotool"]
+	url = https://github.com/ReimuNotMoe/ydotool.git
+[submodule "Sbozzolo/libvterm-mirror"]
+	url = https://github.com/Sbozzolo/libvterm-mirror.git
+[submodule "Snuggle/Firefox-Themes"]
+	url = https://github.com/Snuggle/Firefox-Themes.git
+[submodule "TKCERT/pfFocus"]
+	url = https://github.com/TKCERT/pfFocus.git
+[submodule "TheLocehiliosan/yadm"]
+	url = https://github.com/TheLocehiliosan/yadm.git
+[submodule "Yubico/yubico-c"]
+	url = https://github.com/Yubico/yubico-c
+[submodule "Yubico/yubico-pam"]
+	url = https://github.com/Yubico/yubico-pam.git
+[submodule "abraunegg/onedrive"]
+	url = https://github.com/abraunegg/onedrive
+[submodule "ajeetdsouza/zoxide"]
+	url = https://github.com/ajeetdsouza/zoxide
+[submodule "akermu/emacs-libvterm"]
+	url = https://github.com/akermu/emacs-libvterm.git
+[submodule "arkenfox/user.js/"]
+	url = https://github.com/arkenfox/user.js/
+[submodule "avivace/fonts-iosevka"]
+	url = https://github.com/avivace/fonts-iosevka.git
+[submodule "be5invis/Iosevka"]
+	url = https://github.com/be5invis/Iosevka.git
+[submodule "betaflight/betaflight-configurator"]
+	url = https://github.com/betaflight/betaflight-configurator.git
+[submodule "brandt/symlinks"]
+	url = https://github.com/brandt/symlinks
+[submodule "catppuccin/waybar"]
+	url = https://github.com/catppuccin/waybar
+[submodule "davatorium/rofi"]
+	url = https://github.com/davatorium/rofi
+[submodule "direnv/direnv"]
+	url = https://github.com/direnv/direnv
+[submodule "domeneshop/python-domeneshop"]
+	url = https://github.com/domeneshop/python-domeneshop
+[submodule "doomemacs/doomemacs"]
+	url = https://github.com/doomemacs/doomemacs
+[submodule "emersion/mako"]
+	url = https://github.com/emersion/mako
+[submodule "ericchiang/pup"]
+	url = https://github.com/ericchiang/pup.git
+[submodule "fogine/rofi-search"]
+	url = https://github.com/fogine/rofi-search
+[submodule "jarun/buku"]
+	url = https://github.com/jarun/buku.git
+[submodule "jgm/yst"]
+	url = https://github.com/jgm/yst.git
+[submodule "joaotavora/yasnippet"]
+	url = https://github.com/joaotavora/yasnippet
+[submodule "jwiegley/use-package"]
+	url = https://github.com/jwiegley/use-package
+[submodule "mpsq/emacs-gcc-wayland-devel-builder"]
+	url = https://github.com/mpsq/emacs-gcc-wayland-devel-builder
+[submodule "nrclark/pyfuse"]
+	url = https://github.com/nrclark/pyfuse
+[submodule "ohmyzsh/ohmyzsh"]
+	url = https://github.com/ohmyzsh/ohmyzsh.git
+[submodule "osquery/osquery"]
+	url = https://github.com/osquery/osquery
+[submodule "philipl/evdevremapkeys"]
+	url = https://github.com/philipl/evdevremapkeys
+[submodule "protesilaos/modus-themes"]
+	url = https://github.com/protesilaos/modus-themes
+[submodule "rgxg/rgxg"]
+	url = https://github.com/rgxg/rgxg
+[submodule "rust-lang/rustlings"]
+	url = https://github.com/rust-lang/rustlings
+[submodule "sardemff7/libgwater"]
+	url = https://github.com/sardemff7/libgwater
+[submodule "tmux-plugins/tpm"]
+	url = https://github.com/tmux-plugins/tpm
+[submodule "trapexit/mergerfs-tools"]
+	url = https://github.com/trapexit/mergerfs-tools
+[submodule "trapexit/mergerfs"]
+	url = https://github.com/trapexit/mergerfs.git
+[submodule "v1cont/yad"]
+	url = https://github.com/v1cont/yad.git
+[submodule "xyproto/gendesk"]
+	url = https://github.com/xyproto/gendesk.git
+[submodule "zsh-users/zsh-syntax-highlighting"]
+	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
+[submodule "chinstrap/gammastep"]
+	url = https://gitlab.com/chinstrap/gammastep.git
