@@ -1,5 +1,5 @@
 # -*- mode: sh -*-
-unalias ls
+# unalias ls
 
 alias -- docker='command $_'
 
@@ -9,7 +9,9 @@ alias -- top='command btop'
 
 alias -- @='/usr/bin/env xargs'
 alias -- @0='/usr/bin/env xargs --null'
-alias -- @P='/usr/bin/env xargs --max-procs=8'
+alias -- @1='/usr/bin/env xargs -n1'
+alias -- @P='/usr/bin/env xargs --max-procs=$(cpus)'
+alias -- @P1='/usr/bin/env xargs --max-procs=$(cpus) -n1'
 
 alias -- cpus='pushd /sys/class/cpuid &>/dev/null; set *; echo $#; popd &>/dev/null #'
 
@@ -27,9 +29,23 @@ alias -- ,man='tmux display-popup '
 alias -- buf='command stdbuf -oL'
 
 alias -- edit='command ${EDITOR:-${VISUAL:-vi}}'
+alias -- json="command grep -Poz '{[\s\S]+}'"
+# alias -- jq='command jq --from-file ~/.functions.jq' # FIXME jq have rc file?
 
-alias -- ,json="command grep -Poz '{[\s\S]+}'"
+alias -- md='\mkdir'
 
-alias -- jq='command jq --from-file ~/.functions.jq'
+alias -- capp='tmux capture-pane -p'
 
-alias md=mkdir
+#
+# tmux
+#
+
+# pane direction
+for ITEM in up down right left; do
+eval "alias -- capp${ITEM::1}='tmux capture-pane -p -t '\''{ITEM}'\'' | cat --squeeze-blank' ; alias -- capu='capp${ITEM::1}'"
+done
+
+# alias -- cappu='tmux capture-pane -p -t '\''{up}'\'' | cat --squeeze-blank'    ; alias -- capu='cappu'
+# alias -- cappd='tmux capture-pane -p -t '\''{down}'\'' | cat --squeeze-blank'  ; alias -- capd='cappd'
+# alias -- cappl='tmux capture-pane -p -t '\''{left}'\'' | cat --squeeze-blank'  ; alias -- capl='cappl'
+# alias -- cappr='tmux capture-pane -p -t '\''{right}'\'' | cat --squeeze-blank' ; alias -- capr='cappr'
