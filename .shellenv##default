@@ -1,5 +1,51 @@
-ALTERNATE_EDITOR='vim'
-EDITOR='emacsclient'
-BROWSER='qutebrowser'
-SHELL='/bin/zsh'
+# -*- mode: sh -*-
+
+ALTERNATE_EDITOR=vim
+BROWSER=qutebrowser
+EDITOR=emacsclient
+LANG=en_US.UTF-8
 RIPGREP_CONFIG_PATH=~/.ripgreprc
+TMPDIR=${XDG_RUNTIME_DIR:-$TMPDIR}
+
+for p in ~/{,go,.{local,cargo}/}bin
+do if ! [[ $p =~ $path ]]; then
+       path+=("$p")
+   fi
+done
+
+# pager
+if command -v most &>/dev/null; then
+PAGER=most
+fi
+
+eval "${TMUX:+PAGER=\cat}"
+eval "${TMUX:+SYSTEMD_PAGER=\cat}"
+
+export PAGER
+
+# cleanup env for non tmux terminals
+case $(readlink /proc/$PPID/exe `# get parent exe`) in
+    *tmux*)
+        ;;
+    *)
+        case ${#TMUX} in
+            0);;
+            *)
+                eval "$(set | sed -E '/^(TMUX[^=]*).*/!d;{s##unset \\1#}')"
+        esac
+esac
+
+if [[ $- =~ i ]]; then
+. ~/.aliases
+. ~/.functions
+. ~/.zsh_plugins
+fi
+
+source /etc/os-release
+case ${PLATFORM_ID##*:} in
+    f3[89])
+        hash rustc=/usr/bin/rustc
+        hash cargo=/usr/bin/cargo
+    ;;
+    *)
+esac
