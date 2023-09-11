@@ -12,6 +12,7 @@ TRAPERR() {
     esac
 }
 
+
 command_not_found_handle() {
     # test -f /etc/redhat-release
     case $1 in
@@ -60,34 +61,34 @@ TODO() {
     :
 }
 
---csv2json() {
+csv2json() {
     TODO
 }
 
---json2csv() {
+json2csv() {
     TODO
 }
 
---init2json() {
+init2json() {
     TODO
 }
 
 
---set-theme---zsh() {
+set-theme---zsh() {
     command sed -E "/ZSH_THEME/d;iZSH_THEME=\"${@}\";N" ~/.zshrc
 }
 
 
---ls--files--fd() {
+list--files--fd() {
     eval "command stdbuf -oL /usr/bin/env --ignore-environment $(command -v fd) $@"
 }
 
---ls--unit-files() {
-    command jc systemctl list-unit-files |
+list--unit-files() {
+    command jc systemctl listt-unit-files |
         jq '.[]' -c
 }
 
---ls--env() {
+list--env() {
     {
         env
         set
@@ -95,86 +96,75 @@ TODO() {
         jq -c '.[]'
 }
 
---cache() {
+cache() {
     TODO
 }
 
---ls--files--all() {
-    --ls--files--fd --one-file-system -uuu `# -X exa -l` . "${@:-$PWD}"
-
-        # command jc --ls |
-        # command jq -c '.[]'
+list--files--all() {
+    list--files--fd --one-file-system -uuu `# -X exa -l` . "${@:-$PWD}"
 }
 
---ls--files--git-repositories() {
-    --ls--files--fd --hidden -tf --glob config "${@:-$PWD}" |
+list--files--git-repositories() {
+    list--files--fd --hidden -tf --glob config "${@:-$PWD}" |
         LC_ALL=C command rg --line-buffered -- '.git/config' |
         sed -E 's#..git.config$##' |
         command jc --ls |
         command jq -c '.[]'
 }
 
---ls--files() {
-    --ls--files--fd |
+list--files() {
+    list--files--fd |
         command jc --ls  |
         jq '.[]' -c
 }
 
---ls--files--executable() {
+list--files--executable() {
     command fd --type f  -tx |
         command jc --ls  |
         jq '.[]' -c
 }
 
-
---ls--functions() {
-    case ${SHELL##*/} in
-        zsh)
-            cmd='print -ln ${(k)functions}'
-            ;;
-        *)
-            cmd="compgen -A function"
-    esac
-    eval $cmd
+list--files--changed-today() {
+    list--files--fd --one-file-system --hidden --no-ignore-vcs --changed-within='1day' ${1:-.} "${2:-$PWD}"
 }
 
 
---refresh() {
-    --ls--functions | rg --line-buffered '^-{2}ls--' |
-        while read line
-        do :
-        done
-}
-
-
---ls--files--changed-today() {
-    --ls--files--fd --one-file-system --hidden --no-ignore-vcs --changed-within='1day' ${1:-.} "${2:-$PWD}"
-}
-
-
+#    translate ls arguments to exa
+#    mainly '-t' => '--time modified'
+# FIXME
 unalias ls &>/dev/null ||:
 ls() {
-    # translate ls arguments to exa
-    # mainly '-t' => '--time modified'
     local exa
-    exa=()
+    exa=(--icons --group-directories-first)
     for arg; do
         if  [[ $arg =~ ^-- ]]; then
             exa+=("$arg")
         elif [[ $arg =~ ^-[a-zA-Z] ]]; then
-            case $arg in
-                *t*)
-                    exa+=("${arg//t/}")
-                    exa+=(--time modified)
-                    ;;
-                *)
-            esac
+            # split short options
+            grep --extended-regexp --only-matching -- '[[:alpha:]]' <<< "${arg//-/}" |
+                while read c ; do
+                    case $c in
+                        o)
+                            # TODO
+                            ;;
+                        t)
+                            # exa+=( "${arg//t/}" )
+                            exa+=( --time modified )
+                            ;;
+                        G|-)
+                            # discard
+                            ;;
+                        *)
+                            exa+=( -"$c" )
+                    esac
+                done
         else
             exa+=("$arg")
         fi
     done
-    eval "exa ${exa}"
+    eval "exa ${exa[@]}"
 }
+
 
 __tmux_menu() {
     PS1=
@@ -236,4 +226,113 @@ __tmux_menu() {
     tput cnorm
 
     exit
+}
+
+enumerate() {
+    local i
+    i=0
+    # echo -en ' '
+    case $# in
+        0) return;;
+        1)
+            enumerate $(command grep -o . <<< "$1")
+           ;;
+        *)
+            for arg; do
+                printf '%2d %s\n' $((++i)) "$arg"
+            done
+    esac
+}
+
+vpn() {
+    # TODO
+    exit 0
+    providers=(
+        [piactl]="connect,disconnect"
+        [tailscale]="up,down"
+    )
+
+    if test -f ~/.local/vpn; then
+        read provider ~/.local/vpn
+    else
+        read -p "Select provider [${providers[*]}]" provider
+    fi
+
+    argument=${providers[$provider]}
+
+    case "$1"  in
+        default)
+            for provider in ${providers[*]}; do
+                tee ~/.local/vpn  <<< "$provider"
+            done
+            ;;
+        up|on|1)
+            eval "$provider ${argument%,*}"
+            ;;
+        down|off|0)
+            eval "$provider ${argument#*,}"
+            ;;
+        *)
+
+    esac
+}
+
+for ITEM in aliases functions parameters; do
+    eval "list--$ITEM() { print -rl -- \${(k)$ITEM}; }"
+done
+
+when() {
+    [[ $@ ]] || return 1
+    exe="$1"
+    if command -v "$exe" &>/dev/null
+    then eval "$@"
+    fi
+}
+
+__debug__() {
+    set -x
+    eval "$@"
+    set +x
+}
+
+precmd() {
+    eval "${PROMPT_COMMAND:+$PROMPT_COMMAND}"
+}
+
+__tmux_mpm_helper() {
+    set $(tmux capture-pane -p | awk '/cargo|dnf|gem|yum/{print $2}')
+    export dnf=("$@")
+}
+
+_files_tmux() {
+    # (notify-send --expire-time 500 "$0" "$words" &>/dev/null)
+    reply=( $(_capp | awk /'\.([ot]tf)$'/{print\ \$1}) )
+    fonts=( $(_capp | awk /'\.([ot]tf)$'/{print\ \$1}) )
+    files=( $(_capp | grep -Poz -- '/[\s\S]+/' | awk '{print $1}' ))
+
+}
+
+_refresh_arrays() {
+    [[ $TMUX ]] || return 0
+    _files_tmux
+    # (notify-send --expire-time 500 "$0" "$words" &>/dev/null)
+    :
+}
+
+list() {
+    :
+}
+
+_list() {
+    list--functions
+}
+
+_subnets() {
+    command ip -4 route |
+        command grep -Po -- "$(rgxg cidr 0.0.0.0/0)/([1-3]?[0-9])"
+}
+
+_ip_addresses() {
+    command ip -4 address show |
+        command grep -Po -- "\b$(rgxg cidr 0.0.0.0/0)\b"
 }
