@@ -1,9 +1,7 @@
 # .zshrc -*- mode: sh -*-
-source ~/.functions
-source ~/.aliases
 
-FZF_DEFAULT_OPTS="--layout=reverse --height=7"
-FZF_DEFAULT_COMMAND=$HOME/bin/,
+# force tmux to truncate lines
+setterm --linewrap off
 
 ZSH=~/.oh-my-zsh
 ZSH_THEME="af-magic"
@@ -14,10 +12,11 @@ plugins+=(git)
 plugins+=(direnv)
 plugins+=(fzf)
 
-if command -v incrontab &>/dev/null
-then `# incrontab` <<'INCRONTAB'
-# ${HOME} IN_CREATE,recursive=false /usr/bin/env , $#2
-INCRONTAB
+FZF_DEFAULT_OPTS="--layout=reverse --height=7"
+FZF_DEFAULT_COMMAND=$HOME/bin/,
+
+if [[ ${(k)functions} =~ _refresh_completion ]]; then
+PROMPT_COMMAND="`# refresh completion options`_refresh_completion"
 fi
 
 if ! test -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
@@ -25,22 +24,68 @@ then git clone https://github.com/zsh-users/zsh-autosuggestions $_
 fi
 
 # activate oh-my-zsh
+if [[ -s $ZSH/oh-my-zsh.sh  ]]; then
 . $ZSH/oh-my-zsh.sh
+fi
 
-# zstyle
-# syntax:
-# $ zstyle :completion:<function>:<completer>:<command>:<argument>:<tag>
-
-zstyle ':completion:*' use-cache on
-zstyle ':completion:*' squeeze-slashes true
-zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh/.zcompcache"
-
-zstyle ':completion:*:*:foo:*' file-sort size
-zstyle ':completion:*:*:fzf:*' file-sort size
-
-if [[ $(readlink /proc/$PPID/exe) =~ tmux$ ]] && ! [[ $TMUX_PANE ]]; then
+# ???
+if false; then
+if [[ $TMUX ]] && (! [[ $TMUX_PANE ]]); then
 tmux source-file ~/.config/tmux/tmux.conf
 __tmux_menu
 fi
+fi
 
-setterm --linewrap off
+if command -v incrontab &>/dev/null
+then
+:<<.incrontab.syntax
+$$   dollar sign
+$@   watched filesystem path (see above)
+$#   event-related file name
+$%   event flags (textually)
+$&   event flags (numerically)
+.incrontab.syntax
+{ envsubst | incrontab - ; } <<'INCRONTAB'
+PATH=${HOME}/bin:${PATH}
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${EUID}/bus
+WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+
+${HOME}       IN_CREATE,recursive=false    , $#
+${HOME}/watch IN_ALL_EVENTS,recursive=true /usr/bin/notify-send --expire-time 5000 $# $%
+INCRONTAB
+fi
+mkdir -p ${HOME}/watch
+touch $_/{foo,bar,baz}
+rm -v ${_%/*}/*
+
+if false; then
+source <(when jc --zsh-comp)
+fi
+
+
+# this must be the last file to load
+if [[ -s ~/src/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+source ~/src/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
+
+#
+# completion
+#
+
+:<<.zstyle.syntax
+$ zstyle :completion:<function>:<completer>:<command>:<argument>:<tag>
+.zstyle.syntax
+
+set - "${XDG_CACHE_HOME:-/run/user/${EUID:-$(id -u)}}/zsh/.zcompcache"
+mkdir -p "$1"
+zstyle ':completion:*' cache-path "$1"
+set -
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' squeeze-slashes true
+
+_piactl() {
+    reply=( {,dis}connect )
+}
+compctl -K {_,}piactl
+
+alias _nmap='_subnets'
