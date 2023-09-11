@@ -1,3 +1,16 @@
 https://wiki.archlinux.org/title/Qutebrowser qutebrowser - ArchWiki
 https://browserleaks.com/features#html Features Detection - BrowserLeaks
 https://www.nerdfonts.com/font-downloads Nerd Fonts - Iconic font aggregator, glyphs/icons collection, & fonts patcher
+https://github.com/jaclu/tmux-menus jaclu/tmux-menus: Tmux plugin, Popup menus to help with managing your environment
+https://www.hamvocke.com/blog/a-guide-to-customizing-your-tmux-conf/ Making tmux Pretty and Usable - A Guide to Customizing your tmux.conf
+https://github.com/EmailThis/ansible-rails EmailThis/ansible-rails: Ruby on Rails deployment using Ansible - with Lets Encrypt, Sidekiq, PostgreSQL, nginx & puma
+https://docs.ansible.com/ansible/latest/inventory_guide/intro_dynamic_inventory.html Working with dynamic inventory — Ansible Documentation
+https://github.com/catppuccin/waybar/tree/main waybar/ at main · catppuccin/waybar
+https://wiki.archlinux.org/title/Linux_Containers Linux Containers - ArchWiki
+https://wiki.archlinux.org/title/Zsh Zsh - ArchWiki
+https://github.com/vagrant-libvirt/vagrant-libvirt vagrant-libvirt/vagrant-libvirt: Vagrant provider for libvirt.
+https://github.com/zsh-users/zsh-syntax-highlighting zsh-users/zsh-syntax-highlighting: Fish shell like syntax highlighting for Zsh.
+https://thevaluable.dev/zsh-completion-guide-examples/ A Guide to the Zsh Completion with Examples
+https://github.com/tmux-plugins/tpm tmux-plugins/tpm: Tmux Plugin Manager
+https://opensource.com/article/19/4/interprocess-communication-linux-networking Inter-process communication in Linux: Sockets and signals | Opensource.com
+https://www.iana.org/ Internet Assigned Numbers Authority
