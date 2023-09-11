@@ -2,10 +2,26 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("~/.config/doom"
+(("shellenv"
+ (filename . "/home/geir/.shellenv##default")
+ (front-context-string)
+ (rear-context-string . "TH=~/.ripgreprc\n")
+ (position . 117)
+ (last-modified 25852 30742 801821 407000))
+("incrontab"
+ (filename . "/home/geir/.zshrc##default")
+ (front-context-string . "${HOME} IN_CREAT")
+ (rear-context-string . "- <<'INCRONTAB'\n")
+ (position . 509)
+ (last-modified 25852 28344 961787 229000))
+(","
+ (filename . "/home/geir/bin/,")
+ (front-context-string . "CE_COLOR=1\n    #")
+ (rear-context-string . "port ANSIBLE_FOR")
+ (position . 570)
+ (last-modified 25852 12408 732981 558000))
+("~/.config/doom"
  (filename . "~/.config/doom")
- ;; (front-context-string . "init.el\n  -rw-r-")
- ;; (rear-context-string . "55 Aug 20 11:36 ")
  (position . 338)
  (last-modified 25833 62600 210036 962000))
 ("ripgreprc"
@@ -19,10 +35,11 @@
  (rear-context-string . "    echo \"$@\"\n}\n")
  (position . 4798))
 ("bindings"
- (filename . "~/.doom.d/config.el")
+ (filename . "/home/geir/.config/doom/config.el")
  (front-context-string . "(map!\n (:after d")
  (rear-context-string . "d! dired \"~\"))\n\n")
- (position . 9369))
+ (position . 9369)
+ (last-modified 25852 25276 806896 728000))
 ("where xdg checks for terminals?"
  (filename . "~/.config/xdg-terminals.list")
  (front-context-string . "org.gnome.Termin")
@@ -64,9 +81,9 @@
  (rear-context-string . "ng.\n  history: 0")
  (position . 625))
 ("org-capture-last-stored"
- (filename . "~/org/roam/20230903153209-coreos_bootstrap_with_butane.org")
+ (filename . "/home/gepr/git/org/roam/20230909175554-ansible_config.org")
  (front-context-string)
- (rear-context-string . "rap with butane\n")
- (position . 108)
- (last-modified 25844 35545 876453 218000))
+ (rear-context-string . "sible - Config \n")
+ (position . 95)
+ (last-modified 25852 38283 689559 683000))
 )
