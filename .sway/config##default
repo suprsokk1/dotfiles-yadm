@@ -179,6 +179,10 @@ exec_always {
 # for_window [class='(?i)emacs'] move to workspace 1
 for_window [title='(?i)emacs'] move to workspace 1; border 3px
 
+assign [class='(?i)emacs']        1
+assign [class='(?i)qutebrowser']  2
+assign [class='(?i)alacritty']    3
+
 # # mute
 # bindsym --to-code --locked XF86AudioMute          exec pactl set-sink-mute @DEFAULT_SINK@ toggle
 
