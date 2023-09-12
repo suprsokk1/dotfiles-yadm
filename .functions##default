@@ -1,31 +1,33 @@
-# -*- mode: sh[bash] -*-
+# -*- mode: sh -*-
 
 TRAPERR() {
     case $# in
         0) exit 1;; # !?
         *)
             case $@ in
-                *)
+                foo*)
                 ;;
                 *)
             esac
     esac
+    # echo  -e ${FUNCNAME:+-n} "${FUNCNAME:+$FUNCNAME}"
 }
 
 
 command_not_found_handle() {
     # test -f /etc/redhat-release
+
     case $1 in
         tmux)
-            pushd $(mktemp -d)
+            pushd $(mktemp -d) || exit
             coproc nohup sudo dnf install --assumeyes tmux
-            popd
+            popd || exit
             ;;
         regex2json)
             go install gitlab.com/tozd/regex2json/cmd/regex2json@main
             ;;
-        exa|fswatch|gotty|highlight|tar|fzf|fd|mako|rg|pass)
-            tmux neww sudo dnf install --assumeyes "$1"
+        exa|fswatch|gotty|highlight|tar|fzf|fd|mako|rg|pass|lynis)
+            tmux neww -d sudo dnf install --assumeyes "$1"
             eval "$@"
             ;;
         yadm)
@@ -33,7 +35,6 @@ command_not_found_handle() {
             ;;
         *)
     esac
-
     eval "$@"
 
 }
@@ -52,26 +53,10 @@ tidy() {
 
 
 getPpid() {
-    grep -Pioz '(?<=Ppid:).*' /proc/${1:-$$}/status |
+    grep -Pioz '(?<=Ppid:).*' /proc/"${1:-$$}"/status |
         tr --delete '[[:space:]]'
 }
 
-
-TODO() {
-    :
-}
-
-csv2json() {
-    TODO
-}
-
-json2csv() {
-    TODO
-}
-
-init2json() {
-    TODO
-}
 
 
 set-theme---zsh() {
@@ -79,16 +64,16 @@ set-theme---zsh() {
 }
 
 
-list--files--fd() {
+-list--files--fd() {
     eval "command stdbuf -oL /usr/bin/env --ignore-environment $(command -v fd) $@"
 }
 
-list--unit-files() {
+-list--unit-files() {
     command jc systemctl listt-unit-files |
         jq '.[]' -c
 }
 
-list--env() {
+-list--env() {
     {
         env
         set
@@ -96,38 +81,51 @@ list--env() {
         jq -c '.[]'
 }
 
-cache() {
-    TODO
+-list--files--all() {
+    -list--files--fd --one-file-system -uuu `# -X exa -l` . "${@:-$PWD}"
 }
 
-list--files--all() {
-    list--files--fd --one-file-system -uuu `# -X exa -l` . "${@:-$PWD}"
-}
-
-list--files--git-repositories() {
-    list--files--fd --hidden -tf --glob config "${@:-$PWD}" |
+-list--files--git-repositories() {
+    -list--files--fd --hidden -tf --glob config "${@:-$PWD}" |
         LC_ALL=C command rg --line-buffered -- '.git/config' |
         sed -E 's#..git.config$##' |
         command jc --ls |
         command jq -c '.[]'
 }
 
-list--files() {
-    list--files--fd |
-        command jc --ls  |
-        jq '.[]' -c
+-list--files.json() {
+    -list--files--fd | command jc --ls  | jq '.[]' -c
 }
 
-list--files--executable() {
+-list--files--executable() {
     command fd --type f  -tx |
         command jc --ls  |
         jq '.[]' -c
 }
 
-list--files--changed-today() {
-    list--files--fd --one-file-system --hidden --no-ignore-vcs --changed-within='1day' ${1:-.} "${2:-$PWD}"
+-list--files--changed-today() {
+    -list--files--fd --one-file-system --hidden --no-ignore-vcs --changed-within='1day' "${1:-.}" "${2:-$PWD}"
 }
 
+-list--yadm-files() {
+    yadm list
+}
+
+-regex--files-at-level.3() {
+    grep -Po -- '^/?(?:[^/]+\b){3}'
+}
+
+-list--yadm-files--untagged() {
+    yadm list | sed '/#/d'
+}
+
+-dirnames() {
+    command xargs --replace=FILES find FILES -maxdepth 0 -execdir pwd \;
+}
+
+-dirnames--uniq() {
+    -dirnames | uniq
+}
 
 #    translate ls arguments to exa
 #    mainly '-t' => '--time modified'
@@ -277,8 +275,12 @@ vpn() {
     esac
 }
 
+
+
 for ITEM in aliases functions parameters; do
-    eval "list--$ITEM() { print -rl -- \${(k)$ITEM}; }"
+    function -list--$ITEM {
+        eval "print -rl -- \${(k)${funcstack##*-}}"
+    }
 done
 
 when() {
@@ -319,12 +321,8 @@ _refresh_arrays() {
     :
 }
 
-list() {
-    :
-}
-
 _list() {
-    list--functions
+    -list--functions
 }
 
 _subnets() {
@@ -335,4 +333,12 @@ _subnets() {
 _ip_addresses() {
     command ip -4 address show |
         command grep -Po -- "\b$(rgxg cidr 0.0.0.0/0)\b"
+}
+
+list() {
+    :
+}
+
+_list() {
+    TODO
 }
