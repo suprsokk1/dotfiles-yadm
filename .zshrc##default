@@ -79,7 +79,7 @@ $ zstyle :completion:<function>:<completer>:<command>:<argument>:<tag>
 set - "${XDG_CACHE_HOME:-/run/user/${EUID:-$(id -u)}}/zsh/.zcompcache"
 mkdir -p "$1"
 zstyle ':completion:*' cache-path "$1"
-set -
+shift
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' squeeze-slashes true
 
@@ -89,3 +89,5 @@ _piactl() {
 compctl -K {_,}piactl
 
 alias _nmap='_subnets'
+
+hash -d yadm=~/.config/yadm
