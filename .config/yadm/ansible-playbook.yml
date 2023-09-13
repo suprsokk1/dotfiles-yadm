@@ -1,0 +1,123 @@
+#!/usr/bin/env -S ansible-playbook -ilocalhost,
+---
+- hosts: localhost
+  connection: local
+  gather_facts: 0
+  tasks:
+  - raw: ansible-galaxy install -r ansible-galaxy-requirements.yml
+    ignore_errors: 1
+
+- hosts: localhost
+  connection: local
+  gather_facts: 1
+
+  environment:
+    SUDO_AKSPASS: >-
+      {{ ansible_env.HOME }}
+
+  vars:
+    ansible_become_password: >-
+      {{ lookup('community.general.passwordstore', 'local') }}
+
+  handlers:
+  - meta: noop
+
+  environment:
+
+  vars:
+    pkg:
+    - '@sway'
+    - figlet
+    - golang
+    - cargo
+    - rustc
+    - tmux
+    - firefox
+    - qutebrowser
+    - pass
+    - git
+
+  module_defaults:
+    git:
+      clone: 1
+      depth: 1
+      dest: ~/.local/src/
+
+  post_tasks:
+  # TODO banner with figlet command
+  - include_tasks: tasks/_comment.yml
+    vars:
+      msg: DONE
+
+  pre_tasks:
+  - file: dest=~/.local/src state=directory
+
+  - ansible.builtin.file:
+      src: ~/.local/src/
+      dest: ~/Sourcecode
+      state: link
+
+  tasks:
+  - dnf: name=python-pip state=installed
+    become: 1
+
+  - pip: name=meta-package-manager state=present
+
+  - git: repo="{{ item }}" dest="~/.local/src/{{ item.split('/')[-3:] | join('/') | replace('.git', '') | replace('github.com', 'github')}}"
+    with_items: "{{ git_repos[:4] }}"
+    ignore_errors: 1
+    vars:
+      git_repos:
+      - https://git.savannah.gnu.org/git/emacs/org-mode.git
+      - https://github.com/Alexays/Waybar.git
+      - https://github.com/AppleDesignResources/SanFranciscoFont
+      - https://github.com/Grumbel/jstest-gtk
+      - https://github.com/Hummer12007/brightnessctl
+      - https://github.com/JaidedAI/EasyOCR
+      - https://github.com/LEW21/pydbus.git
+      - https://github.com/OmarCastro/rofi-blocks
+      - https://github.com/ReimuNotMoe/ydotool.git
+      - https://github.com/Sbozzolo/libvterm-mirror.git
+      - https://github.com/Snuggle/Firefox-Themes.git
+      - https://github.com/TKCERT/pfFocus.git
+      - https://github.com/TheLocehiliosan/yadm.git
+      - https://github.com/Yubico/yubico-c
+      - https://github.com/Yubico/yubico-pam.git
+      - https://github.com/abraunegg/onedrive
+      - https://github.com/ajeetdsouza/zoxide
+      - https://github.com/akermu/emacs-libvterm.git
+      - https://github.com/arkenfox/user.js/
+      - https://github.com/avivace/fonts-iosevka.git
+      - https://github.com/be5invis/Iosevka.git
+      - https://github.com/brandt/symlinks
+      - https://github.com/catppuccin/waybar
+      - https://github.com/davatorium/rofi
+      - https://github.com/direnv/direnv
+      - https://github.com/domeneshop/python-domeneshop
+      - https://github.com/doomemacs/doomemacs
+      - https://github.com/emersion/mako
+      - https://github.com/ericchiang/pup.git
+      - https://github.com/fogine/rofi-search
+      - https://github.com/jarun/buku.git
+      - https://github.com/jgm/yst.git
+      - https://github.com/joaotavora/yasnippet
+      - https://github.com/jwiegley/use-package
+      - https://github.com/mpsq/emacs-gcc-wayland-devel-builder
+      - https://github.com/nrclark/pyfuse
+      - https://github.com/ohmyzsh/ohmyzsh.git
+      - https://github.com/osquery/osquery
+      - https://github.com/philipl/evdevremapkeys
+      - https://github.com/protesilaos/modus-themes
+      - https://github.com/rgxg/rgxg
+      - https://github.com/rust-lang/rustlings
+      - https://github.com/sardemff7/libgwater
+      - https://github.com/tmux-plugins/tpm
+      - https://github.com/trapexit/mergerfs-tools
+      - https://github.com/trapexit/mergerfs.git
+      - https://github.com/v1cont/yad.git
+      - https://github.com/xyproto/gendesk.git
+      - https://github.com/zsh-users/zsh-syntax-highlighting.git
+      - https://gitlab.com/chinstrap/gammastep.git
+
+  - dnf: name="{{ pkg }}" state=present
+    become: 1
