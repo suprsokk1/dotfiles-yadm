@@ -69,15 +69,19 @@
                         --no-group)) " "))
 
 
-(set (quote -dired-ignore)
+(set (quote -dired-ignore-extensions)
      (concat "--ignore=*."
              (mapconcat (quote symbol-name)
                         (quote (zip gz)) " --ignore=*.")))
 
 (set (quote dired-listing-switches)
-     (concat -dired-ignore
+     (concat -dired-ignore-extensions
              " "
              -dired-longopts))
+
+(let ((% (mapconcat 'symbol-name (quote (-dired-ignore-extensions -dired-longopts)) " ")))
+    (setq-hook! (quote dired-mode-hook)
+      dired-listing-switches %))
 
 (set (quote doom-projectile-cache-blacklist)
      (quote ("/tmp")))
