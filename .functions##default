@@ -13,6 +13,12 @@ TRAPERR() {
     # echo  -e ${FUNCNAME:+-n} "${FUNCNAME:+$FUNCNAME}"
 }
 
+for ITEM in aliases functions parameters; do
+    function -list--$ITEM {
+        eval "print -rl -- \${(k)${funcstack##*-}}"
+    }
+done
+
 
 command_not_found_handle() {
     # test -f /etc/redhat-release
@@ -40,7 +46,7 @@ command_not_found_handle() {
 }
 
 
-__get_logopt__tmux() {
+__get_longopt__tmux() {
     tmux capture-pane -p |
         sed -E '/[^[:space:]]/!d;s,.*~,,'
 }
@@ -74,11 +80,7 @@ set-theme---zsh() {
 }
 
 -list--env() {
-    {
-        env
-        set
-    } | jc --env  |
-        jq -c '.[]'
+    { env; set; } | LC_ALL jc --env  | jq -c '.[]'
 }
 
 -list--files--all() {
@@ -164,68 +166,6 @@ ls() {
 }
 
 
-__tmux_menu() {
-    PS1=
-    PS2=
-    PS3=
-    PS4=
-    PS5=
-    TRAPEXIT() { tmux set synchronize-panes 0; }
-    TRAPINT() { exit; }
-    0() { tput cup 0 0; }
-    clr() {
-        chars=()
-    }
-    chars=()
-    cmd=()
-    hist=()
-    setopt pipefail
-    tmux set synchronize-panes 1
-
-    __get_logopt__tmux
-    sleep 1
-
-    # disable cursor
-    tput civis
-
-    while read -sk x
-    do
-        # terminate
-        case $x in
-            $'\025') ;;
-            $'\ 025') ;;
-            :) clear ;;
-            .) cmd=() ;;
-            *) chars+=("$x") ;;
-        esac
-
-        case $chars in
-            :*) cmd+=("$x") ;;
-            *)  chars+=("$x");;
-        esac
-
-        tput cup 0 0
-        CLEAR_LINE='\033[1K'
-        clr=clear_line
-
-        case ${#cmd} in
-            0)
-
-            ;;
-            *)
-                printf '%s' "$cmd[@]"
-        esac
-
-        echo
-        chars+=("$x")
-
-    done
-
-    tput cnorm
-
-    exit
-}
-
 enumerate() {
     local i
     i=0
@@ -241,47 +181,6 @@ enumerate() {
             done
     esac
 }
-
-vpn() {
-    # TODO
-    exit 0
-    providers=(
-        [piactl]="connect,disconnect"
-        [tailscale]="up,down"
-    )
-
-    if test -f ~/.local/vpn; then
-        read provider ~/.local/vpn
-    else
-        read -p "Select provider [${providers[*]}]" provider
-    fi
-
-    argument=${providers[$provider]}
-
-    case "$1"  in
-        default)
-            for provider in ${providers[*]}; do
-                tee ~/.local/vpn  <<< "$provider"
-            done
-            ;;
-        up|on|1)
-            eval "$provider ${argument%,*}"
-            ;;
-        down|off|0)
-            eval "$provider ${argument#*,}"
-            ;;
-        *)
-
-    esac
-}
-
-
-
-for ITEM in aliases functions parameters; do
-    function -list--$ITEM {
-        eval "print -rl -- \${(k)${funcstack##*-}}"
-    }
-done
 
 when() {
     [[ $@ ]] || return 1
@@ -317,26 +216,22 @@ _files_tmux() {
 _refresh_arrays() {
     [[ $TMUX ]] || return 0
     _files_tmux
-    # (notify-send --expire-time 500 "$0" "$words" &>/dev/null)
-    :
+    return
+    notify-send --expire-time 500 "$0" "$words" &>/dev/null
 }
 
-_list() {
-    -list--functions
-}
-
-_subnets() {
+-subnets() {
     command ip -4 route |
         command grep -Po -- "$(rgxg cidr 0.0.0.0/0)/([1-3]?[0-9])"
 }
 
-_ip_addresses() {
+-ip-addresses() {
     command ip -4 address show |
         command grep -Po -- "\b$(rgxg cidr 0.0.0.0/0)\b"
 }
 
 list() {
-    :
+    TODO
 }
 
 _list() {

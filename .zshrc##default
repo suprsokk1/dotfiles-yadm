@@ -15,9 +15,11 @@ plugins+=(fzf)
 FZF_DEFAULT_OPTS="--layout=reverse --height=7"
 FZF_DEFAULT_COMMAND=$HOME/bin/,
 
+PROMPT_COMMAND=
 if [[ ${(k)functions} =~ _refresh_completion ]]; then
-PROMPT_COMMAND="`# refresh completion options`_refresh_completion"
+PROMPT_COMMAND+="`# refresh completion options`_refresh_completion"
 fi
+PROMPT_COMMAND+='; . ~/.functions;. ~/.aliases'
 
 if ! test -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 then git clone https://github.com/zsh-users/zsh-autosuggestions $_
@@ -54,9 +56,6 @@ ${HOME}       IN_CREATE,recursive=false    , $#
 ${HOME}/watch IN_ALL_EVENTS,recursive=true /usr/bin/notify-send --expire-time 5000 $# $%
 INCRONTAB
 fi
-mkdir -p ${HOME}/watch
-touch $_/{foo,bar,baz}
-rm -v ${_%/*}/*
 
 if false; then
 source <(when jc --zsh-comp)
@@ -87,6 +86,13 @@ _piactl() {
     reply=( {,dis}connect )
 }
 compctl -K {_,}piactl
+
+_vpn() {
+    reply=(on off up down 0 1)
+}
+vpn()
+
+compctl -K {_,}vpn
 
 alias _nmap='_subnets'
 
