@@ -14,3 +14,6 @@ https://thevaluable.dev/zsh-completion-guide-examples/ A Guide to the Zsh Comple
 https://github.com/tmux-plugins/tpm tmux-plugins/tpm: Tmux Plugin Manager
 https://opensource.com/article/19/4/interprocess-communication-linux-networking Inter-process communication in Linux: Sockets and signals | Opensource.com
 https://www.iana.org/ Internet Assigned Numbers Authority
+https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_module_defaults.html Module defaults — Ansible Documentation
+https://docs.ansible.com/ansible/latest/collections/ansible/builtin/git_module.html ansible.builtin.git module – Deploy software (or files) from git checkouts — Ansible Documentation
+https://github.com/alebcay/awesome-shell alebcay/awesome-shell: A curated list of awesome command-line frameworks, toolkits, guides and gizmos. Inspired by awesome-php.
