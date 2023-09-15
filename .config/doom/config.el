@@ -1,5 +1,6 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
-
+;; TODO sway-mode
+;; TODO magit list todos
 (after! doom-ui
   (require '-functions nil t)
   (setq -reloaded (boundp '-reloaded)
@@ -704,36 +705,41 @@
     "TODO add `-refresh' as hook to `display-buffer'"
     (interactive)
     (ignore-errors (doom/reload-font))
-    (when (region-active-p)
-      (yas-new-snippet))
+    (recentf-cleanup)
 
     (if (region-active-p)
-        (yas-new-snippet)                          ;active
-      (let* ((window-count (length (window-list))) ;inactive
-             (one-window (eq window-count 1))
-             (writeroom (featurep 'writeroom-room))
-             (indirect-buffer (message "TODO")))
-        (widen)
-        (whitespace-cleanup)
-        (bookmark-save)
-        ;; (sh!! "git rev-parse --show-toplevel")
-        (cond (one-window (cond
-                           (writeroom
-                            (writeroom-mode 1))
-                           (t nil)))
-              (t
-               (cond (writeroom
-                      (writeroom-mode -1))
-                     (t nil))
-               (balance-windows)))
-        (cond ((eq major-mode 'python-mode)
-               (unless (window--process-window-list)
-                 (run-python nil nil t)))
-              (t nil))
-        (cond ((eq major-mode 'org-mode)
-               (org-babel-tangle))
-              (t (save-window-excursion (org-babel-detangle))))))
-    (recentf-cleanup))
+        (yas-new-snippet)
+      (let ((window-count (length (window-list)))) ;
+        (let ((one-window (eq window-count 1))
+              (rundir (getenv "XDG_RUNTIME_DIR"))
+              (writeroom (featurep 'writeroom-room))
+              (indirect-buffer (message "TODO")))
+
+          (when rundir
+            (let ((desktop-dir (expand-file-name "desktop" rundir))
+                  (PARENTS t))
+              (mkdir desktop-dir PARENTS)
+              (if one-window
+                  (desktop-change-dir desktop-dir) ;; FIXME
+                (desktop-save desktop-dir))))
+          (widen)
+          (whitespace-cleanup)
+          (bookmark-save)
+          ;; (sh!! "git rev-parse --show-toplevel")
+          (cond (one-window
+                 (cond
+                  (writeroom
+                   (writeroom-mode 1))))
+                (t
+                 (cond (writeroom
+                        (writeroom-mode -1)))
+                 (balance-windows)))
+          (cond ((eq major-mode 'python-mode)
+                 (unless (window--process-window-list)
+                   (run-python nil nil t))))
+          (cond ((eq major-mode 'org-mode)
+                 (org-babel-tangle))
+                (t (save-window-excursion (org-babel-detangle))))))))
 
   (defun -clone-line-down (&rest args)
     (interactive "*p")
@@ -742,11 +748,12 @@
       (beginning-of-line)
       (insert (buffer-substring (eol)(bol)) "\n")))
 
-  (defun -clone-line-up ()
+  (defun -clone-line-up ()              ;FIXME
     (interactive "*p")
     (line! -1)
     (message "clone-line-down %s"))
 
+  ;; TODO when symbol at point is interactive defun; display bindings
   (defun -list (&rest list)
     (interactive
      (insert
