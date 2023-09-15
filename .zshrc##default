@@ -2,6 +2,19 @@
 
 # force tmux to truncate lines
 setterm --linewrap off
+setterm --term
+
+# FIXME tmux completion and maybe others
+# TODO disable bell
+# TODO disable all predefined static dirs
+hash -d yadm=~/.config/yadm
+hash -d run="${XDG_RUNTIME_DIR:-/run/user/${EUID:-$(id -u)}}"
+hash -d config="${XDG_CONFIG_HOME:-~/.config}"
+hash -d ram=~run
+hash -d temp=~run
+hash -d fonts=~/.local/share/fonts
+hash -d autorun=~/.config/autorun
+hash -d desktop=~/.local/share/applications
 
 ZSH=~/.oh-my-zsh
 ZSH_THEME="af-magic"
@@ -31,8 +44,8 @@ if [[ -s $ZSH/oh-my-zsh.sh  ]]; then
 fi
 
 # ???
-if false; then
 if [[ $TMUX ]] && (! [[ $TMUX_PANE ]]); then
+if false; then
 tmux source-file ~/.config/tmux/tmux.conf
 __tmux_menu
 fi
@@ -47,7 +60,7 @@ $#   event-related file name
 $%   event flags (textually)
 $&   event flags (numerically)
 .incrontab.syntax
-{ envsubst | incrontab - ; } <<'INCRONTAB'
+{ envsubst | incrontab - &>/dev/null; } <<'INCRONTAB'
 PATH=${HOME}/bin:${PATH}
 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${EUID}/bus
 WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
@@ -90,10 +103,22 @@ compctl -K {_,}piactl
 _vpn() {
     reply=(on off up down 0 1)
 }
-vpn()
+vpn() {
+    case $1 in
+        pause|hold|sleep)
+            piactl
+        ;;
+        1|y|on|up)
+            piactl connect
+        ;;
+        0|n|off|down)
+            piactl disconnect
+            ;;
+        *)
+
+    esac
+}
 
 compctl -K {_,}vpn
 
 alias _nmap='_subnets'
-
-hash -d yadm=~/.config/yadm
