@@ -70,6 +70,10 @@
     dnf: name="{{ pkg }}" state=present
     become: 1
 
+  - name: cron.allow
+    dnf: name="{{ pkg }}" state=present
+    become: 1
+
   tasks:
 
   - raw: "command -v {{ item }}"
