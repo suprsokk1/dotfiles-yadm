@@ -22,7 +22,7 @@ alias -- rl='reload'
 
 alias -- append='f() { { env; set; } | grep -i -e ${SHELL##*/} -e "$@" | while IFS='=' read x y; do echo ${#y} ; done; }; f'
 
-alias -- ,man='tmux display-popup '
+alias -- ,man='tmux display-popup -B' # FIXME
 
 # alias -- cat='command highlight -O ansi --force' # FIXME
 
