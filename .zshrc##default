@@ -2,7 +2,7 @@
 
 # force tmux to truncate lines
 setterm --linewrap off
-# setterm --term
+
 
 # FIXME tmux completion and maybe others
 # TODO disable bell
@@ -36,10 +36,10 @@ FZF_DEFAULT_COMMAND=$HOME/bin/,
 
 PROMPT_COMMAND=
 if [[ ${(k)functions} =~ _refresh_completion ]]; then
-PROMPT_COMMAND+="`# refresh completion options`_refresh_completion"
+PROMPT_COMMAND+="`# TODO`_refresh_completion"
 fi
-PROMPT_COMMAND+='; . ~/.functions;. ~/.aliases'
-PROMPT_COMMAND+='; print -ln $words'
+PROMPT_COMMAND+='; . ~/.functions'
+PROMPT_COMMAND+='; . ~/.aliases'
 
 if ! test -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 then git clone https://github.com/zsh-users/zsh-autosuggestions $_
