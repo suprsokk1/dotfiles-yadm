@@ -34,19 +34,6 @@
   - raw: dnf makecache
 
 
-  pre_tasks:
-  - vars:
-      pattern: >-
-        .bin\/*sh$
-      command: >-
-        awk -F: '/{{ pattern }}/{print $1}' /etc/passwd
-    debug:
-      msg: >-
-        {{ lookup('pipe', command ) }}
-
-  - meta: end_host
-
-
   tasks:
   - name: Add DNF repositories
     include_tasks: "{{ item }}"
@@ -59,7 +46,7 @@
   - package: name=syncthing state=present
 
   - service: name="syncthing@{{ ansible_user_id }}.service"
-    when: TODO
+    when: 0                     # TODO
 
   - service: name=osqueryd
     when: osquery_install is success
