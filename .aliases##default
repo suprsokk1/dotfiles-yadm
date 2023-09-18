@@ -1,7 +1,9 @@
 # -*- mode: sh -*-
 # unalias ls
 
-alias -- docker='command $_'
+if command -v podman &>/dev/null; then
+alias docker='command podman'
+fi
 
 # alias -- grep='command rg' # FIXME
 
@@ -13,6 +15,7 @@ alias -- @1='/usr/bin/env xargs -n1'
 alias -- @P='/usr/bin/env xargs --max-procs=$(cpus)'
 alias -- @P1='/usr/bin/env xargs --max-procs=$(cpus) -n1'
 
+# FIXME should be a helper function
 alias -- cpus='pushd /sys/class/cpuid &>/dev/null; set *; echo $#; popd &>/dev/null #'
 
 alias -- tar='command tar --exclude-from=${HOME}/.config/ignore --exclude-vcs-ignores'
@@ -28,7 +31,8 @@ alias -- ,man='tmux display-popup -B' # FIXME
 
 alias -- buf='command stdbuf -oL'
 
-alias -- edit='command ${EDITOR:-${VISUAL:-vi}}'
+alias -- edit='command ${EDITOR:-${VISUAL:-vi}} `test [[ $EDITOR =~ emacs ]] && echo --no-wait`'
+
 alias -- json="command grep -Poz '{[\s\S]+}'"
 # alias -- jq='command jq --from-file ~/.functions.jq' # FIXME jq have rc file?
 
@@ -44,8 +48,3 @@ alias -- capp='tmux capture-pane -p'
 for ITEM in up down right left; do
 eval "alias -- capp${ITEM::1}='tmux capture-pane -p -t '\''{ITEM}'\'' | cat --squeeze-blank' ; alias -- capu='capp${ITEM::1}'"
 done
-
-# alias -- cappu='tmux capture-pane -p -t '\''{up}'\'' | cat --squeeze-blank'    ; alias -- capu='cappu'
-# alias -- cappd='tmux capture-pane -p -t '\''{down}'\'' | cat --squeeze-blank'  ; alias -- capd='cappd'
-# alias -- cappl='tmux capture-pane -p -t '\''{left}'\'' | cat --squeeze-blank'  ; alias -- capl='cappl'
-# alias -- cappr='tmux capture-pane -p -t '\''{right}'\'' | cat --squeeze-blank' ; alias -- capr='cappr'
