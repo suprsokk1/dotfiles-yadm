@@ -5,7 +5,7 @@
   gather_facts: 0
   tasks:
   - raw: ansible-galaxy install -r ansible-galaxy-requirements.yml
-    ignore_errors: 1
+    ignore_errors: 0
 
 - hosts: localhost
   connection: local
@@ -23,32 +23,42 @@
 
   vars:
     pkg:
-    - '@sway'
+    - '@Sway Desktop'
     - '@Development Tools'
+    - firefox
+    - qutebrowser
     - cargo
     - figlet
-    - firefox
     - fzf
     - gh
     - git
     - golang
     - pass
     - pre-commit
-    - qutebrowser
     - rustc
     - tmux
+    - waybar
+    - realmd
+    - sssd
+    - krb5-workstation
+    - krb5-libs
+    - oddjob
+    - oddjob-mkhomedir
+    - samba-common-tools
+    - python3-devel
+    - libguestfs-devel
+    - podman
+    - podman-compose
 
   module_defaults:
     git:
       clone: 1
       depth: 1
       dest: ~/.local/src/
-
-  post_tasks:
-  # TODO banner with figlet command
-  - include_tasks: tasks/_comment.yml
-    vars:
-      msg: DONE
+    dnf:
+      state: present
+    pip:
+      state: present
 
   pre_tasks:
   - file: dest=~/.local/src state=directory
@@ -61,34 +71,12 @@
   handlers:
   - name: pip
     dnf: name=python-pip state=installed
-    become: 1
 
   - name: mpm
     pip: name=meta-package-manager state=present
 
   - name: pkg
     dnf: name="{{ pkg }}" state=present
-    become: 1
 
-  - name: cron.allow
-    dnf: name="{{ pkg }}" state=present
-    become: 1
 
   tasks:
-
-  - raw: "command -v {{ item }}"
-    args:
-      executable: /bin/bash
-    register: res
-    changed_when: res.rc != 0
-    notify: "{{ item }}"
-    with_items:
-    - mpm
-
-  - git: repo="{{ item }}" dest="{{ dest }}"
-    with_items: "{{ git_repos[:limit] }}"
-    ignore_errors: 1
-    vars:
-      limit: 4
-      dest: >-
-        ~/.local/src/{{ item.split('/')[-3:] | join('/') | replace('.git', '') | replace('github.com', 'github')}}
