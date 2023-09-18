@@ -1,25 +1,14 @@
 # -*- mode: sh -*-
-
-TRAPERR() {
-    case $# in
-        0) exit 1;; # !?
-        *)
-            case $@ in
-                .check*)
-                ;;
-                *)
-            esac
-    esac
-    # echo  -e ${FUNCNAME:+-n} "${FUNCNAME:+$FUNCNAME}"
+precmd() {
+    _run_hooks
+    eval "${PROMPT_COMMAND:+$PROMPT_COMMAND}"
 }
 
-for ITEM in aliases functions parameters; do
-    function -list--$ITEM {
-        eval "print -rl -- \${(k)${funcstack##*-}}"
-    }
-done
-
 command_not_found_handle() {
+    command_not_found_handle() {
+        return
+        print -ln "Command not found: $@"
+    }
     # test -f /etc/redhat-release
     exe="$1"
     basename=${1##*/}
@@ -49,9 +38,31 @@ command_not_found_handle() {
             ;;
         *)
     esac
+
     eval "$@"
 
 }
+
+TRAPERR() {
+    case $@ in
+        *)
+            return 0
+    esac
+}
+
+# TRAPERR() {
+#     return
+#     case $# in
+#         0) exit 1;; # !?
+#         *)
+#             case $@ in
+#                 .check*)
+#                 ;;
+#                 *)
+#             esac
+#     esac
+#     # echo  -e ${FUNCNAME:+-n} "${FUNCNAME:+$FUNCNAME}"
+# }
 
 __get_longopt__tmux() {
     tmux capture-pane -p |
@@ -64,18 +75,14 @@ tidy() {
         command tr --squeeze-repeats '[[:space:]]'
 }
 
-
 getPpid() {
     grep -Pioz '(?<=Ppid:).*' /proc/"${1:-$$}"/status |
         tr --delete '[[:space:]]'
 }
 
-
-
 set-theme---zsh() {
     command sed -E "/ZSH_THEME/d;iZSH_THEME=\"${@}\";N" ~/.zshrc
 }
-
 
 -list--files--fd() {
     eval "command stdbuf -oL /usr/bin/env --ignore-environment $(command -v fd) $@"
@@ -203,10 +210,6 @@ __debug__() {
     set +x
 }
 
-precmd() {
-    eval "${PROMPT_COMMAND:+$PROMPT_COMMAND}"
-}
-
 __tmux_mpm_helper() {
     set $(tmux capture-pane -p | awk '/cargo|dnf|gem|yum/{print $2}')
     export dnf=("$@")
@@ -247,7 +250,16 @@ _refresh_arrays() {
 
 -download-nerd-fonts() {
     curl --silent -- nerdfonts.com/downloads |
-        pup 'a[href*="zip"]:contains("Download")' attr{href} | head -2 | xargs env -C /dev/shm curl --retry 2 --verbose --remote-name --progress-bar
+        pup 'a[href*="zip"]:contains("Download")' attr{href} |
+        xargs env -C /dev/shm curl --retry 2 --verbose --remote-name --progress-bar
+}
+
+-list--sway-windows_workspace() {
+    TODO
+}
+
+-list--sway-windows_all() {
+    TODO
 }
 
 -list--github-starred-repositories() {
@@ -255,9 +267,100 @@ _refresh_arrays() {
 }
 
 list() {
-    TODO
+    :
 }
 
 _list() {
-    TODO
+    -list--functions |
+        command env - LC_ALL=C rg --line-buffered -- -list--
+}
+
+vpn() {
+    case $1 in
+        pause|hold|sleep)
+            piactl
+        ;;
+        1|y|on|up)
+            piactl connect
+        ;;
+        0|n|off|down)
+            piactl disconnect
+            ;;
+        *)
+    esac
+}
+
+
+# _run_hooks() {
+#     # tmux display-popup
+#     case $funcstack in
+#         precmd*)
+
+#             ;;
+#         *)
+
+#     esac
+#     case $words[1] in
+#         cd)
+#                 ;;
+#         *)
+
+#     esac
+
+#     case $words in
+#         (ssh|http)*.(github|gitlab)*.com*)
+#             tmux display-popup
+#             ;;
+#         https*)
+
+#             ;;
+#         *)
+#     esac
+# }
+TODO() {
+    [[ $TMUX ]] && tmux display-message "${funcstack//TODO/}"
+}
+
+_run_hooks() {
+    :
+}
+
+fd() {
+    # TODO
+    eval "$@"
+    return
+    # set -x
+    files=()
+    opts=()
+    for var;do
+        if test -f "$var" || test -d "$var" || test -L "$var"; then
+            files+=( "$var" )
+        else
+            opts+=( "$var" )
+        fi
+    done
+
+    case ${#files} in
+        1)
+            if [[ -d $1 ]]; then
+                eval "command fd $opts -- . $files"
+            else
+                eval "command fd $opts -- $files"
+            fi
+            ;;
+        *)
+            eval "$@"
+    esac
+}
+
+-get-workspace() {
+    swaymsg -t get_tree |
+        command jq 'recurse(.nodes[]) | select(.nodes[].focused == true)'
+}
+
+# FIXME
+unset -f fd
+
+kbd() {
+    sed -E 's#C-(.)[[:space:]]*#^\U\1#g;s#M-#^[#g' <<< "$@"
 }
