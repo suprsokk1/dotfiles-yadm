@@ -1,0 +1,14 @@
+---
+- name: Install Tailscale
+  package: name=tailscale state=latest
+  when: tailscale_repo is success
+  register: tailscale_install
+
+- name: Install OSQuery
+  package: name=osquery state=latest
+  when: osquery_repo is success
+  register: osquery_install
+
+- name: Install Vagrant
+  package: name=vagrant state=latest
+  when: hashicorp_repo is success

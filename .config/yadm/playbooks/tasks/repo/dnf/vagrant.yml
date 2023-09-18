@@ -1,0 +1,10 @@
+---
+- name: Vagrant repo
+  ansible.builtin.yum_repository:
+    name: hashicorp
+    description: Hashicorp Stable - $basearch
+    baseurl: >-
+      https://rpm.releases.hashicorp.com/{{ OS|lower }}/$releasever/$basearch/stable
+    gpgkey: https://rpm.releases.hashicorp.com/gpg
+    gpgcheck: 1
+  register: hashicorp_repo
