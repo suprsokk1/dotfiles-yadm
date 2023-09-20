@@ -35,11 +35,11 @@ FZF_DEFAULT_OPTS="--layout=reverse --height=7"
 FZF_DEFAULT_COMMAND=$HOME/bin/,
 
 PROMPT_COMMAND=
-if [[ ${(k)functions} =~ _refresh_completion ]]; then
-PROMPT_COMMAND+="`# TODO`_refresh_completion"
-fi
+# PROMPT_COMMAND+="`# TODO`_refresh_completion &>/dev/null"
 PROMPT_COMMAND+='; . ~/.functions'
 PROMPT_COMMAND+='; . ~/.aliases'
+# PROMPT_COMMAND+='; tmux set @p '\''``'\''' # tmux pane title
+PROMPT_COMMAND+='; tmux set @p ${PWD}' # tmux pane title
 
 if ! test -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 then git clone https://github.com/zsh-users/zsh-autosuggestions $_
@@ -95,8 +95,8 @@ source ~/src/"$1"/"$1".zsh
 fi; shift
 
 #
-# completion
-#
+## completion
+##
 
 _vpn() {
     reply=( on off up down 0 1 )
