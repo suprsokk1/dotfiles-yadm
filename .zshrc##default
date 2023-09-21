@@ -4,17 +4,18 @@
 setterm --linewrap off
 
 
+
 # FIXME tmux completion and maybe others
 # TODO disable bell
 # TODO disable all predefined static dirs
-hash -d yadm=~/.config/yadm
+hash -d yadm=$HOME/.config/yadm
 hash -d run="${XDG_RUNTIME_DIR:-/run/user/${EUID:-$(id -u)}}"
-hash -d config="${XDG_CONFIG_HOME:-~/.config}"
-hash -d ram=~run
-hash -d temp=~run
-hash -d fonts=~/.local/share/fonts
-hash -d autorun=~/.config/autorun
-hash -d desktop=~/.local/share/applications
+hash -d config="${XDG_CONFIG_HOME:-$HOME/.config}"
+hash -d ram=$HOMErun
+hash -d temp=$HOMErun
+hash -d fonts=$HOME/.local/share/fonts
+hash -d autorun=$HOME/.config/autorun
+hash -d desktop=$HOME/.local/share/applications
 
 ZSH=~/.oh-my-zsh
 ZSH_THEME="af-magic"
@@ -45,7 +46,6 @@ if ! test -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 then git clone https://github.com/zsh-users/zsh-autosuggestions $_
 fi
 
-#
 for ITEM in aliases functions parameters; do
     function -list--$ITEM {
         eval "print -rl -- \${(k)${funcstack##*-}}"
@@ -116,7 +116,7 @@ zstyle ':completion:*' squeeze-slashes true
 alias _nmap='_subnets'
 
 #
-## Emacs default M-l
+## Emacs default 'M-l'
 ##
 
 bindkey "^[l" down-case-word
