@@ -1,6 +1,6 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 ;; TODO sway-mode
-;; TODO magit list todos
+;; TODO magit + yadm: list todos, but limit to files git
 (after! doom-ui
   (require '-functions nil t)
   (setq -reloaded (boundp '-reloaded)
@@ -369,6 +369,7 @@
 (global-set-key (kbd "s-p") (quote projectile-find-file))
 
 (map!
+
  "<f12>"           #'flycheck-list-errors
  "<f5>"            #'call-last-kbd-macro
  "C-."             #'mc/mark-next-like-this
@@ -394,7 +395,7 @@
  "H-SPC ."         #'dired-jump
  "H-SPC H-SPC"     #'-refresh
  "H-SPC H-q"       #'delete-other-frames
- "H-SPC TAB" (cmd! (find-file initial-buffer-choice))
+ "H-SPC TAB"       #'(cmd! (find-file initial-buffer-choice))
  "H-SPC ["         #'mc/edit-beginnings-of-lines
  "H-SPC ]"         #'mc/edit-enda-of-lines
  "H-SPC a"         #'mc/edit-beginnings-of-lines
@@ -406,7 +407,7 @@
  "H-SPC m"         #'mc/mark-all-like-this ;FIXME
  "H-SPC n"         #'org-capture
  "H-SPC q"         #'delete-other-windows
- "H-SPC r" nil
+ "H-SPC r"         nil
  "H-SPC s"         #'org-narrow-to-subtree
  "H-SPC x"         #'doom/open-scratch-buffer
  "H-SPC ~"         #'(cmd! (dired "~"))
@@ -436,9 +437,7 @@
  "s-8"             #'-mark-all-like-this
  "s-;"             #'company-yasnippet
  "s-<backspace>"   #'delete-pair
-
  "s-<return>"      #'bookmark-jump
-
  "s-M-k"           #'doom/kill-this-buffer-in-all-windows
  "s-M-p"           #'projectile-switch-project
  "s-SPC ."         #'dired-jump
@@ -450,6 +449,7 @@
  "s-SPC c"         #'doom/goto-private-config-file
  "s-SPC e"         #'mc/edit-enda-of-lines
  "s-SPC h"         #'(cmd! (dired "~"))
+ "s-SPC n"         #'org-capture
  "s-SPC q"         #'delete-other-windows
  "s-SPC r"         nil
  "s-SPC s"         #'org-narrow-to-subtree
@@ -466,7 +466,11 @@
  "s-m s-m"         #'mc/mark-all-like-this
  "s-n"             #'split-window-horizontally
  "s-p"             #'projectile-find-file
- )
+ (:map dired-mode-map
+       "D" nil)
+
+)
+
  ;; "H-SPC i" #'doom/goto-private-init-file
  ;; "H-SPC p" #'doom/goto-private-packages-file
  ;; "s-SPC i" #'doom/goto-private-init-file
@@ -479,19 +483,13 @@
 (map!
  (:after dired :map dired-mode-map
          "r" #'dired-do-rename-regexp)
+
  (:map global-map
        "H-r" #'consult-buffer
        "s-r" #'consult-buffer
        "H-M-k" #'doom/kill-this-buffer-in-all-windows
        "M-s-k" #'doom/kill-this-buffer-in-all-windows
-       (:prefix "H-SPC"
-                "i" nil
-                "H-q" #'delete-other-windows
-                (:prefix "i"
-                         "f" #'-list
-                         "u" #'insert-char)
-                "H-a" (cmd! (org-agenda nil "t"))
-                ))
+       )
 
  (:map dired-mode-map
        "]"   #'dired-next-marked-file
@@ -499,31 +497,16 @@
        "," nil
        (:prefix ","
                 "," #'dired-unmark-all-marks)
+
        "." nil
        (:prefix "."
                 "." #'dired-up-directory)
+
        (:prefix "/"
                 "/" #'dired-mark-files-regexp
                 "." #'dired-mark-files-containing-regexp))
 
- (:mode multiple-cursors-mode
-  :prefix "s-SPC"
-        )
-
- (:mode multiple-cursors-mode
-  :prefix "H-SPC"
-  "c" 'mc/insert-numbers
-  )
-
- (:mode multiple-cursors-mode
-  :prefix "s-m"
-  "c" 'mc/insert-numbers
-  "l" 'mc/insert-letters
-  )
- (:mode multiple-cursors-mode
-  :prefix "H-m"
-  "c" 'mc/insert-numbers
-  )
+ "C-c m m" 'mc/mark-all-like-this
  )
 
 (use-package! doom-ui
@@ -547,17 +530,16 @@
 
 (use-package! org
   :requires ob-shell
-  :config (progn
-            (defun my/org-mode-hook ()
-              (setq truncate-lines t
-                    display-line-numbers-mode -1)))
+  :config
+  (defun my/org-mode-hook ()
+    (setq-local truncate-lines t
+                display-line-numbers-mode -1))
+
   :hook ((org-mode . my/org-mode-hook))
   :config
-
-  (add-to-list (quote org-babel-shell-names)
-               (quote "tmux"))
-  (add-to-list (quote so-long-minor-modes)
-               (quote display-line-numbers-mode))
+  (add-to-list (quote org-babel-shell-names) (quote "tmux"))
+  (add-to-list (quote org-babel-shell-names) (quote "cat"))
+  (add-to-list (quote so-long-minor-modes) (quote display-line-numbers-mode))
 
   :custom
   (display-line-numbers-mode -1)
@@ -658,46 +640,6 @@
         (buffer-substring (match-beginning 0)
                           (match-end 0))))))
 
-;; ;; minor mode to hide
-;; (use-package! so-long
-;;   :custom
-;;   (so-long-minor-modes
-;;    (quote (
-;;            auto-composition-mode
-;;            better-jumper-local-mode
-;;            diff-hl-amend-mode
-;;            diff-hl-flydiff-mode
-;;            diff-hl-mode
-;;            display-line-numbers-mode
-;;            dtrt-indent-mode
-;;            eldoc-mode
-;;            flycheck-mode
-;;            flymake-mode
-;;            flyspell-mode
-;;            glasses-mode
-;;            goto-address-mode
-;;            goto-address-prog-mode
-;;            hi-lock-mode
-;;            highlight-changes-mode
-;;            highlight-indent-guides-mode
-;;            highlight-numbers-mode
-;;            hl-fill-column-mode
-;;            hl-line-mode
-;;            hl-sexp-mode
-;;            idle-highlight-mode
-;;            linum-mode
-;;            nlinum-mode
-;;            prettify-symbols-mode
-;;            rainbow-delimiters-mode
-;;            smartparens-mode
-;;            smartparens-strict-mode
-;;            spell-fu-mode
-;;            undo-tree-mode
-;;            visual-line-mode
-;;            whitespace-mode
-;;            ws-butler-mode
-;;            ))))
-
 (use-package! -functions
   :no-require t
   :config
@@ -715,13 +657,15 @@
               (writeroom (featurep 'writeroom-room))
               (indirect-buffer (message "TODO")))
 
-          (when rundir
-            (let ((desktop-dir (expand-file-name "desktop" rundir))
-                  (PARENTS t))
-              (mkdir desktop-dir PARENTS)
-              (if one-window
-                  (desktop-change-dir desktop-dir) ;; FIXME
-                (desktop-save desktop-dir))))
+
+
+          (quote (when rundir           ;FIXME
+                  (let ((desktop-dir (expand-file-name "desktop" rundir))
+                        (PARENTS t))
+                    (mkdir desktop-dir PARENTS)
+                    (if one-window
+                        (desktop-change-dir desktop-dir) ;; FIXME
+                      (desktop-save desktop-dir)))))
           (widen)
           (whitespace-cleanup)
           (bookmark-save)
@@ -754,11 +698,25 @@
     (message "clone-line-down %s"))
 
   ;; TODO when symbol at point is interactive defun; display bindings
+
   (defun -list (&rest list)
     (interactive
      (insert
       (completing-read "Insert filename:"
                        (-fd "-tf --max-depth=${_FD_MAX_DEPTH:-4} . $HOME/")))))
+
+  (defun -zsh-history (&rest list)
+    (interactive
+     (insert
+      (completing-read "Insert zsh history"
+                       (let ((exe "zsh")
+                             (prefix "")
+                             (args (format "-c '%s'"
+                                           "print -ln ${(F)history}|sort|uniq")))
+                         (delete nil (split-string
+                                      (shell-command-to-string
+                                       (concat prefix exe args (eval `(concat ,@ARGS))))
+                                      "\n")))))))
 
   (defun -fd (&rest ARGS)
     (let ((exe "fd")
