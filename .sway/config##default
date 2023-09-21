@@ -133,41 +133,6 @@ mode $move_mode {
     bindsym Escape mode "default"
 }
 
-
-set $layout_mode "1: Default(tiled) 2: Tabbed 3: Stacked"
-mode $kill_mode {
-     bindsym q kill; mode "default"
-     bindsym $Super+q kill; mode "default"
-     bindsym $Hyper+q kill; mode "default"
-
-    # Return to default mode
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
-}
-
-
-set $kill_mode "Kill window?"
-mode $kill_mode {
-     bindsym q kill; mode "default"
-
-    # Return to default mode
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
-}
-
-set $menu_mode "1: Move window to workspace  2: Layout 3:  q: kill window"
-mode $menu_mode {
-    bindsym 1 mode $move_mode
-    bindsym 2 mode "default"
-    bindsym 3 mode "default"
-    bindsym q  $kill_mode
-
-    # Return to default mode
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
-}
-bindsym $Super+t mode $menu_mode
-
 exec_always {
   pgrep waybar || waybar
   # pkill --signal SIGUSR1 --exact waybar
@@ -175,6 +140,7 @@ exec_always {
   pkill --signal SIGUSR2 --exact waybar
 }
 
+for_window [class='.*']  floating enable
 
 # for_window [class='(?i)emacs'] move to workspace 1
 for_window [title='(?i)emacs'] move to workspace 1; border 3px
@@ -188,6 +154,39 @@ assign [class='(?i)alacritty']    3
 
 # # volume up
 # bindsym --to-code --locked XF86AudioRaiseVolume   exec pactl set-sink-volume @DEFAULT_SINK@ +$audip_step%
+
+set $layout_mode "1: Default(tiled) 2: Tabbed 3: Stacked"
+mode $kill_mode {
+     bindsym q kill; mode "default"
+     bindsym $Super+q kill; mode "default"
+     bindsym $Hyper+q kill; mode "default"
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+set $kill_mode "Kill window?"
+mode $kill_mode {
+     bindsym Return kill; mode "default"
+
+    # Return to default mode
+    # bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+set $menu_mode "1: Move window to workspace  2: Layout 3:  q: kill window"
+mode $menu_mode {
+    bindsym 1 mode $move_mode
+    bindsym 2 mode "default"
+    bindsym 3 mode "default"
+    bindsym q mode $kill_mode
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $Super+t mode $menu_mode
 
 # # volume down
 # bindsym --to-code --locked XF86AudioLowerVolume   exec pactl set-sink-volume @DEFAULT_SINK@ -$audio_step%
