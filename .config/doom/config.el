@@ -30,7 +30,7 @@
 
 ;; (default-value 'frame-title-format)
 
-(setq-local
+(setq
  frame-title-format
  (quote (mode-line-buffer-identification (vc-mode vc-mode))))
 
