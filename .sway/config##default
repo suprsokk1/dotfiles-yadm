@@ -1,19 +1,44 @@
 # -*- mode: conf -*-
 
-# font Iosevka:size=0
-# font Iosevka 0
-font San Francisco Display 0
+# modifiers
+set $Alt   Mod1
+set $Hyper Mod3
+set $Meta  Mod1
+set $Super Mod4
 
-# output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
-output * bg ~/Downloads/04131_mistyyosemite_5120x2880.jpg fill
+set $font_family San Francisco Display
+
+set $border_px 2
 
 xwayland enable
 
-# set $border_px 3
-set $border_px smart
+focus_follows_mouse no
 
+focus_wrapping force
+
+font $font_family 0
+
+output * bg ~/.local/wallpaper fill
+
+# drag and drop
+floating_modifier $Super normal
+
+# set $border_px smart
 default_border pixel $border_px
 
+hide_edge_borders none
+
+# modifier|titlebar [modifier|titlebar]
+# tiling_drag modifier
+
+# yes|no
+show_marks yes
+
+# smart|urgent|focus|none
+focus_on_window_activation urgent
+
+# on|off|no_gaps
+smart_borders off
 
 #: Default|stacking|tabbed
 workspace_layout tabbed
@@ -21,18 +46,7 @@ workspace_layout tabbed
 #: left|center|right
 title_align right
 
-# modifiers
-set $Alt   Mod1
-set $Hyper Mod3
-set $Meta  Mod1
-set $Super Mod4
-
 gaps inner 10
-
-# gaps inner all set 20
-# gaps outer current plus 5
-# gaps horizontal current plus 40
-# gaps outer current toggle 60
 
 #
 set $audio_step     5
@@ -44,12 +58,13 @@ set $TERM         alacritty
 # bindsym
 set $rofi_initial drun
 
-bindsym --to-code $Super+Tab        focus next
+bindsym --to-code $Super+Tab      focus next
+# bindsym --to-code $Super+Tab        focus right
 bindsym --to-code $Super+f          fullscreen toggle
-# bindsym --to-code $Hyper+$Meta+c    reload
 bindsym --to-code $Meta+$Hyper+c    reload
 bindsym --to-code $Meta+$Super+c    reload
 
+# bindsym --to-code $Hyper+$Meta+c    reload
 # bindsym --to-code $Hyper+$Meta+c    mode "restart"
 
 bindsym --to-code {
@@ -58,12 +73,12 @@ bindsym --to-code {
 }
 
 bindsym --to-code --locked {
-  XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -$audio_step%
-  XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
-  XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
-  XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +$audip_step%
+  XF86AudioLowerVolume  exec pactl set-sink-volume @DEFAULT_SINK@ -$audio_step%
+  XF86AudioMicMute      exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+  XF86AudioMute         exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+  XF86AudioRaiseVolume  exec pactl set-sink-volume @DEFAULT_SINK@ +$audip_step%
   XF86MonBrightnessDown exec brightnessctl set $brighness_step%-
-  XF86MonBrightnessUp exec brightnessctl set +$brighness_step%
+  XF86MonBrightnessUp   exec brightnessctl set +$brighness_step%
 }
 
 workspace 3
@@ -109,10 +124,7 @@ for_window [class=".*"] border_pixel $border_px
 For_window [class="^Menu$"] floating enabled
 
 
-
-# bindsym --to-code Mod4+0 exec --no-startup-id "alacritty --class=Menu"
 include /etc/sway/config.d/*.
-
 
 set $move_mode "[1-3]: Move window to workspace"
 mode $move_mode {
@@ -134,59 +146,108 @@ mode $move_mode {
 }
 
 exec_always {
-  pgrep waybar || waybar
-  # pkill --signal SIGUSR1 --exact waybar
-  # pkill --signal SIGUSR --exact waybar
-  pkill --signal SIGUSR2 --exact waybar
+  pkill --exact waybar; waybar
 }
 
-for_window [class='.*']  floating enable
+for_window   [class='.*']  floating enable
 
-# for_window [class='(?i)emacs'] move to workspace 1
-for_window [title='(?i)emacs'] move to workspace 1; border 3px
+# for_window [class='(?i)emacs']        move to workspace 1
+for_window   [title='(?i)emacs']        move to workspace 1; border 3px
 
-assign [class='(?i)emacs']        1
-assign [class='(?i)qutebrowser']  2
-assign [class='(?i)alacritty']    3
+assign       [class='(?i)emacs']        1
+assign       [class='(?i)qutebrowser']  2
+assign       [class='(?i)alacritty']    3
 
-# # mute
-# bindsym --to-code --locked XF86AudioMute          exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+set $one    25 ppt
+set $two    33 ppt
+set $three  66 ppt
+set $four   75 ppt
 
-# # volume up
-# bindsym --to-code --locked XF86AudioRaiseVolume   exec pactl set-sink-volume @DEFAULT_SINK@ +$audip_step%
+set $kill_mode      "Kill window?"
+set $layout_mode    "<b>1</b>: Default(tiled) 2: Tabbed 3: Stacked"
+set $menu_mode      "<b>1</b>: Move to workspace  2: Layout 3:  q: kill window"
+set $resize_mode    "<b>1</b>: $one 2: $two 3: $three 4: $four"
 
-set $layout_mode "1: Default(tiled) 2: Tabbed 3: Stacked"
+set $toggle_a_mode "** A **"
+set $toggle_b_mode "** B **"
+
+
+mode $resize_mode {
+    bindsym --to-code {
+     Left    resize shrink   width   $unit
+     Down    resize grow     height  $unit
+     Up      resize shrink   height  $unit
+     Right   resize grow     width   $unit
+
+     1       set $new_size $one   ; resize set width $new_size
+     2       set $new_size $two   ; resize set width $new_size
+     3       set $new_size $three ; resize set width $new_size
+     4       set $new_size $four  ; resize set width $new_size
+
+     Tab     focus right; exec notify-send --expire-time 500 $new_size
+
+     e       layout toggle
+     0       resize set 50 ppt
+
+     Return  mode "default"
+     Escape  mode "default"
+    }
+}
+
+
 mode $kill_mode {
-     bindsym q kill; mode "default"
-     bindsym $Super+q kill; mode "default"
-     bindsym $Hyper+q kill; mode "default"
+     bindsym --to-code {
+       q kill; mode "default"
+       $Super+q kill; mode "default"
+       $Hyper+q kill; mode "default"
+
+       # Return to default mode
+       Return mode "default"
+       Escape mode "default"
+    }
+}
+
+
+mode $layout_mode {
+     bindsym 1 layout "default" ; exec notify-send "Layout" "default"
+     bindsym 2 layout "tabbed"  ; exec notify-send "Layout" "tabbed"
+     bindsym 3 layout "stacked" ; exec notify-send "Layout" "stacked"
 
     # Return to default mode
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
 
-set $kill_mode "Kill window?"
-mode $kill_mode {
-     bindsym Return kill; mode "default"
 
-    # Return to default mode
-    # bindsym Return mode "default"
-    bindsym Escape mode "default"
-}
-
-set $menu_mode "1: Move window to workspace  2: Layout 3:  q: kill window"
 mode $menu_mode {
-    bindsym 1 mode $move_mode
-    bindsym 2 mode "default"
-    bindsym 3 mode "default"
-    bindsym q mode $kill_mode
+     bindsym --to-code {
+        1 mode $move_mode
+        2 mode $layout_mode
+        3 mode $layout_mode
+        r mode $resize_mode
+        q mode $kill_mode
 
-    # Return to default mode
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
+        $Meta+1 border_pixel 1
+        $Meta+2 border_pixel 2
+        $Meta+3 border_pixel 3
+
+        Tab focus right
+
+       # Return to default mode
+        Return mode "default"
+        Escape mode "default"
+     }
 }
+
+
+set $unit 10 ppt
+
 bindsym $Super+t mode $menu_mode
+
+# bindsym --to-code Mod4+0 exec --no-startup-id "alacritty --class=Menu"
+
+# for_window [class="(?i)firefox"] title_format --pango_markup "<span foreground='red'>%title</span>"
+for_window [class="(?i)firefox"] title_format "<span foreground='red'>%title</span>"
 
 # # volume down
 # bindsym --to-code --locked XF86AudioLowerVolume   exec pactl set-sink-volume @DEFAULT_SINK@ -$audio_step%
@@ -198,4 +259,38 @@ bindsym $Super+t mode $menu_mode
 # bindsym --to-code --locked XF86MonBrightnessUp    exec brightnessctl set +$brighness_step%
 
 # # brightness down
-# bindsym --to-code --locked XF86MonBrightnessDown  exec brightnessctl set $brighness_step%-
+# bindsym --to-code --locked XF86MonBrightnessDown  exec brightnessctl set $brighness_step%
+
+# # mute
+# bindsym --to-code --locked XF86AudioMute          exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+
+# # volume up
+# bindsym --to-code --locked XF86AudioRaiseVolume   exec pactl set-sink-volume @DEFAULT_SINK@ +$audip_step%
+
+# mode $toggle_a_mode {
+#     orientation horizontal; mode $toggle_b_mode
+
+#     # Return to default mode
+#     bindsym Return mode "default"
+#     bindsym Escape mode "default"
+# }
+
+# mode $toggle_b_mode {
+#     orientation vertical; mode $toggle_a_mode
+
+#     # Return to default mode
+#     bindsym Return mode "default"
+#     bindsym Escape mode "default"
+# }
+
+# set $resize_mode    "1: $one "
+
+# gaps inner all set 20
+# gaps outer current plus 5
+# gaps horizontal current plus 40
+# gaps outer current toggle 60
+
+# w       orientation toggle
+# e       layout toggle split
+# font Iosevka:size=0
+# font Iosevka 0
