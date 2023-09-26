@@ -19,8 +19,6 @@
     ansible_become_password: >-
       {{ lookup('community.general.passwordstore', 'local') }}
 
-  environment:
-
   vars:
     pkg:
     - '@Sway Desktop'
