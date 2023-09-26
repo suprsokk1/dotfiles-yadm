@@ -1,10 +1,14 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 ;; TODO sway-mode
 ;; TODO magit + yadm: list todos, but limit to files git
+;; TODO change alpha when loosing frame focus ()
+
 (after! doom-ui
   (require '-functions nil t)
   (setq -reloaded (boundp '-reloaded)
-        -toggle (boundp '-reloaded))
+        -toggle   (boundp '-reloaded)
+        compilation-scroll-output t
+        input-method              "norwegian-keyboard")
   (blink-cursor-mode 1)
   (global-hide-mode-line-mode 1)
   (set-frame-parameter nil 'alpha-background 100)
@@ -13,16 +17,44 @@
   (setq-hook! (quote conf-mode-hook js-mode)
     display-line-numbers-type (quote absolute)))
 
+
 ;; EXAMPLE
 (quote
- (setq doom-font            (font-spec :family "Input Mono Narrow" :size 12 :weight 'semi-light)
-  doom-variable-pitch-font (font-spec :family "Fira Sans") ; inherits `doom-font''s :size
-  doom-unicode-font        (font-spec :family "Input Mono Narrow" :size 12)
-  doom-big-font            (font-spec :family "Fira Mono" :size 19)))
+ (setq doom-font                (font-spec :family "Input Mono Narrow" :size 12 :weight 'semi-light)
+       doom-variable-pitch-font (font-spec :family "Fira Sans") ; inherits `doom-font''s :size
+       doom-unicode-font        (font-spec :family "Input Mono Narrow" :size 12)
+       doom-big-font            (font-spec :family "Fira Mono" :size 19)))
 
-(setq doom-font (font-spec :family "Iosevka Nerd Font" :size 13 :weight (quote light)))
+(setq doom-font
+      (font-spec :family "Iosevka Nerd Font" :size 14  :weight 'light))
 
-  ;; (add-to-list 'default-frame-alist
+;; (default-value 'frame-title-format)
+
+(setq-local
+ frame-title-format
+ (quote (mode-line-buffer-identification (vc-mode vc-mode))))
+
+(setq-hook!
+    (quote (prog-mode-hook))
+ header-line-format
+ (quote ("%e" mode-line-front-space
+         (:propertize
+          ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
+          display (min-width (5.0)))
+         mode-line-frame-identification
+         mode-line-buffer-identification
+         "   "
+         mode-line-position
+         (vc-mode vc-mode)
+         "  "  mode-line-misc-info mode-line-end-spaces)))
+
+(quote (let ((NAME (quote light))
+             (FAMILY "Iosevka Nerd Font")
+             (NAME (quote doom-font)))
+        `(setq (font-spec :family FAMILY :size  :weight ,(quote WEIGHT))
+               doom-big-font  (font-spec :family "Fira Mono" :size 19))))
+
+;; (add-to-list 'default-frame-alist
 ;;              '(font . ""))
 
 (set (quote +snippets-dir)
@@ -81,8 +113,8 @@
              -dired-longopts))
 
 (let ((% (mapconcat 'symbol-name (quote (-dired-ignore-extensions -dired-longopts)) " ")))
-    (setq-hook! (quote dired-mode-hook)
-      dired-listing-switches %))
+  (setq-hook! (quote dired-mode-hook)
+    dired-listing-switches %))
 
 (set (quote doom-projectile-cache-blacklist)
      (quote ("/tmp")))
@@ -102,44 +134,44 @@
   )
 
 (plist-put! +ligatures-extra-symbols
-  ;; org
-  :name          "»"
-  :src_block     "»"
-  :src_block_end "«"
-  :quote         "“"
-  :quote_end     "”"
-  ;; ;; Functional
-  ;; :lambda        "λ"
-  ;; :def           "ƒ"
-  ;; :composition   "∘"
-  ;; :map           "↦"
-  ;; ;; Types
-  ;; :null          "∅"
-  ;; :true          "𝕋"
-  ;; :false         "𝔽"
-  ;; :int           "ℤ"
-  ;; :float         "ℝ"
-  ;; :str           "𝕊"
-  ;; :bool          "𝔹"
-  ;; :list          "𝕃"
-  ;; ;; Flow
-  ;; :not           "￢"
-  ;; :in            "∈"
-  ;; :not-in        "∉"
-  ;; :and           "∧"
-  ;; :or            "∨"
-  ;; :for           "∀"
-  ;; :some          "∃"
-  ;; :return        "⟼"
-  ;; :yield         "⟻"
-  ;; ;; Other
-  ;; :union         "⋃"
-  ;; :intersect     "∩"
-  ;; :diff          "∖"
-  ;; :tuple         "⨂"
-  ;; :pipe          "" ;; FIXME: find a non-private char
-  ;; :dot           "•"
-  )
+            ;; org
+            :name          "»"
+            :src_block     "»"
+            :src_block_end "«"
+            :quote         "“"
+            :quote_end     "”"
+            ;; ;; Functional
+            ;; :lambda        "λ"
+            ;; :def           "ƒ"
+            ;; :composition   "∘"
+            ;; :map           "↦"
+            ;; ;; Types
+            ;; :null          "∅"
+            ;; :true          "𝕋"
+            ;; :false         "𝔽"
+            ;; :int           "ℤ"
+            ;; :float         "ℝ"
+            ;; :str           "𝕊"
+            ;; :bool          "𝔹"
+            ;; :list          "𝕃"
+            ;; ;; Flow
+            ;; :not           "￢"
+            ;; :in            "∈"
+            ;; :not-in        "∉"
+            ;; :and           "∧"
+            ;; :or            "∨"
+            ;; :for           "∀"
+            ;; :some          "∃"
+            ;; :return        "⟼"
+            ;; :yield         "⟻"
+            ;; ;; Other
+            ;; :union         "⋃"
+            ;; :intersect     "∩"
+            ;; :diff          "∖"
+            ;; :tuple         "⨂"
+            ;; :pipe          "" ;; FIXME: find a non-private char
+            ;; :dot           "•"
+            )
 
 ;; (highlight-regexp
 ;;  (rx ?' ?\\  ?' ?')
@@ -320,7 +352,7 @@
 
 (defvar -compile
   (quote
-     ;; EXPECT / TCL
+   ;; EXPECT / TCL
    ((tcl-mode . (recompile))
 
     ;; YAML
@@ -469,12 +501,12 @@
  (:map dired-mode-map
        "D" nil)
 
-)
+ )
 
- ;; "H-SPC i" #'doom/goto-private-init-file
- ;; "H-SPC p" #'doom/goto-private-packages-file
- ;; "s-SPC i" #'doom/goto-private-init-file
- ;; "s-SPC p" #'doom/goto-private-packages-file
+;; "H-SPC i" #'doom/goto-private-init-file
+;; "H-SPC p" #'doom/goto-private-packages-file
+;; "s-SPC i" #'doom/goto-private-init-file
+;; "s-SPC p" #'doom/goto-private-packages-file
 (after! conf-mode
   (highlight-phrase "bindsym" 'bold )
   ;; (highlight-phrase "")
