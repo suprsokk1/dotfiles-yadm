@@ -3,8 +3,6 @@
 # force tmux to truncate lines
 setterm --linewrap off
 
-
-
 # FIXME tmux completion and maybe others
 # TODO disable bell
 # TODO disable all predefined static dirs
@@ -65,22 +63,37 @@ __tmux_menu
 fi
 fi
 
+if command -v crontab &>/dev/null
+then
+:<<.syntax
+# m h w m y
+  * * * * * commandline
+.syntax
+{ envsubst | crontab - &>/dev/null; } <<'CRONTAB'
+PATH=${HOME}/bin:${PATH}
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${EUID}/bus
+WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+
+*/5 * * * *
+CRONTAB
+fi
+
 if command -v incrontab &>/dev/null
 then
-:<<.incrontab.syntax
+:<<.syntax
 $$   dollar sign
 $@   watched filesystem path (see above)
 $#   event-related file name
 $%   event flags (textually)
 $&   event flags (numerically)
-.incrontab.syntax
+..syntax
 { envsubst | incrontab - &>/dev/null; } <<'INCRONTAB'
 PATH=${HOME}/bin:${PATH}
 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${EUID}/bus
 WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
 
-${HOME}       IN_CREATE,recursive=false    , $#
-${HOME}/watch IN_ALL_EVENTS,recursive=true /usr/bin/notify-send --expire-time 5000 $# $%
+${HOME}/git/org/roam IN_CREATE,recursive=false  env -C ${HOME}/git/org gh repo sync
+${HOME}/watch IN_ALL_EVENTS,recursive=false /usr/bin/notify-send --expire-time 5000 $# $%
 INCRONTAB
 fi
 
@@ -173,6 +186,18 @@ pretty-print-json() {
 }
 zle -N pretty-print-json
 bindkey "^Q^J" pretty-print-json
+
+foo() {
+  case ${#LBUFFER} in
+    0)
+        tmux display-message "Nothing to do.."
+      ;;
+    *)
+      tmux split -H "cat"
+  esac
+}
+zle -N foo
+bindkey "^[i" foo
 
 
 #
