@@ -33,7 +33,6 @@
   post_tasks:
   - raw: dnf makecache
 
-
   tasks:
   - name: Add DNF repositories
     include_tasks: "{{ item }}"
@@ -45,8 +44,10 @@
 
   - package: name=syncthing state=present
 
-  - service: name="syncthing@{{ ansible_user_id }}.service"
-    when: 0                     # TODO
+  - name: syncthing
+    register: svc
+    service: name="syncthing@{{ ansible_user_id }}.service"
+    when: 0
 
   - service: name=osqueryd
     when: osquery_install is success
