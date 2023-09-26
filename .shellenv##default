@@ -1,22 +1,17 @@
 # -*- mode: sh -*-
-
 ALTERNATE_EDITOR=vim
 BROWSER=qutebrowser
 EDITOR=emacsclient
 LANG=en_US.UTF-8
-RIPGREP_CONFIG_PATH=~/.ripgreprc
-TMPDIR=${XDG_RUNTIME_DIR:-$TMPDIR}
+RIPGREP_CONFIG_PATH=$HOME/.ripgreprc
+TMPDIR=${XDG_RUNTIME_DIR:-$TMPDIR}/tmp
+TMPDIR=${TMPDIR/?tmp?tmp/\/tmp}
 
-for p in ~/{,go,.{local,cargo}/}bin
+for p in $HOME/{,go,.{local,cargo}/}bin
 do if ! [[ $p =~ $path ]]; then
-       path+=("$p")
+path+=("$p")
    fi
 done
-
-# pager
-if command -v most &>/dev/null; then
-PAGER=most
-fi
 
 eval "${TMUX:+PAGER=\cat}"
 eval "${TMUX:+SYSTEMD_PAGER=\cat}"
@@ -26,7 +21,7 @@ export PAGER
 # cleanup env for non tmux terminals
 case $(readlink /proc/$PPID/exe `# get parent exe`) in
     *tmux*)
-        ;;
+    ;;
     *)
         case ${#TMUX} in
             0);;
@@ -36,9 +31,9 @@ case $(readlink /proc/$PPID/exe `# get parent exe`) in
 esac
 
 if [[ $- =~ i ]]; then
-. ~/.aliases
-. ~/.functions
-. ~/.zsh_plugins
+. $HOME/.aliases
+. $HOME/.functions
+. $HOME/.zsh_plugins
 fi
 
 source /etc/os-release
@@ -46,6 +41,6 @@ case ${PLATFORM_ID##*:} in
     f3[89])
         hash rustc=/usr/bin/rustc
         hash cargo=/usr/bin/cargo
-    ;;
+        ;;
     *)
 esac
