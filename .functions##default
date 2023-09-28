@@ -12,6 +12,7 @@ command_not_found_handle() {
     # test -f /etc/redhat-release
     exe="$1"
     basename=${1##*/}
+
     case $basename in
         tmux)
             pushd $(mktemp -d) || exit
@@ -25,6 +26,7 @@ command_not_found_handle() {
             # FIXME @latest TODO find latest stable version
             # go install github.com/ericchiang/pup@$latest['pup']
             go install github.com/ericchiang/pup@main
+
             ;;
         regex2json)
             go install gitlab.com/tozd/regex2json/cmd/regex2json@main
@@ -317,6 +319,7 @@ vpn() {
 #         *)
 #     esac
 # }
+
 TODO() {
     [[ $TMUX ]] && tmux display-message "${funcstack//TODO/}"
 }
@@ -358,9 +361,10 @@ fd() {
         command jq 'recurse(.nodes[]) | select(.nodes[].focused == true)'
 }
 
-# FIXME
-unset -f fd
+
+unset -f fd # FIXME
 
 kbd() {
+    # Work in progress
     sed -E 's#C-(.)[[:space:]]*#^\U\1#g;s#M-#^[#g' <<< "$@"
 }

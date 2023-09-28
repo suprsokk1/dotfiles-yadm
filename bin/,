@@ -1,6 +1,8 @@
 #!/usr/bin/env -S bash
 # -*- mode: sh -*-
 
+notify-send --expire-time 1000 ${@:-,}
+
 ext=${1##*.}
 functions=( "$(compgen -A function)" )
 name=${0##*/}
@@ -16,7 +18,7 @@ parent=$(readlink /proc/$PPID/exe)
 # compgen -A function >&2
 shopt -s extglob
 
-function isGit() {
+function isGit {
     git rev-parse --show-toplevel &>/dev/null
 }
 
@@ -47,8 +49,9 @@ function runPlay {
     fi
 }
 
+
 # ???
-if false ; then
+if false; then
     shebang=$(sed -E 1\!d "$@")
     notify-send --expire-time 5000 "$0" "$parent:$name:$@"
 fi
@@ -190,3 +193,4 @@ case $# in
     *)
         exit
 esac
+

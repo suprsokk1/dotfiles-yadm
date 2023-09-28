@@ -14,7 +14,8 @@
   (set-frame-parameter nil 'alpha-background 100)
   ;; (set-frame-parameter nil 'alpha-background 90) ;uncomment to enable opacity
   ;; (add-to-list (quote so-long-minor-modes) (quote smartparens-mode))
-  (setq-hook! (quote conf-mode-hook js-mode)
+
+  (setq-hook! (quote conf-mode-hook js-mode-hook)
     display-line-numbers-type (quote absolute)))
 
 
@@ -29,24 +30,20 @@
       (font-spec :family "Iosevka Nerd Font" :size 14  :weight 'light))
 
 ;; (default-value 'frame-title-format)
+(setq frame-title-format (quote ((vc-mode vc-mode))))
 
-(setq
- frame-title-format
- (quote (mode-line-buffer-identification (vc-mode vc-mode))))
-
-(setq-hook!
-    (quote (prog-mode-hook))
- header-line-format
- (quote ("%e" mode-line-front-space
-         (:propertize
-          ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
-          display (min-width (5.0)))
-         mode-line-frame-identification
-         mode-line-buffer-identification
-         "   "
-         mode-line-position
-         (vc-mode vc-mode)
-         "  "  mode-line-misc-info mode-line-end-spaces)))
+(setq-hook! (quote (prog-mode-hook text-mode-hook))
+  header-line-format
+  (quote ("%e" mode-line-front-space
+          (:propertize
+           ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
+           display (min-width (5.0)))
+          mode-line-frame-identification
+          mode-line-buffer-identification
+          "   "
+          mode-line-position
+          (vc-mode vc-mode)
+          "  "  mode-line-misc-info mode-line-end-spaces)))
 
 (quote (let ((NAME (quote light))
              (FAMILY "Iosevka Nerd Font")
