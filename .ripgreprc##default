@@ -1,4 +1,5 @@
---pcre2
+--max-depth=3
+--engine=pcre2
 --color=auto
 --one-file-system
 --hidden
@@ -6,12 +7,12 @@
 --no-ignore-vcs
 --no-ignore-dot
 --ignore-file ${HOME}/config/ignore
+--glob=!*hist*
+
 # --debug
 # --file ${HOME}/.regex.lst
 # --engine=auto
-# --engine=pcre2
 # --engine=default
-# --max-depth=3
 # --glob='!*~'
 # --glob='!*#'
 # --glob='!*.jpeg'

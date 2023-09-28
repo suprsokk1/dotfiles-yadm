@@ -1,10 +1,11 @@
 # -*- mode: sh -*-
-# unalias ls
-
 if command -v podman &>/dev/null; then
 alias docker='command podman'
 fi
 
+# TODO prefix aliases with ',' except those already prefixed with @
+# TODO systemctl verbs with completion
+# TODO 'grep' wrapper function for 'rg'
 # alias -- grep='command rg' # FIXME
 
 alias -- top='command btop'
@@ -23,9 +24,6 @@ alias -- tar='command tar --exclude-from=${HOME}/.config/ignore --exclude-vcs-ig
 alias -- reload='. ~/.${BASH_VERSION:+bash}${ZSH_VERSION:+zsh}rc'
 alias -- rl='reload'
 
-# ???
-# alias -- append='f() { { env; set; } | grep -i -e ${SHELL##*/} -e "$@" | while IFS='=' read x y; do echo ${#y} ; done; }; f'
-
 alias -- ,man='tmux display-popup -B' # FIXME
 # alias -- cat='command highlight -O ansi --force' # FIXME
 
@@ -33,15 +31,15 @@ alias -- buf='command stdbuf -oL'
 
 alias -- edit='command ${EDITOR:-${VISUAL:-vi}} `test [[ $EDITOR =~ emacs ]] && echo --no-wait`'
 
-alias -- json="command grep -Poz '{[\s\S]+}'"
+alias -- grep-json="command grep -Poz '{[\s\S]+}'"
 # alias -- jq='command jq --from-file ~/.functions.jq' # FIXME jq have rc file?
 
 alias -- md='\mkdir'
 
+# TODO read aliases from tmux config
 alias -- capp='tmux capture-pane -p'
 
-# TODO systemctl verbs with completion
-
+alias -- pgrep='command pgrep --list-full'
 
 #
 # tmux

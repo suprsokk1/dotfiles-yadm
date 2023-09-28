@@ -31,9 +31,9 @@ case $(readlink /proc/$PPID/exe `# get parent exe`) in
 esac
 
 if [[ $- =~ i ]]; then
-. $HOME/.aliases
-. $HOME/.functions
-. $HOME/.zsh_plugins
+test -f $HOME/.aliases && . $HOME/.aliases
+test -f $HOME/.functions && . $HOME/.functions
+test -f $HOME/.zsh_plugins && . $HOME/.zsh_plugins
 fi
 
 source /etc/os-release

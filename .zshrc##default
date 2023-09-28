@@ -3,6 +3,7 @@
 # force tmux to truncate lines
 setterm --linewrap off
 
+# NOTE 💡alias/override command options; f.ex. alias grep.only-matching='func or command' override grep --only-matching
 # FIXME tmux completion and maybe others
 # TODO disable bell
 # TODO disable all predefined static dirs
@@ -26,7 +27,7 @@ REGEX
 # plugins-=(pipenv)
 plugins+=(zsh-autosuggestions)
 # plugins+=(h)                    # breaks zsh-autosuggestions?
-plugins+=(git)
+# plugins+=(git)
 plugins+=(direnv)
 plugins+=(fzf)
 
@@ -37,8 +38,8 @@ PROMPT_COMMAND=
 # PROMPT_COMMAND+="`# TODO`_refresh_completion &>/dev/null"
 PROMPT_COMMAND+='; . ~/.functions'
 PROMPT_COMMAND+='; . ~/.aliases'
-# PROMPT_COMMAND+='; tmux set @p '\''``'\''' # tmux pane title
 PROMPT_COMMAND+='; tmux set @p ${PWD}' # tmux pane title
+PROMPT_COMMAND+='; test -d ${PWD}/.git && '
 
 if ! test -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 then git clone https://github.com/zsh-users/zsh-autosuggestions $_
@@ -55,21 +56,33 @@ if [[ -s $ZSH/oh-my-zsh.sh  ]]; then
 . $ZSH/oh-my-zsh.sh
 fi
 
-# ???
-if [[ $TMUX ]] && (! [[ $TMUX_PANE ]]); then
-if false; then
-tmux source-file ~/.config/tmux/tmux.conf
-__tmux_menu
-fi
+# detect tmux popup window
+if [[ $TMUX ]]; then
+  if [[ $TMUX_PANE ]]; then
+
+    ## normal pane
+
+    # when active tmux will display
+    PROMPT="${PROMPT//git_prompt_info/true}"
+
+  else
+
+    ## popup
+
+    if false; then
+      tmux source-file ~/.config/tmux/tmux.conf
+      __tmux_menu # TODO
+    fi
+  fi
 fi
 
+# set -x
 if command -v crontab &>/dev/null
-then
-:<<.syntax
+then : <<.syntax; { envsubst | crontab - &>/dev/null; } <<'CRONTAB'
 # m h w m y
   * * * * * commandline
 .syntax
-{ envsubst | crontab - &>/dev/null; } <<'CRONTAB'
+
 PATH=${HOME}/bin:${PATH}
 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${EUID}/bus
 WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
@@ -79,21 +92,22 @@ CRONTAB
 fi
 
 if command -v incrontab &>/dev/null
-then
-:<<.syntax
+then : <<.syntax; { envsubst | incrontab - &>/dev/null; } <<'INCRONTAB'
 $$   dollar sign
 $@   watched filesystem path (see above)
 $#   event-related file name
 $%   event flags (textually)
 $&   event flags (numerically)
-..syntax
-{ envsubst | incrontab - &>/dev/null; } <<'INCRONTAB'
+.syntax
+
 PATH=${HOME}/bin:${PATH}
 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${EUID}/bus
 WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
 
-${HOME}/git/org/roam IN_CREATE,recursive=false  env -C ${HOME}/git/org gh repo sync
-${HOME}/watch IN_ALL_EVENTS,recursive=false /usr/bin/notify-send --expire-time 5000 $# $%
+${HOME}/.local/share/fonts/   IN_ALL_EVENTS,recursive=false    , $%,"$@/$#"
+${HOME}/Downloads/            IN_ALL_EVENTS,recursive=false    , $%,"$@/$#"
+${HOME}/git/org/roam/         IN_CREATE,recursive=false        env -C ${HOME}/git/org gh repo sync
+${HOME}/watch/                IN_ALL_EVENTS,recursive=false    /usr/bin/notify-send --expire-time 5000 $# $%
 INCRONTAB
 fi
 
@@ -121,7 +135,6 @@ $ zstyle :completion:<function>:<completer>:<command>:<argument>:<tag>
 COMPLETION_EXAMPLES
 
 zsh_cache_dir="${XDG_CACHE_HOME:-/run/user/${EUID:-$(id -u)}}/zsh/.zcompcache"
-mkdir -p "$1"
 zstyle ':completion:*' cache-path "$zsh_cache_dir"
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' squeeze-slashes true
@@ -209,3 +222,13 @@ old_path="$PATH"
 path=( ${(m)path:#*brew*} )
 export PATH
 fi
+
+bar() {
+  {
+    tmux next-layout
+  } &>/dev/null
+  LBUFFER=${LBUFFER}
+}
+zle -N bar
+
+bindkey "^[]" bar
