@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
+set -o nounset -o errexit -o pipefail
+
 GIT_WORK_TREE=$(git rev-parse --show-toplevel)
 export GIT_WORK_TREE
 branch=${branch:-}
 
-if [[ $(readlink $PPID) =~ fswatch ]]; then
+if ! [[ $(readlink $PPID) =~ fswatch ]]; then
     fswatch -o "$GIT_WORK_TREE" --event Created --event \
         Updated --event  Removed --event Renamed --event \
         OwnerModified --event AttributeModified --event MovedFrom \
