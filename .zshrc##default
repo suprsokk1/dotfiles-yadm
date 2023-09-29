@@ -38,8 +38,9 @@ PROMPT_COMMAND=
 # PROMPT_COMMAND+="`# TODO`_refresh_completion &>/dev/null"
 PROMPT_COMMAND+='; . ~/.functions'
 PROMPT_COMMAND+='; . ~/.aliases'
-PROMPT_COMMAND+='; tmux set @p ${PWD}' # tmux pane title
-PROMPT_COMMAND+='; test -d ${PWD}/.git && '
+
+# FIXME show relevant git info.; branch, dirty status etc.
+PROMPT_COMMAND+=';  _tmux_pane_title="$(pwd; git rev-parse --show-toplevel 2>/dev/null)" ; tmux set @p "$_tmux_pane_title"'
 
 if ! test -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 then git clone https://github.com/zsh-users/zsh-autosuggestions $_
@@ -222,13 +223,3 @@ old_path="$PATH"
 path=( ${(m)path:#*brew*} )
 export PATH
 fi
-
-bar() {
-  {
-    tmux next-layout
-  } &>/dev/null
-  LBUFFER=${LBUFFER}
-}
-zle -N bar
-
-bindkey "^[]" bar
