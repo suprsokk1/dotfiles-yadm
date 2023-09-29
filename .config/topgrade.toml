@@ -9,7 +9,9 @@
 #ignore_failures = ["powershell"]
 
 # Run specific steps - same options as the command line flag
-#only = ["system", "emacs"]
+only = [
+"git"
+]
 
 # Do not ask to retry failed steps (default: false)
 no_retry = true
@@ -95,7 +97,7 @@ repos = [
 
 [firmware]
 # Offer to update firmware; if false just check for and display available updates
-#upgrade = true
+upgrade = true
 
 [flatpak]
 # Use sudo for updating the system-wide installation
