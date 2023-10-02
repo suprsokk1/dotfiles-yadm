@@ -3,7 +3,10 @@
 ;; TODO magit + yadm: list todos, but limit to files git
 ;; TODO change alpha when loosing frame focus ()
 
-(after! doom-ui
+
+(defun -config-el-eol-hook ())
+
+(add-hook! (quote (-config-el-eol-hook))
   (require '-functions nil t)
   (setq -reloaded (boundp '-reloaded)
         -toggle   (boundp '-reloaded)
@@ -11,20 +14,23 @@
         input-method              "norwegian-keyboard")
   (blink-cursor-mode 1)
   (global-hide-mode-line-mode 1)
+  ;; (hide-mode-line-mode t)
   (set-frame-parameter nil 'alpha-background 100)
+
   ;; (set-frame-parameter nil 'alpha-background 90) ;uncomment to enable opacity
   ;; (add-to-list (quote so-long-minor-modes) (quote smartparens-mode))
-
   (setq-hook! (quote conf-mode-hook js-mode-hook)
     display-line-numbers-type (quote absolute)))
 
+(setq-hook! (quote (org-mode-hook))
+  display-line-numbers-mode -1)
 
 ;; EXAMPLE
 (quote
  (setq doom-font                (font-spec :family "Input Mono Narrow" :size 12 :weight 'semi-light)
-       doom-variable-pitch-font (font-spec :family "Fira Sans") ; inherits `doom-font''s :size
-       doom-unicode-font        (font-spec :family "Input Mono Narrow" :size 12)
-       doom-big-font            (font-spec :family "Fira Mono" :size 19)))
+  doom-variable-pitch-font (font-spec :family "Fira Sans") ; inherits `doom-font''s :size
+  doom-unicode-font        (font-spec :family "Input Mono Narrow" :size 12)
+  doom-big-font            (font-spec :family "Fira Mono" :size 19)))
 
 (setq doom-font
       (font-spec :family "Iosevka Nerd Font" :size 14  :weight 'light))
@@ -79,35 +85,41 @@
 ;;      (or (expand-file-name "dashboard.org" doom-user-dir)
 ;;          (expand-file-name "todo.org" org-directory)))
 
-(set (quote comint-move-point-for-output)
-     t)
+(set (quote comint-move-point-for-output) t)
 
-(set (quote doom-modeline-major-mode-icon)
-     t)
+(set (quote doom-modeline-major-mode-icon) t)
 
 ;; (set (quote dired-listing-switches) "--ahl -v --group-directories-first")
 
-(set (quote -dired-longopts)
-     (mapconcat (quote symbol-name)
-                (quote (--block-size=1
-                        --group-directories-first
-                        --human-readable
-                        --no-group
-                        --numeric-uid-gid
-                        --ignore-backups
-                        --color=never
-                        --no-group)) " "))
+;; (set (quote -dired-longopts)
+;;      (mapconcat (quote symbol-name)
+;;                 (quote (--block-size=1
+;;                         --group-directories-first
+;;                         --human-readable
+;;                         --numeric-uid-gid
+;;                         --ignore-backups
+;;                         --color=never
+;;                         --no-group)) " "))
 
+(defmacro %string (&rest BODY)
+  `(mapconcat (quote symbol-name) (quote (,@BODY)) " "))
 
 (set (quote -dired-ignore-extensions)
      (concat "--ignore=*."
              (mapconcat (quote symbol-name)
                         (quote (zip gz)) " --ignore=*.")))
 
-(set (quote dired-listing-switches)
-     (concat -dired-ignore-extensions
-             " "
-             -dired-longopts))
+(let ((% (concat -dired-ignore-extensions
+                 " "
+                 (%string --block-size=1
+                          --group-directories-first
+                          --human-readable
+                          --numeric-uid-gid
+                          --ignore-backups
+                          --color=never
+                          --no-group))))
+  (setq-hook! (quote (dired-mode-hook))
+    dired-listing-switches %))
 
 (let ((% (mapconcat 'symbol-name (quote (-dired-ignore-extensions -dired-longopts)) " ")))
   (setq-hook! (quote dired-mode-hook)
@@ -188,27 +200,30 @@
      ("-wx" . "3")
      ("-r-" . "2")
      ("--x" . "1")
-     ("---" . "0")
-     )
+     ("---" . "0"))
+
     (emacs-lisp-mode
      ("lambda" . "λ")
-     ("'\\\\''" . "⍞")
-     )
+     ("'\\\\''" . "⍞"))
+
     (org-mode
      ("#+BEGIN_QUOTE" . "“")
      ("#+BEGIN_SRC" . "»")
      ("#+END_QUOTE" . "”")
      ("#+END_SRC" . "«")
      ("#+NAME:" . "»")
-     ("#+NAME:" . "»"))
-    ("#+begin_quote" . "“")
-    ("#+begin_src" . "»")
-    ("#+end_quote" . "”")
-    ("#+end_src" . "«")
-    ("#+name:" . "»")
-    ("no" . "𝔽")
-    ("yes" . "𝕋")
+     ("#+NAME:" . "»")
+     ("#+begin_quote" . "“")
+     ("#+begin_src" . "»")
+     ("#+end_quote" . "”")
+     ("#+end_src" . "«")
+     ("#+name:" . "»")
+     ("no" . "𝔽")
+     ("yes" . "𝕋"))
+
     (sh-mode
+     ("[[" . "⟦")
+     ("]]" . "⟧")
      ("function" . "ƒ")
      ("true" . "𝕋")
      ("false" . "𝔽")
@@ -290,12 +305,48 @@
                (:tangle-mode . 448)
                (:mkdirp . "yes"))))
 
+  (set (quote org-babel-default-header-args:zsh)
+       (quote ((:results . "raw replace drawer"))))
+
   (set (quote org-babel-default-header-args:bash)
        (quote ((:session . "none")
                (:tangle-mode . 448)
                (:prologue . ". ~/.functions;. ~/.aliases")
                (:results . "raw replace drawer")
                (:mkdirp . "yes"))))
+
+  (set (quote org-babel-default-header-args:cat)
+       (quote ()))
+
+  (add-to-list 'org-babel-shell-names "cat")
+
+  (org-babel-shell-initialize)
+
+  (defun org-babel-execute:cat (body params)
+    "Execute a block of Shell commands with Babel.
+This function is called by `org-babel-execute-src-block'."
+    (let* ((session (org-babel-sh-initiate-session
+                     (cdr (assq :session params))))
+           (stdin (let ((stdin (cdr (assq :stdin params))))
+                    (when stdin (org-babel-sh-var-to-string
+                                 (org-babel-ref-resolve stdin)))))
+           (results-params (cdr (assq :result-params params)))
+           (value-is-exit-status
+            (or (and
+                 (equal '("replace") results-params)
+                 (not org-babel-shell-results-defaults-to-output))
+                (member "value" results-params)))
+           (cmdline (cdr (assq :cmdline params)))
+           (full-body (concat
+                       (org-babel-expand-body:generic
+                        body params (org-babel-variable-assignments:shell params))
+                       (when value-is-exit-status "\necho $?"))))
+      (org-babel-reassemble-table
+       (org-babel-sh-evaluate session full-body params stdin cmdline)
+       (org-babel-pick-name
+        (cdr (assq :colname-names params)) (cdr (assq :colnames params)))
+       (org-babel-pick-name
+        (cdr (assq :rowname-names params)) (cdr (assq :rownames params))))))
 
   (ignore-errors
     (org-babel-lob-ingest (or (format "%s/_lob.org" doom-user-dir))))
@@ -344,8 +395,15 @@
 (defun M-RET! (&rest BODY)
   "Default M-RET action"
   (interactive)
-  (let ((compile-command (format "command /usr/bin/env , %s" (buffer-file-name))))
-    (recompile)))
+  (cond
+   ((eq major-mode (quote python-mode))
+    (run-python)
+    (unless (string-match "*Python*" (with-output-to-string (princ (-all-window-buffers))))
+      (switch-to-buffer-other-window "*Python*"))
+    (let ((% (buffer-file-name)))
+      (if % (python-shell-send-file %) (python-shell-send-buffer))))
+   (t (let ((compile-command (format "command /usr/bin/env , %s" (buffer-file-name))))
+        (recompile)))))
 
 (defvar -compile
   (quote
@@ -398,7 +456,6 @@
 (global-set-key (kbd "s-p") (quote projectile-find-file))
 
 (map!
-
  "<f12>"           #'flycheck-list-errors
  "<f5>"            #'call-last-kbd-macro
  "C-."             #'mc/mark-next-like-this
@@ -408,12 +465,14 @@
  "H-."             #'dired-jump
  "H-/"             #'+default/search-buffer
  "H-0"             #'balance-windows
- "H-8"             #'-mark-all-like-this
+ ;; "H-8"             #'-mark-all-like-this
+ ;; "s-8"             #'(cmd! (isearch-forward-symbol-at-point)(occur))
+ "s-8"             (lambda (&rest BODY) (interactive)(isearch-forward-symbol-at-point)(apply (quote occur) BODY))
  "H-;"             #'company-yasnippet
  "H-<backspace>"   #'delete-pair
  "H-<down>"        #'-clone-line-down "s-<down>"        #'-clone-line-down
  "H-<return>"      #'bookmark-jump
- "H-<up>"          #'-clone-line-up "s-<up>" #'-clone-line-up
+ "H-<up>"          #'-clone-line-up "s-<up>"            #'-clone-line-up
  "H-M-0"           #'balance-windows-area
  "H-M-["           #'winner-undo
  "H-M-]"           #'winner-redo
@@ -463,7 +522,7 @@
  "s-."             #'dired-jump
  "s-/"             #'+default/search-buffer
  "s-0"             #'balance-windows
- "s-8"             #'-mark-all-like-this
+ ;; "s-8"             #'-mark-all-like-this
  "s-;"             #'company-yasnippet
  "s-<backspace>"   #'delete-pair
  "s-<return>"      #'bookmark-jump
@@ -495,57 +554,79 @@
  "s-m s-m"         #'mc/mark-all-like-this
  "s-n"             #'split-window-horizontally
  "s-p"             #'projectile-find-file
- (:map dired-mode-map
-       "D" nil)
-
  )
 
-;; "H-SPC i" #'doom/goto-private-init-file
-;; "H-SPC p" #'doom/goto-private-packages-file
-;; "s-SPC i" #'doom/goto-private-init-file
-;; "s-SPC p" #'doom/goto-private-packages-file
+
+(map! :map dired-mode-map
+      "D" nil
+      "r" #'dired-do-rename-regexp
+      )
+
 (after! conf-mode
-  (highlight-phrase "bindsym" 'bold )
+  (highlight-phrase "bindsym" 'bold)
   ;; (highlight-phrase "")
   )
 
 (map!
- (:after dired :map dired-mode-map
-         "r" #'dired-do-rename-regexp)
 
- (:map global-map
-       "H-r" #'consult-buffer
-       "s-r" #'consult-buffer
-       "H-M-k" #'doom/kill-this-buffer-in-all-windows
-       "M-s-k" #'doom/kill-this-buffer-in-all-windows
-       )
+ :map global-map
+ "H-r" #'consult-buffer
+ "s-r" #'consult-buffer
+ "H-M-k" #'doom/kill-this-buffer-in-all-windows
+ "M-s-k" #'doom/kill-this-buffer-in-all-windows
+ "H-\\"   #'+vterm/toggle
+ "s-\\"   #'+vterm/toggle
+ "M-o l"  #'highlight-lines-matching-regexp
+ "M-o r"  #'highlight-regexp
+ "M-o w"  #'highlight-phrase
 
- (:map dired-mode-map
-       "]"   #'dired-next-marked-file
-       "["   #'dired-prev-marked-file
-       "," nil
-       (:prefix ","
-                "," #'dired-unmark-all-marks)
-
-       "." nil
-       (:prefix "."
-                "." #'dired-up-directory)
-
-       (:prefix "/"
-                "/" #'dired-mark-files-regexp
-                "." #'dired-mark-files-containing-regexp))
-
+ :map windmove-mode-map
+ "s-q"    #'windmove-left
+ "s-e"    #'windmove-right
+ "s-w"    #'windmove-up
+ "s-s"    #'windmove-down
+ "H-q"    #'windmove-left
+ "H-e"    #'windmove-right
+ "H-w"    #'windmove-up
+ "H-s"    #'windmove-down
+ "M-s-q"  #'windmove-swap-states-left
+ "M-H-q"  #'windmove-swap-states-left
+ "M-s-e"  #'windmove-swap-states-right
+ "M-H-e"  #'windmove-swap-states-right
+ "M-s-w"  #'windmove-swap-states-up
+ "M-H-w"  #'windmove-swap-states-up
+ "M-s-s"  #'windmove-swap-states-down
+ "M-H-s"  #'windmove-swap-states-down
  "C-c m m" 'mc/mark-all-like-this
  )
 
-(use-package! doom-ui
-  :custom
-  (hide-mode-line-mode t))
+(map!
+ "M-o l" #'highlight-lines-matching-regexp
+ "M-o r" #'highlight-regexp
+ "M-o w" #'highlight-phrase)
 
-(use-package! comint
-  :custom
-  (comint-buffer-maximum-size 20000 "Increase comint buffer size.")
-  (comint-prompt-read-only t        "Make the prompt read only."))
+(map!
+ :map dired-mode-map
+ "]"   #'dired-next-marked-file
+ "["   #'dired-prev-marked-file
+  "."  #'dired-up-directory
+
+ ("," nil
+  :prefix ","
+  "," #'dired-unmark-all-marks)
+
+ ;; ("." nil
+ ;;  :prefix "."
+ ;;  "." #'dired-up-directory)
+
+ ("/" nil
+  :prefix "/"
+  "/" #'dired-mark-files-regexp
+  "." #'dired-mark-files-containing-regexp))
+
+(setq-hook! (quote (comint-mode-hook))
+  comint-buffer-maximum-size 20000 ; Increase comint buffer size.
+  comint-prompt-read-only t )      ; Make the prompt read only.
 
 (use-package! dockerfile-mode
   :init (setenv "DOCKER_BUILDKIT" "1")
@@ -553,97 +634,52 @@
   :custom
   (dockerfile-mode-command "docker buildx build"))
 
-;; (use-package! ob-shell
-;;   :custom
-;;   (org-babel-shell-names (quote "sh tmux bash zsh fish csh ash dash ksh mksh posh")))
-
-(use-package! org
-  :requires ob-shell
-  :config
-  (defun my/org-mode-hook ()
-    (setq-local truncate-lines t
-                display-line-numbers-mode -1))
-
-  :hook ((org-mode . my/org-mode-hook))
-  :config
+(after! org
   (add-to-list (quote org-babel-shell-names) (quote "tmux"))
   (add-to-list (quote org-babel-shell-names) (quote "cat"))
   (add-to-list (quote so-long-minor-modes) (quote display-line-numbers-mode))
 
-  :custom
-  (display-line-numbers-mode -1)
-  (org-mode-hook nil))
+  (setq-hook! (quote (org-mode-hook))
+    display-line-numbers-mode -1))
 
-(use-package! org-roam
-  :if (string-match "sqlite3" (shell-command-to-string "command -v sqlite3"))
-  :bind (("s-SPC SPC" . org-roam-node-find)
-         ("H-SPC SPC" . org-roam-node-find)
-         ("H-SPC t"   . org-roam-tag-add))
-  :catch (lambda (keyword err)
-           (message (error-message-string err))))
 
-(use-package! windmove
-  :bind (("s-q"   . #'windmove-left)
-         ("s-e"   . #'windmove-right)
-         ("s-w"   . #'windmove-up)
-         ("s-s"   . #'windmove-down)
-         ("H-q"   . #'windmove-left)
-         ("H-e"   . #'windmove-right)
-         ("H-w"   . #'windmove-up)
-         ("H-s"   . #'windmove-down)
-         ("M-s-q" . #'windmove-swap-states-left)
-         ("M-H-q" . #'windmove-swap-states-left)
-         ("M-s-e" . #'windmove-swap-states-right)
-         ("M-H-e" . #'windmove-swap-states-right)
-         ("M-s-w" . #'windmove-swap-states-up)
-         ("M-H-w" . #'windmove-swap-states-up)
-         ("M-s-s" . #'windmove-swap-states-down)
-         ("M-H-s" . #'windmove-swap-states-down)))
+;; (use-package! org-roam
+;;   :if (string-match "sqlite3" (shell-command-to-string "command -v sqlite3"))
+;;   :bind (("s-SPC SPC" . org-roam-node-find)
+;;          ("H-SPC SPC" . org-roam-node-find)
+;;          ("H-SPC t"   . org-roam-tag-add))
+;;   :catch (lambda (keyword err)
+;;            (message (error-message-string err))))
 
-(use-package! org-crypt)
+;; (use-package! windmove
+;;   :bind )
 
-(use-package! hi-lock
-  :bind (("M-o l" . highlight-lines-matching-regexp)
-         ("M-o r" . highlight-regexp)
-         ("M-o w" . highlight-phrase)))
+;; (use-package! org-crypt)
+
+;; (use-package! hi-lock
+;;   :bind )
 
 (use-package! modus-themes
   :ensure t
   :load-path "~/src/modus-themes"
-  :config (modus-themes-select 'modus-vivendi-tinted)
+  :config
+  (modus-themes-select 'modus-vivendi-tinted)
   :custom
   (modus-themes-variable-pitch-ui t)
   (modus-themes-to-toggle (quote (modus-operandi-tinted modus-vivendi-tinted))))
 
-(use-package! writeroom
-  :no-require t
-  :bind (("s-SPC w" . #'writeroom-mode)
-         ("H-SPC w" . #'writeroom-mode)))
+(defun yadm ()
+  (interactive)
+  (magit-status "/yadm::"))
 
-(use-package! vterm
-  :defer 10
-  :bind (("H-\\" . #'+vterm/toggle)
-         ("s-\\" . #'+vterm/toggle))
-  :custom
-  (vterm-shell "/bin/zsh"))
 
-(use-package! flycheck
-  :custom
-  (flycheck-mode-hook nil))
-
-(use-package tramp
-  :init
-  (defun yadm ()
-    (interactive)
-    (magit-status "/yadm::"))
-  :config
-  (add-to-list (quote tramp-methods)
-               (quote ("yadm"
-                       (tramp-login-program "yadm")
-                       (tramp-login-args (("enter")))
-                       (tramp-login-env (("SHELL") ("/bin/sh")))
-                       (tramp-remote-shell "/bin/sh")
-                       (tramp-remote-shell-args ("-c"))))))
+(add-to-list (quote tramp-methods)
+             (quote ("yadm"
+                     (tramp-login-program "yadm")
+                     (tramp-login-args (("enter")))
+                     (tramp-login-env (("SHELL") ("/bin/sh")))
+                     (tramp-remote-shell "/bin/sh")
+                     (tramp-remote-shell-args ("-c")))))
 
 (use-package! -macros
   :no-require t
@@ -682,34 +718,31 @@
         (yas-new-snippet)
       (let ((window-count (length (window-list)))) ;
         (let ((one-window (eq window-count 1))
-              (rundir (getenv "XDG_RUNTIME_DIR"))
+              (xdg-dir (getenv "XDG_RUNTIME_DIR"))
               (writeroom (featurep 'writeroom-room))
-              (indirect-buffer (message "TODO")))
+              (python (eq major-mode 'python-mode))
+              (py (eq major-mode 'python-mode))
+              (elisp (eq major-mode 'emacs-lisp-mode))
+              (el (eq major-mode 'emacs-lisp-mode))
+              (indirect-buffer (quote ;TODO)))
 
-
-
-          (quote (when rundir           ;FIXME
-                  (let ((desktop-dir (expand-file-name "desktop" rundir))
+          (quote (when xdg-dir           ;FIXME
+                  (let ((desktop-dir (expand-file-name "desktop" xdg-dir))
                         (PARENTS t))
                     (mkdir desktop-dir PARENTS)
                     (if one-window
                         (desktop-change-dir desktop-dir) ;; FIXME
                       (desktop-save desktop-dir)))))
+
           (widen)
           (whitespace-cleanup)
           (bookmark-save)
           ;; (sh!! "git rev-parse --show-toplevel")
-          (cond (one-window
-                 (cond
-                  (writeroom
-                   (writeroom-mode 1))))
-                (t
-                 (cond (writeroom
-                        (writeroom-mode -1)))
-                 (balance-windows)))
+          (balance-windows)
           (cond ((eq major-mode 'python-mode)
                  (unless (window--process-window-list)
-                   (run-python nil nil t))))
+                   (progn
+                     (python-shell-restart)))))
           (cond ((eq major-mode 'org-mode)
                  (org-babel-tangle))
                 (t (save-window-excursion (org-babel-detangle))))))))
@@ -776,9 +809,19 @@
 (after! ob-async
   (setq ob-async-no-async-languages-alist '("ipython" "python")))
 
+(after! rainbow-delimiters
+  (add-hook! (quote (python-mode-hook))
+    (quote rainbow-delimiters-mode))
+  (custom-set-faces
+   '(rainbow-delimiters-depth-1-face ((t (:foreground "gray"))))))
+
+
 (ignore-errors
   (load-file (format "~/.%s.el" (getenv "HOSTNAME"))))
 
 (defmacro sh! (CMDLINE)
   `(ignore-errors (string-trim
                    (shell-command-to-string (concat CMDLINE)))))
+
+
+(-config-el-eol-hook)

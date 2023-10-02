@@ -10,9 +10,9 @@
        :ui
        indent-guides
        hl-todo
-       modeline
        treemacs
        zen
+       (modeline +light)
        (ligatures +extra +fira +iosevka)
        (popup +defaults)
 
@@ -50,7 +50,8 @@
        emacs-lisp
        yaml
        (org +roam2)
-       (python +lsp +pyenv +pyright +tree-sitter)
+       ;; (python +lsp +pyenv +pyright +tree-sitter)
+       (python +lsp +pyenv +tree-sitter)
        (sh +lsp)
        (go +lsp)
        (nim +lsp)

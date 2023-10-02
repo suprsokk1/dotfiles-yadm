@@ -1,10 +1,22 @@
 # -*- mode: sh -*-
+
+# TODO prefix aliases with ',' except those already prefixed with @
+# TODO systemctl verbs with completion
+
+if [[ $ZSH_VERSION ]]; then
+alias -s git='env -C ~/src git clone --depth 1'
+if command -v highlight &>/dev/null; then
+for ext in y{,a}ml `# FIXME # json` conf{,ig} txt desktop ini toml; do
+alias -s $ext='command highlight -O ansi --force'
+done
+fi
+
+fi
+
 if command -v podman &>/dev/null; then
 alias docker='command podman'
 fi
 
-# TODO prefix aliases with ',' except those already prefixed with @
-# TODO systemctl verbs with completion
 # TODO 'grep' wrapper function for 'rg'
 # alias -- grep='command rg' # FIXME
 
@@ -16,16 +28,12 @@ alias -- @1='/usr/bin/env xargs -n1'
 alias -- @P='/usr/bin/env xargs --max-procs=$(cpus)'
 alias -- @P1='/usr/bin/env xargs --max-procs=$(cpus) -n1'
 
-# FIXME should be a helper function
-alias -- cpus='pushd /sys/class/cpuid &>/dev/null; set *; echo $#; popd &>/dev/null #'
-
 alias -- tar='command tar --exclude-from=${HOME}/.config/ignore --exclude-vcs-ignores'
-
 alias -- reload='. ~/.${BASH_VERSION:+bash}${ZSH_VERSION:+zsh}rc'
 alias -- rl='reload'
 
+# alias -- cat='command highlight -O ansi --force' # FIXME / TODO
 alias -- ,man='tmux display-popup -B' # FIXME
-# alias -- cat='command highlight -O ansi --force' # FIXME
 
 alias -- buf='command stdbuf -oL'
 
@@ -36,8 +44,7 @@ alias -- grep-json="command grep -Poz '{[\s\S]+}'"
 
 alias -- md='\mkdir'
 
-# TODO read aliases from tmux config
-alias -- capp='tmux capture-pane -p'
+alias -- capp='tmux capture-pane -p' # TODO read aliases from tmux config
 
 alias -- pgrep='command pgrep --list-full'
 
@@ -49,3 +56,14 @@ alias -- pgrep='command pgrep --list-full'
 for ITEM in up down right left; do
 eval "alias -- capp${ITEM::1}='tmux capture-pane -p -t '\''{ITEM}'\'' | cat --squeeze-blank' ; alias -- capu='capp${ITEM::1}'"
 done
+
+# import aliases
+if test -s ~/.config/tmux/tmux.conf; then
+. <(sed -E '/command.alias/!d;s#.*[[:space:]]+([[:print:]]*)='\''(.*)'\''#alias -- \1='\''tmux \2'\''#' ~/.config/tmux/tmux.conf)
+fi
+
+#
+# gron
+#
+
+alias -- ungron='command gron --ungron'

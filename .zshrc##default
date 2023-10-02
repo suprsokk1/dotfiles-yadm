@@ -1,12 +1,21 @@
 # .zshrc -*- mode: sh -*-
-
-# force tmux to truncate lines
-setterm --linewrap off
-
+# FIXME show relevant git info.; branch, dirty status etc
 # NOTE 💡alias/override command options; f.ex. alias grep.only-matching='func or command' override grep --only-matching
 # FIXME tmux completion and maybe others
 # TODO disable bell
 # TODO disable all predefined static dirs
+
+# zmodload zsh/regex
+zmodload zsh/pcre
+
+case $(xdg-settings get default-web-browser) in
+  *qute*);;
+  *) xdg-settings set default-web-browser /usr/share/applications/org.qutebrowser.qutebrowser.desktop
+esac
+
+# force tmux to truncate lines
+setterm --linewrap off
+
 hash -d yadm=$HOME/.config/yadm
 hash -d run="${XDG_RUNTIME_DIR:-/run/user/${EUID:-$(id -u)}}"
 hash -d config="${XDG_CONFIG_HOME:-$HOME/.config}"
@@ -16,31 +25,36 @@ hash -d fonts=$HOME/.local/share/fonts
 hash -d autorun=$HOME/.config/autorun
 hash -d desktop=$HOME/.local/share/applications
 
-ZSH=~/.oh-my-zsh
-ZSH_THEME="af-magic"
-ZSH_THEME="simple"
 
-read regex_url <<'REGEX'
-^(((ht|f)tp(s?))\://)?(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(com|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk)(\:[0-9]+)*(/($|[a-zA-Z0-9\.\,\;\?\'\\\+&%\$#\=~_\-]+))*$
-REGEX
+ZSH=~/.oh-my-zsh
+# ZSH_THEME="af-magic"
+ZSH_THEME=${ZSH_THEME:-simple}
 
 # plugins-=(pipenv)
-plugins+=(zsh-autosuggestions)
+plugins+=( zsh-autosuggestions )
 # plugins+=(h)                    # breaks zsh-autosuggestions?
 # plugins+=(git)
-plugins+=(direnv)
-plugins+=(fzf)
+plugins+=( direnv )
+plugins+=( fzf )
+plugins+=( tmux )
 
 FZF_DEFAULT_OPTS="--layout=reverse --height=7"
 FZF_DEFAULT_COMMAND=$HOME/bin/,
 
-PROMPT_COMMAND=
 # PROMPT_COMMAND+="`# TODO`_refresh_completion &>/dev/null"
-PROMPT_COMMAND+='; . ~/.functions'
-PROMPT_COMMAND+='; . ~/.aliases'
-
 # FIXME show relevant git info.; branch, dirty status etc.
-PROMPT_COMMAND+=';  _tmux_pane_title="$(pwd; git rev-parse --show-toplevel 2>/dev/null)" ; tmux set @p "$_tmux_pane_title"'
+prompt_command=()
+prompt_command+=( '. ~/.functions' )
+prompt_command+=( '. ~/.aliases' )
+prompt_command+=( '' )
+prompt_command+=( 'tmux set @pane-title $(pwd; git rev-parse --show-toplevel 2>/dev/null)' )
+prompt_command+=( 'if [[ $? -eq 0 ]]; then tmux set @pane-format "#[fg=colour10]#{@pane-title}" ; else tmux set @pane-format "#[fg=colour10]#{@pane-title}"; fi' )
+prompt_command+=( 'if test -s /home/linuxbrew/.linuxbrew/bin/go; then hash go=/home/linuxbrew/.linuxbrew/bin/go; fi' )
+
+PROMPT_COMMAND=
+for x in $prompt_command; do
+  PROMPT_COMMAND+="; $x"
+done
 
 if ! test -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 then git clone https://github.com/zsh-users/zsh-autosuggestions $_
@@ -53,7 +67,7 @@ for ITEM in aliases functions parameters; do
 done
 
 # activate oh-my-zsh
-if [[ -s $ZSH/oh-my-zsh.sh  ]]; then
+if [[ -s $ZSH/oh-my-zsh.sh ]]; then
 . $ZSH/oh-my-zsh.sh
 fi
 
@@ -92,25 +106,29 @@ WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
 CRONTAB
 fi
 
-if command -v incrontab &>/dev/null
-then : <<.syntax; { envsubst | incrontab - &>/dev/null; } <<'INCRONTAB'
+:<<.syntax; if command -v incrontab &>/dev/null; then { envsubst|incrontab - &>/dev/null; } <<'INCRONTAB'; fi
 $$   dollar sign
 $@   watched filesystem path (see above)
 $#   event-related file name
 $%   event flags (textually)
 $&   event flags (numerically)
 .syntax
-
-PATH=${HOME}/bin:${PATH}
-DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${EUID}/bus
-WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
-
-${HOME}/.local/share/fonts/   IN_ALL_EVENTS,recursive=false    , $%,"$@/$#"
-${HOME}/Downloads/            IN_ALL_EVENTS,recursive=false    , $%,"$@/$#"
-${HOME}/git/org/roam/         IN_CREATE,recursive=false        env -C ${HOME}/git/org gh repo sync
-${HOME}/watch/                IN_ALL_EVENTS,recursive=false    /usr/bin/notify-send --expire-time 5000 $# $%
+$HOME/watch IN_CREATE,recursive=false /usr/bin/notify-send --expire-time 1000 foo bar
 INCRONTAB
-fi
+
+incrontab -l | awk '{system("chmod a+x "$1)}'
+
+# ~/watch IN_ALL_EVENTS,recursive=false /usr/bin/notify-send --expire-time 1000 foo bar
+# DEBUG=1
+# PATH=${HOME}/bin:${PATH}
+# DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${EUID}/bus
+# WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+# ${HOME}/.local/share/fonts/   IN_ALL_EVENTS,recursive=false    , $%,"$@/$#"
+# ${HOME}/Downloads/            IN_ALL_EVENTS,recursive=false    , $%,"$@/$#"
+# ${HOME}/git/org/roam/         IN_CREATE,recursive=false        env -C ${HOME}/git/org gh repo sync
+# ${HOME}/watch/                IN_ALL_EVENTS,recursive=false    /usr/bin/notify-send --expire-time 5000 $# $%
+
+
 
 if false; then
 source <(when jc --zsh-comp)
@@ -125,6 +143,7 @@ fi; shift
 #
 ## completion
 ##
+## DOC: https://thevaluable.dev/zsh-completion-guide-examples/
 
 _vpn() {
     reply=( on off up down 0 1 )
@@ -140,7 +159,15 @@ zstyle ':completion:*' cache-path "$zsh_cache_dir"
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' squeeze-slashes true
 
-alias _nmap='_subnets'
+# select | select=long | select=<n>
+zstyle ':completion:*' menu select
+zstyle ':completion:*:*:*:*:corrections' format '%F{yellow}!- %d (errors: %e) -!%f'
+
+zstyle ':completion:*' completer _extensions _complete _approximate
+zstyle ':completion:*:*:cp:*' completer _extensions _complete _approximate
+zstyle ':completion:*:*:vpn:*' completer _vpn
+zstyle ':completion:*:*:wifi:*' completer _complete
+
 
 #
 ## Emacs default 'M-l'
@@ -182,14 +209,28 @@ paste-clipboard-wayland() {
 paste-clipboard-x() {
   LBUFFER+="$(eval xclip -out -selection clipboard)"
 }
-zle -N paste-clipboard-wayland
-zle -N paste-clipboard-x
-if [[ $WAYLAND_DISPLAY ]]; then
-bindkey "^[y" paste-clipboard-wayland
-else
-bindkey "^[y" paste-clipboard-x
-fi
 
+paste-clipboard() {
+   if [[ $WAYLAND_DISPLAY ]]; then
+      LBUFFER+="$(eval wl-paste)"
+   else
+      LBUFFER+="$(eval xclip -out -selection clipboard)"
+   fi
+}
+
+# zle -N paste-clipboard-wayland
+# zle -N paste-clipboard-x
+zle -N paste-clipboard
+
+# if [[ $WAYLAND_DISPLAY ]]; then
+# bindkey "^[y" paste-clipboard-wayland
+# else
+# bindkey "^[y" paste-clipboard-x
+# fi
+
+bindkey "^[y" paste-clipboard
+
+# FIXME show relevant git info.; branch, dirty status etc
 
 #
 ## FIXME Pretty print JSON
@@ -203,11 +244,8 @@ bindkey "^Q^J" pretty-print-json
 
 foo() {
   case ${#LBUFFER} in
-    0)
-        tmux display-message "Nothing to do.."
-      ;;
-    *)
-      tmux split -H "cat"
+    0) tmux display-message "Nothing to do.." ;;
+    *) tmux split -H "cat"
   esac
 }
 zle -N foo
@@ -223,3 +261,25 @@ old_path="$PATH"
 path=( ${(m)path:#*brew*} )
 export PATH
 fi
+
+if test -d ~/.sh.d; then
+for adhoc in ~/.sh.d/*.zsh; do
+    shellcheck "$adhoc" &>/dev/null || continue
+    . "$adhoc"
+done
+fi
+
+
+#
+## ls / exa
+##
+
+yadm_regex() {
+  yadm config --get-regex ^regex |
+    cut -d. -f 2- |
+    sed -E 's#^([[:print:]]+)[[:space:]](.*)#(?P<\1>\2)#' |
+    tr -d '\n' |
+    xargs -0 |
+    tr '\0' '|'
+
+}

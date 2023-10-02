@@ -6,8 +6,8 @@ precmd() {
 
 command_not_found_handle() {
     command_not_found_handle() {
-        return
-        print -ln "Command not found: $@"
+        print -ln "Custom: 'Command not found': ${@//$'\n'/\;}" >2
+        return 127
     }
     # test -f /etc/redhat-release
     exe="$1"
@@ -26,7 +26,6 @@ command_not_found_handle() {
             # FIXME @latest TODO find latest stable version
             # go install github.com/ericchiang/pup@$latest['pup']
             go install github.com/ericchiang/pup@main
-
             ;;
         regex2json)
             go install gitlab.com/tozd/regex2json/cmd/regex2json@main
@@ -44,6 +43,7 @@ command_not_found_handle() {
     eval "$@"
 
 }
+
 
 TRAPERR() {
     case $@ in
@@ -86,62 +86,66 @@ set-theme---zsh() {
     command sed -E "/ZSH_THEME/d;iZSH_THEME=\"${@}\";N" ~/.zshrc
 }
 
--list--files--fd() {
+DEPRICATED-list--files--fd() {
     eval "command stdbuf -oL /usr/bin/env --ignore-environment $(command -v fd) $@"
 }
 
--list--unit-files() {
+DEPRICATED-list--unit-files() {
     command jc systemctl listt-unit-files |
         jq '.[]' -c
 }
 
--list--env() {
+DEPRICATED-list--env() {
     { env; set; } | LC_ALL jc --env  | jq -c '.[]'
 }
 
--list--files--all() {
-    -list--files--fd --one-file-system -uuu `# -X exa -l` . "${@:-$PWD}"
+DEPRICATED-list--files--fd() {
+    :
 }
 
--list--files--git-repositories() {
-    -list--files--fd --hidden -tf --glob config "${@:-$PWD}" |
+DEPRICATED-list--files--all() {
+    DEPRICATED-list--files--fd --one-file-system -uuu `# -X exa -l` . "${@:-$PWD}"
+}
+
+DEPRICATED-list--files--git-repositories() {
+    DEPRICATED-list--files--fd --hidden -tf --glob config "${@:-$PWD}" |
         LC_ALL=C command rg --line-buffered -- '.git/config' |
         sed -E 's#..git.config$##' |
         command jc --ls |
         command jq -c '.[]'
 }
 
--list--files.json() {
-    -list--files--fd | command jc --ls  | jq '.[]' -c
+DEPRICATED-list--files.json() {
+    DEPRICATED-list--files--fd | command jc --ls  | jq '.[]' -c
 }
 
--list--files--executable() {
+DEPRICATED-list--files--executable() {
     command fd --type f  -tx |
         command jc --ls  |
         jq '.[]' -c
 }
 
--list--files--changed-today() {
-    -list--files--fd --one-file-system --hidden --no-ignore-vcs --changed-within='1day' "${1:-.}" "${2:-$PWD}"
+DEPRICATED-list--files--changed-today() {
+    DEPRICATED-list--files--fd --one-file-system --hidden --no-ignore-vcs --changed-within='1day' "${1:-.}" "${2:-$PWD}"
 }
 
--list--yadm-files() {
+DEPRICATED-list--yadm-files() {
     yadm list
 }
 
--regex--files-at-level.3() {
+DEPRICATED-regex--files-at-level.3() {
     grep -Po -- '^/?(?:[^/]+\b){3}'
 }
 
--list--yadm-files--untagged() {
+DEPRICATED-list--yadm-files--untagged() {
     yadm list | sed '/#/d'
 }
 
--dirnames() {
+DEPRICATED-dirnames() {
     command xargs --replace=FILES find FILES -maxdepth 0 -execdir pwd \;
 }
 
--dirnames--uniq() {
+DEPRICATED-dirnames--uniq() {
     -dirnames | uniq
 }
 
@@ -150,35 +154,36 @@ set-theme---zsh() {
 # FIXME
 unalias ls &>/dev/null ||:
 ls() {
+    args=( ${exa[*]} )
     local exa
-    exa=(--icons --group-directories-first)
+    exa=( --icons --group-directories-first )
+    exa+=( $args )
     for arg; do
         if  [[ $arg =~ ^-- ]]; then
             exa+=("$arg")
         elif [[ $arg =~ ^-[a-zA-Z] ]]; then
             # split short options
-            grep --extended-regexp --only-matching -- '[[:alpha:]]' <<< "${arg//-/}" |
-                while read c ; do
-                    case $c in
-                        o)
-                            # TODO
-                            ;;
-                        t)
-                            # exa+=( "${arg//t/}" )
-                            exa+=( --time modified )
-                            ;;
-                        G|-)
-                            # discard
-                            ;;
-                        *)
-                            exa+=( -"$c" )
-                    esac
-                done
+            for c in $(grep --extended-regexp --only-matching -- '[[:alpha:]]' <<< "${arg//-/}"); do
+                case $c in
+                    o)
+                    # TODO
+                    ;;
+                    t)
+                        # exa+=( "${arg//t/}" )
+                        exa+=( --time modified )
+                        ;;
+                    G|-)
+                        # discard
+                        ;;
+                    *)
+                        exa+=( -"$c" )
+                esac
+            done
         else
-            exa+=("$arg")
+            exa+=( "$arg" )
         fi
     done
-    eval "exa ${exa[@]}"
+    eval "exa ${exa[*]}"
 }
 
 
@@ -189,8 +194,8 @@ enumerate() {
     case $# in
         0) return;;
         1)
-            enumerate $(command grep -o . <<< "$1")
-           ;;
+            enumerate "$(command grep -o . <<< \"$1\")"
+            ;;
         *)
             for arg; do
                 printf '%2d %s\n' $((++i)) "$arg"
@@ -214,7 +219,7 @@ __debug__() {
 
 __tmux_mpm_helper() {
     set $(tmux capture-pane -p | awk '/cargo|dnf|gem|yum/{print $2}')
-    export dnf=("$@")
+    export dnf=( "$@" )
 }
 
 _files_tmux() {
@@ -232,16 +237,16 @@ _refresh_arrays() {
     notify-send --expire-time 500 "$0" "$words" &>/dev/null
 }
 
--match--ip-addresses() {
+DEPRICATED-match--ip-addresses() {
     command grep -Po -- "\b$(rgxg cidr 0.0.0.0/0)\b"
 }
 
--subnets() {
+DEPRICATED-subnets() {
     command ip -4 route |
         command grep -Po -- "$(rgxg cidr 0.0.0.0/0)/([1-3]?[0-9])"
 }
 
--ip-addresses() {
+DEPRICATED-ip-addresses() {
     command ip -4 address show |
         command grep -Po -- "\b$(rgxg cidr 0.0.0.0/0)\b"
 }
@@ -250,21 +255,21 @@ _refresh_arrays() {
     TODO
 }
 
--download-nerd-fonts() {
+DEPRICATED-download-nerd-fonts() {
     curl --silent -- nerdfonts.com/downloads |
         pup 'a[href*="zip"]:contains("Download")' attr{href} |
         xargs env -C /dev/shm curl --retry 2 --verbose --remote-name --progress-bar
 }
 
--list--sway-windows_workspace() {
+DEPRICATED-list--sway-windows_workspace() {
     TODO
 }
 
--list--sway-windows_all() {
+DEPRICATED-list--sway-windows_all() {
     TODO
 }
 
--list--github-starred-repositories() {
+DEPRICATED-list--github-starred-repositories() {
     TODO
 }
 
@@ -273,18 +278,18 @@ list() {
 }
 
 _list() {
-    -list--functions |
-        command env - LC_ALL=C rg --line-buffered -- -list--
+    DEPRICATED-list--functions |
+        DEPRICATEDcommand env - LC_ALL=C rg --line-buffered -- -list--
 }
 
 vpn() {
     case $1 in
         pause|hold|sleep)
             piactl
-        ;;
+            ;;
         1|y|on|up)
             piactl connect
-        ;;
+            ;;
         0|n|off|down)
             piactl disconnect
             ;;
@@ -356,15 +361,20 @@ fd() {
     esac
 }
 
--get-workspace() {
+DEPRICATED-get-workspace() {
     swaymsg -t get_tree |
         command jq 'recurse(.nodes[]) | select(.nodes[].focused == true)'
 }
-
 
 unset -f fd # FIXME
 
 kbd() {
     # Work in progress
     sed -E 's#C-(.)[[:space:]]*#^\U\1#g;s#M-#^[#g' <<< "$@"
+}
+
+cpus() {
+    pushd /sys/class/cpuid &>/dev/null
+    set *; echo $#
+    popd &>/dev/null
 }

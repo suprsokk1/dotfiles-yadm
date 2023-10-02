@@ -1,61 +1,34 @@
 #!/usr/bin/env -S bash
 # -*- mode: sh -*-
+shopt -s extglob
 
-notify-send --expire-time 1000 ${@:-,}
+set -a
+PATH=${PATH:-${HOME}/bin:${PATH}}
+DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/${EUID}/bus}
+WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-1}
 
+script="$(which $0|xargs realpath)"
 ext=${1##*.}
 functions=( "$(compgen -A function)" )
 name=${0##*/}
 realname=$(readlink "$name")
-# xargs -0a /proc/$$/cmdline
 parent=$(readlink /proc/$PPID/exe)
-# set -x
-# pushd "${1%/*}" || exit
-# GIT_DIR="$(git rev-parse --show-toplevel)"
-# ${GIT_DIR:-unset GIT_DIR}
-# realpath /proc/$$/fd/0 >&2
 
-# compgen -A function >&2
-shopt -s extglob
+notify-send --expire-time 500 ${@:-,}
 
-function isGit {
-    git rev-parse --show-toplevel &>/dev/null
-}
-
-function runPlay {
-    # export ANSIBLE_HOME=$HOME/ansible
-    export ANSIBLE_STDOUT_CALLBACK=yaml
-    export ANSIBLE_FORCE_COLOR=1
-    # export ANSIBLE_
-    # export ANSIBLE_INVENTORY=inventory/
-    export ANSIBLE_DEBUG=0
-    export ANSIBLE_VERBOSITY=0
-    # export ANSIBLE_INVENTORY_PLUGIN_SCRIPT_STDERR=true
-    # export ANSIBLE_CONFIG=ffs.cfg
-
-    gitdir="${1%/*}"
-    pushd "$gitdir"
-
-    if pushd "$(git rev-parse --show-toplevel)"; then
-        if test 1 -eq  $(yq '..|select(has("become")).become' "$1"); then
-            pass _ansible/become | tee fifo > /dev/null &
-            export ANSIBLE_PASSWORD_FILE=fifo
-        fi
-            ansible-playbook $(realpath --relative-base="$_" "$1")
-        return
-        # echo pwd: $PWD
-    else
-        ansible-playbook "$1"
-    fi
-}
-
-
-# ???
-if false; then
-    shebang=$(sed -E 1\!d "$@")
-    notify-send --expire-time 5000 "$0" "$parent:$name:$@"
+if [[ $DEBUG ]] ; then
+    notify-send --expire-time 1000 ${@:-,}
 fi
 
+function __start__ {
+    __main__
+}
+
+function __main__ {
+
+shebang=$(head -1 "$@")
+
+notify-send --expire-time 5000 "$0" "$parent:$name:$@"
 
 case $name in
     SUDO_ASKPASS|sudo-askpass)
@@ -90,7 +63,6 @@ case $name in
                                 --replace IGNORE ,
                         ;;
                     *)
-
                 esac
                 ;;
             *incron*)
@@ -102,17 +74,32 @@ case $name in
                 ;;
             *fzf*)
                 # FIXME
-                highlight -O ansi --force
+                case $# in
+                    1)
+                        # pcre_compile -m "$(yadm config --get regex.ansi)"
+                        # pcre_match -b -- "$@"
+
+                        if test -f "$1" || test -L "$1"
+                        then
+                            highlight -O ansi --force < "$1"
+
+                        elif test -d "$1"
+                        then
+                            :
+
+                        fi
+                        ;;
+                    *)
+                esac
+
                 ;;
             *fswatch*)
                 file=
                 case "$event" in
                     *)
-
                 esac
 
                 repo="$1"
-
                 cd $repo
                 git add .
                 git commit -m"auto-triggered sync"
@@ -194,3 +181,40 @@ case $# in
         exit
 esac
 
+}
+
+
+function isGit {
+    git rev-parse --show-toplevel &>/dev/null
+}
+
+
+function runPlay {
+    # export ANSIBLE_HOME=$HOME/ansible
+    export ANSIBLE_STDOUT_CALLBACK=yaml
+    export ANSIBLE_FORCE_COLOR=1
+    export ANSIBLE_DEBUG=0
+    export ANSIBLE_VERBOSITY=0
+    # export ANSIBLE_
+    # export ANSIBLE_INVENTORY=inventory/
+    # export ANSIBLE_INVENTORY_PLUGIN_SCRIPT_STDERR=true
+    # export ANSIBLE_CONFIG=ffs.cfg
+
+    gitdir="${1%/*}"
+    pushd "$gitdir"
+
+    if pushd "$(git rev-parse --show-toplevel)"; then
+        if test 1 -eq  $(yq '..|select(has("become")).become' "$1"); then
+            pass _ansible/become | tee fifo > /dev/null &
+            export ANSIBLE_PASSWORD_FILE=fifo
+        fi
+            ansible-playbook $(realpath --relative-base="$_" "$1")
+        return
+        # echo pwd: $PWD
+    else
+        ansible-playbook "$1"
+    fi
+}
+
+
+__start__
