@@ -27,16 +27,17 @@ hash -d desktop=$HOME/.local/share/applications
 
 
 ZSH=~/.oh-my-zsh
-# ZSH_THEME="af-magic"
 ZSH_THEME=${ZSH_THEME:-simple}
-
-# plugins-=(pipenv)
+if [[ $TMUX ]]; then
+plugins+=( git )
+fi
+# plugins-=( pipenv )
 plugins+=( zsh-autosuggestions )
-# plugins+=(h)                    # breaks zsh-autosuggestions?
-# plugins+=(git)
 plugins+=( direnv )
 plugins+=( fzf )
 plugins+=( tmux )
+
+# plugins+=(h) # breaks zsh-autosuggestions?
 
 FZF_DEFAULT_OPTS="--layout=reverse --height=7"
 FZF_DEFAULT_COMMAND=$HOME/bin/,
@@ -46,9 +47,11 @@ FZF_DEFAULT_COMMAND=$HOME/bin/,
 prompt_command=()
 prompt_command+=( '. ~/.functions' )
 prompt_command+=( '. ~/.aliases' )
-prompt_command+=( 'tmux set @pane-title $(pwd; git rev-parse --show-toplevel 2>/dev/null)' )
-prompt_command+=( 'if [[ $? -eq 0 ]]; then tmux set @pane-format "#[fg=colour10]#{@pane-title}" ; else tmux set @pane-format "#[fg=colour10]#{@pane-title}"; fi' )
-prompt_command+=( 'if test -s /home/linuxbrew/.linuxbrew/bin/go; then hash go=/home/linuxbrew/.linuxbrew/bin/go; fi' )
+# prompt_command+=( 'tmux set @pane-title "#[fg=colour10]' )
+
+# prompt_command+=( 'tmux set @pane-title $(pwd; git rev-parse --show-toplevel 2>/dev/null)' )
+# prompt_command+=( 'if [[ $? -eq 0 ]]; then tmux set @pane-format "#[fg=colour10]#{@pane-title}" ; else tmux set @pane-format "#[fg=colour10]#{@pane-title}"; fi' )
+# prompt_command+=( 'if test -s /home/linuxbrew/.linuxbrew/bin/go; then hash go=/home/linuxbrew/.linuxbrew/bin/go; fi' )
 
 PROMPT_COMMAND=
 for x in $prompt_command; do
