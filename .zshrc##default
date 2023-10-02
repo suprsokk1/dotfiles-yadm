@@ -46,7 +46,6 @@ FZF_DEFAULT_COMMAND=$HOME/bin/,
 prompt_command=()
 prompt_command+=( '. ~/.functions' )
 prompt_command+=( '. ~/.aliases' )
-prompt_command+=( '' )
 prompt_command+=( 'tmux set @pane-title $(pwd; git rev-parse --show-toplevel 2>/dev/null)' )
 prompt_command+=( 'if [[ $? -eq 0 ]]; then tmux set @pane-format "#[fg=colour10]#{@pane-title}" ; else tmux set @pane-format "#[fg=colour10]#{@pane-title}"; fi' )
 prompt_command+=( 'if test -s /home/linuxbrew/.linuxbrew/bin/go; then hash go=/home/linuxbrew/.linuxbrew/bin/go; fi' )
