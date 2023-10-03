@@ -160,23 +160,17 @@ ls() {
     exa+=( $args )
     for arg; do
         if  [[ $arg =~ ^-- ]]; then
+            # longopts
             exa+=("$arg")
         elif [[ $arg =~ ^-[a-zA-Z] ]]; then
-            # split short options
-            for c in $(grep --extended-regexp --only-matching -- '[[:alpha:]]' <<< "${arg//-/}"); do
+            # shortopts
+            for c in `# split short options` $(grep --extended-regexp --only-matching -- '[[:alpha:]]' <<< "${arg//-/}"); do
                 case $c in
-                    o)
-                    # TODO
-                    ;;
-                    t)
-                        # exa+=( "${arg//t/}" )
-                        exa+=( --time modified )
-                        ;;
-                    G|-)
-                        # discard
-                        ;;
-                    *)
-                        exa+=( -"$c" )
+                    [aA]) exa+=( --all ) ;;
+                    o)    `#TODO`;;
+                    t)    exa+=( --time modified );;
+                    G|-)  `# discard` ;;
+                    *)    exa+=( -"$c" )
                 esac
             done
         else
