@@ -2,23 +2,20 @@
 
 # TODO prefix aliases with ',' except those already prefixed with @
 # TODO systemctl verbs with completion
+# TODO 'grep' wrapper function for 'rg'
 
 if [[ $ZSH_VERSION ]]; then
-alias -s git='env -C ~/src git clone --depth 1'
+alias -s git='command env -C ~/src git clone --depth 1'
 if command -v highlight &>/dev/null; then
 for ext in y{,a}ml `# FIXME # json` conf{,ig} txt desktop ini toml; do
 alias -s $ext='command highlight -O ansi --force'
 done
 fi
-
 fi
 
 if command -v podman &>/dev/null; then
 alias docker='command podman'
 fi
-
-# TODO 'grep' wrapper function for 'rg'
-# alias -- grep='command rg' # FIXME
 
 alias -- top='command btop'
 
@@ -33,19 +30,16 @@ alias -- reload='. ~/.${BASH_VERSION:+bash}${ZSH_VERSION:+zsh}rc'
 alias -- rl='reload'
 
 # alias -- cat='command highlight -O ansi --force' # FIXME / TODO
-alias -- ,man='tmux display-popup -B' # FIXME
+# alias -- ,man='tmux display-popup -B' # FIXME
 
 alias -- buf='command stdbuf -oL'
 
 alias -- edit='command ${EDITOR:-${VISUAL:-vi}} `test [[ $EDITOR =~ emacs ]] && echo --no-wait`'
 
-alias -- grep-json="command grep -Poz '{[\s\S]+}'"
+alias -- json_="command grep -Poz '{[\s\S]+}'"
 # alias -- jq='command jq --from-file ~/.functions.jq' # FIXME jq have rc file?
 
 alias -- md='\mkdir'
-
-alias -- capp='tmux capture-pane -p' # TODO read aliases from tmux config
-
 alias -- pgrep='command pgrep --list-full'
 
 #
@@ -61,6 +55,7 @@ done
 if test -s ~/.config/tmux/tmux.conf; then
 . <(sed -E '/command.alias/!d;s#.*[[:space:]]+([[:print:]]*)='\''(.*)'\''#alias -- \1='\''tmux \2'\''#' ~/.config/tmux/tmux.conf)
 fi
+unalias man &>/dev/null
 
 #
 # gron
