@@ -5,6 +5,7 @@
 # TODO tmux completion
 # TODO disable bell
 # TODO disable all predefined static dirs
+# TODO move customizations to $ZSH/custom/; ~$ZSH/custom/<modname>/<modname>.module.zsh~
 
 # zmodload zsh/regex
 zmodload zsh/pcre
