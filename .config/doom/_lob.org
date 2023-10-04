@@ -8,11 +8,7 @@
 #+begin_src bash
 #+end_src
 
-#+RESULTS: head
-| DEBUGINFOD_URLS=https://debuginfod.fedoraproject.org/ |
-| DEBUG=1                                               |
-
+* TODO default org-babel post eval ~:post post(...,data=*this*)~
 #+name: post
 #+begin_src python :results output raw :var
-
 #+end_src
