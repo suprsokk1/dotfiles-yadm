@@ -2,38 +2,44 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("functions - ls"
- (filename . "/home/geir/.functions##default")
+(("skel"
+ (filename . "/etc/skel/")
+ (front-context-string . ".mozilla\n  -rw-r")
+ (rear-context-string . "34 Jan 19  2023 ")
+ (position . 58)
+ (last-modified 25885 501 118604 938000))
+("functions - ls"
+ (filename . "~/.functions##default")
  (front-context-string . "ls() {\n    local")
  (rear-context-string . "&>/dev/null ||:\n")
  (position . 3444)
  (last-modified 25881 30417 164022 587000))
 ("tmux - bindings"
- (filename . "/home/geir/.config/tmux/tmux.conf")
+ (filename . "~/.config/tmux/tmux.conf")
  (front-context-string . "\n# last\n# bind -")
  (rear-context-string . "pane -t'{next}'\n")
  (position . 1372)
  (last-modified 25875 51230 749189 981000))
 ("sway - exec_always"
- (filename . "/home/geir/.sway/config##default")
+ (filename . "~/.sway/config##default")
  (front-context-string . "exec_always {\n  ")
  (rear-context-string . "de \"default\"\n}\n\n")
  (position . 3195)
  (last-modified 25869 46416 226436 855000))
 ("rc - prompt command"
- (filename . "/home/geir/.zshrc##default")
+ (filename . "~/.zshrc##default")
  (front-context-string . "PROMPT_COMMAND=\n")
  (rear-context-string . "ND=$HOME/bin/,\n\n")
  (position . 976)
  (last-modified 25866 37193 438534 521000))
 ("functions - Doom Emacs"
- (filename . "/home/geir/.config/doom/config.el")
+ (filename . "~/.config/doom/config.el")
  (front-context-string . "(use-package! -f")
  (rear-context-string . "          ))))\n\n")
  (position . 20918)
  (last-modified 25861 36520 57253 556000))
 ("waybar"
- (filename . "/home/geir/.config/waybar/config")
+ (filename . "~/.config/waybar/config")
  (front-context-string . "       \"format-a")
  (rear-context-string . "sconnected ⚠\",\n ")
  (position . 4456)
@@ -45,31 +51,31 @@
  (position . 134)
  (last-modified 25861 28664 748292 387000))
 ("tmux - aliases"
- (filename . "/home/geir/.config/tmux/tmux.conf")
+ (filename . "~/.config/tmux/tmux.conf")
  (front-context-string . "set -s command-a")
  (rear-context-string . "resize-pane -Z\n\n")
  (position . 1793)
  (last-modified 25858 42158 592547 979000))
 ("playbook"
- (filename . "/home/geir/.config/yadm/ansible-playbook.yml")
+ (filename . "~/.config/yadm/ansible-playbook.yml")
  (front-context-string . "\n\n  tasks:\n\n  - ")
  (rear-context-string . "qutebrowser\n    ")
  (position . 802)
  (last-modified 25857 20545 740249 805000))
 ("shellenv"
- (filename . "/home/geir/.shellenv##default")
+ (filename . "~/.shellenv##default")
  (front-context-string)
  (rear-context-string . "TH=~/.ripgreprc\n")
  (position . 117)
  (last-modified 25852 30742 801821 407000))
 ("incrontab"
- (filename . "/home/geir/.zshrc##default")
+ (filename . "~/.zshrc##default")
  (front-context-string . "${HOME} IN_CREAT")
  (rear-context-string . "- <<'INCRONTAB'\n")
  (position . 509)
  (last-modified 25852 28344 961787 229000))
 (","
- (filename . "/home/geir/bin/,")
+ (filename . "~/bin/,")
  (front-context-string . "CE_COLOR=1\n    #")
  (rear-context-string . "port ANSIBLE_FOR")
  (position . 570)
@@ -89,7 +95,7 @@
  (rear-context-string . "    echo \"$@\"\n}\n")
  (position . 4798))
 ("bindings"
- (filename . "/home/geir/.config/doom/config.el")
+ (filename . "~/.config/doom/config.el")
  (front-context-string . "(map!\n (:after d")
  (rear-context-string . "d! dired \"~\"))\n\n")
  (position . 9369)
@@ -135,9 +141,9 @@
  (rear-context-string . "ng.\n  history: 0")
  (position . 625))
 ("org-capture-last-stored"
- (filename . "/home/gepr/git/org/notes.org")
- (front-context-string . "** [2023-10-01 S")
- (rear-context-string . "indent\n\n* Inbox\n")
- (position . 135)
- (last-modified 25881 39275 318719 913000))
+ (filename . "/home/gepr/git/org/roam/20231003080950-makefile_first_prerequisite.org")
+ (front-context-string)
+ (rear-context-string . "t prerequisite \n")
+ (position . 108)
+ (last-modified 25883 45104 553495 772000))
 )
