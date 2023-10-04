@@ -7,7 +7,7 @@ export TMPDIR=${XDG_RUNTIME_DIR:-$TMPDIR}
 set - ~/{,go,.{local,cargo}/}bin
 for p
 do if ! [[ $p =~ $path ]]; then
-       path+=("$p")
+       path+=( "$p" )
    fi
 done
 
