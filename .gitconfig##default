@@ -1,0 +1,31 @@
+[include]
+	path = ~/.local/gitconfig
+[credential "https://github.com"]
+	helper =
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/usr/bin/gh auth git-credential
+[alias]
+	add-alt = "find .*'#'* -exec  yadm add --force {} +"
+	a-HARD-reset = reset --hard
+	a-ls-config = config --list
+	a-ls-config-local = config --local --list
+	a-ls-config-global = config --global --list
+	a-all = commit --reuse-message=HEAD~1 --all
+	root = rev-parse --show-toplevel
+	a-status = status --porcelain
+	ui = ! gitui
+	New = "!git init ||: ; git add --all; git commit -m ."
+	sync = !git pull --autostash && git checkout -b do-not-commit/`date +%s` && git commit --all --message .
+	ls = !git ls-files | xargs ls -o -l -d --dired --color=always --group-directories-first
+	s = !git status --porcelain | colrm 1 2 | xargs ls -l -d --dired --color=always --group-directories-first
+	add-alt = "!find .*'#'* -exec  yadm add --force {} +; yadm status"
+[init]
+	defaultBranch = main
+[core]
+	sparsecheckout = true
+	hooksPath = /dev/null
+[oh-my-zsh]
+	hide-status = 1
+	hide-dirty = 1
