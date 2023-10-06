@@ -16,7 +16,6 @@
   (global-hide-mode-line-mode 1)
   ;; (hide-mode-line-mode t)
   (set-frame-parameter nil 'alpha-background 100)
-
   ;; (set-frame-parameter nil 'alpha-background 90) ;uncomment to enable opacity
   ;; (add-to-list (quote so-long-minor-modes) (quote smartparens-mode))
   (setq-hook! (quote conf-mode-hook js-mode-hook)
@@ -786,7 +785,7 @@ This function is called by `org-babel-execute-src-block'."
           (args (concat "--print0 --hidden")))
       (delete nil (split-string
                    (shell-command-to-string
-                    (format "%s %s %s %s" prefix exe args (eval `(concat ,@ARGS))))
+                    (concat prefix exe args (eval `(concat ,@ARGS))))
                    "\0"))))
 
   (defun -cmd-on-buffer (CMD)
