@@ -1,11 +1,12 @@
 # .zshrc -*- mode: sh -*-
 
-# NOTE 💡alias/override command options; f.ex. alias grep.only-matching='func or command' override grep --only-matching
-# FIXME tmux pane format: show relevant git info.; branch, dirty status etc
+# TODO pre-commit hook; replace secrets and identifying/private information
+# TODO move customizations to $ZSH/custom/; ~$ZSH/custom/<modname>/<modname>.module.zsh~
+# 💡 alias/override command options; f.ex. alias grep.only-matching='func or command' override grep --only-matching
+# FIXME tmux pane format; subtitute shell prompt
 # TODO tmux completion
 # TODO disable bell
 # TODO disable all predefined static dirs
-# TODO move customizations to $ZSH/custom/; ~$ZSH/custom/<modname>/<modname>.module.zsh~
 
 # zmodload zsh/regex
 zmodload zsh/pcre
