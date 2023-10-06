@@ -9,10 +9,6 @@
 [alias]
 	add-alt = "find .*'#'* -exec  yadm add --force {} +"
 	a-HARD-reset = reset --hard
-	a-ls-config = config --list
-	a-ls-config-local = config --local --list
-	a-ls-config-global = config --global --list
-	a-all = commit --reuse-message=HEAD~1 --all
 	root = rev-parse --show-toplevel
 	a-status = status --porcelain
 	ui = ! gitui

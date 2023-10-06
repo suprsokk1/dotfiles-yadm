@@ -1,6 +1,5 @@
 # -*- mode: sh -*-
 precmd() {
-    _run_hooks
     eval "${PROMPT_COMMAND:+$PROMPT_COMMAND}"
 }
 
