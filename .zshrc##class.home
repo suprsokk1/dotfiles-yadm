@@ -27,7 +27,6 @@ hash -d fonts=$HOME/.local/share/fonts
 hash -d autorun=$HOME/.config/autorun
 hash -d desktop=$HOME/.local/share/applications
 
-
 ZSH=~/.oh-my-zsh
 ZSH_THEME=${ZSH_THEME:-simple}
 if [[ $TMUX ]]; then
@@ -44,16 +43,18 @@ plugins+=( tmux )
 FZF_DEFAULT_OPTS="--layout=reverse --height=7"
 FZF_DEFAULT_COMMAND=$HOME/bin/,
 
-# PROMPT_COMMAND+="`# TODO`_refresh_completion &>/dev/null"
-# FIXME show relevant git info.; branch, dirty status etc.
+_tmux_prompt_helper() {
+  export _RC=$?
+  case $_RC in
+    0)  tmux set @color 'colour10' ;;
+    *)  tmux set @color 'colour9'
+  esac
+}
+
 prompt_command=()
+prompt_command+=( '_tmux_prompt_helper' )
 prompt_command+=( '. ~/.functions' )
 prompt_command+=( '. ~/.aliases' )
-# prompt_command+=( "tmux set @pane-title '#[fg=colour10]'" )
-prompt_command+=( "tmux set @pane-title '#[fg=colour10]'" )
-# prompt_command+=( 'tmux set @pane-title $(pwd; git rev-parse --show-toplevel 2>/dev/null)' )
-# prompt_command+=( 'if [[ $? -eq 0 ]]; then tmux set @pane-format "#[fg=colour10]#{@pane-title}" ; else tmux set @pane-format "#[fg=colour10]#{@pane-title}"; fi' )
-# prompt_command+=( 'if test -s /home/linuxbrew/.linuxbrew/bin/go; then hash go=/home/linuxbrew/.linuxbrew/bin/go; fi' )
 
 PROMPT_COMMAND=
 for x in $prompt_command; do
@@ -87,11 +88,10 @@ if [[ $TMUX ]]; then
   else
 
     ## popup
-
-    if false; then
-      tmux source-file ~/.config/tmux/tmux.conf
-      __tmux_menu # TODO
-    fi
+    test -d ~yadm &>/dev/null && cd "$_"
+    set GIT_WORK_TREE=$HOME GIT_DIR=$HOME/.local/share/yadm/repo.git
+    env $@ exa -l --icons --group-directories-first --time modified --git
+    set -
   fi
 fi
 
