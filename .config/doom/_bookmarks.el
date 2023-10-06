@@ -2,6 +2,7 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
+
 (("skel"
  (filename . "/etc/skel/")
  (front-context-string . ".mozilla\n  -rw-r")
@@ -45,7 +46,7 @@
  (position . 4456)
  (last-modified 25861 29851 675268 366000))
 ("-- org notes --"
- (filename . "/home/gepr/git/org/notes.org")
+ (filename . "~/git/org/notes.org")
  (front-context-string . "\n** [2023-09-16 ")
  (rear-context-string . "oindent\n\n* Inbox")
  (position . 134)
@@ -141,9 +142,9 @@
  (rear-context-string . "ng.\n  history: 0")
  (position . 625))
 ("org-capture-last-stored"
- (filename . "/home/gepr/git/org/roam/20231003080950-makefile_first_prerequisite.org")
+ (filename . "~/git/org/roam/20231005075436-fdignore.org")
  (front-context-string)
- (rear-context-string . "t prerequisite \n")
- (position . 108)
- (last-modified 25883 45104 553495 772000))
+ (rear-context-string . "itle: .fdignore\n")
+ (position . 87)
+ (last-modified 25886 20383 113448 572000))
 )
