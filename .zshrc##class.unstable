@@ -16,23 +16,33 @@ case $(xdg-settings get default-web-browser) in
   *) xdg-settings set default-web-browser /usr/share/applications/org.qutebrowser.qutebrowser.desktop
 esac
 
+if command -v yadm &>/dev/null; then
+yadm config
+~/.local/share/qutebrowser/userscripts/myscript
+fi &>/dev/null
+
+case $_PARENT in
+  *emacs*)
+    unset TMUX_PANE
+    unset TMUX
+    ;;
+  *)
+esac
+
 # force tmux to truncate lines
-setterm --linewrap off
+# setterm --linewrap off
 
 hash -d yadm=$HOME/.config/yadm
 hash -d run="${XDG_RUNTIME_DIR:-/run/user/${EUID:-$(id -u)}}"
 hash -d config="${XDG_CONFIG_HOME:-$HOME/.config}"
-hash -d ram=$HOMErun
-hash -d temp=$HOMErun
 hash -d fonts=$HOME/.local/share/fonts
 hash -d autorun=$HOME/.config/autorun
 hash -d desktop=$HOME/.local/share/applications
+hash -d apps=$HOME/.local/share/applications
 
 ZSH=~/.oh-my-zsh
 ZSH_THEME=${ZSH_THEME:-simple}
-if [[ $TMUX ]]; then
-plugins+=( git )
-fi
+if [[ $TMUX ]]; then plugins+=( git ); fi
 # plugins-=( pipenv )
 plugins+=( zsh-autosuggestions )
 plugins+=( direnv )
@@ -43,14 +53,6 @@ plugins+=( tmux )
 
 FZF_DEFAULT_OPTS="--layout=reverse --height=7"
 FZF_DEFAULT_COMMAND=$HOME/bin/,
-
-_tmux_prompt_helper() {
-  export _RC=$?
-  case $_RC in
-    0)  tmux set @color 'colour10' ;;
-    *)  tmux set @color 'colour9'
-  esac
-}
 
 prompt_command=()
 prompt_command+=( '_tmux_prompt_helper' )
@@ -67,9 +69,9 @@ then git clone https://github.com/zsh-users/zsh-autosuggestions $_
 fi
 
 for ITEM in aliases functions parameters; do
-    function -list--$ITEM {
-        eval "print -rl -- \${(k)${funcstack##*-}}"
-    }
+  function -list--$ITEM {
+    eval "print -rl -- \${(k)${funcstack##*-}}"
+  }
 done
 
 # activate oh-my-zsh
@@ -79,30 +81,27 @@ fi
 
 # detect tmux popup window
 if [[ $TMUX ]]; then
-  if [[ $TMUX_PANE ]]; then
+if [[ $TMUX_PANE ]]; then
 
-    ## normal pane
+## normal pane
 
-    # when active tmux will display
-    PROMPT="${PROMPT//git_prompt_info/true}"
+# when active tmux will display
+PROMPT="${PROMPT//git_prompt_info/true}"
 
-  else
+else
 
-    ## popup
-    test -d ~yadm &>/dev/null && cd "$_"
-    set GIT_WORK_TREE=$HOME GIT_DIR=$HOME/.local/share/yadm/repo.git
-    env $@ exa -l --icons --group-directories-first --time modified --git
-    set -
-  fi
+  ## popup
+  test -d ~yadm &>/dev/null && cd "$_"
+  set GIT_WORK_TREE=$HOME GIT_DIR=$HOME/.local/share/yadm/repo.git
+  env $@ exa -l --icons --group-directories-first --time modified --git
+  set -
+fi
 fi
 
-# set -x
-if command -v crontab &>/dev/null
-then : <<.syntax; { envsubst | crontab - &>/dev/null; } <<'CRONTAB'
+if command -v crontab &>/dev/null; then : <<.syntax; { envsubst | crontab - &>/dev/null; } <<'CRONTAB'
 # m h w m y
   * * * * * commandline
 .syntax
-
 PATH=${HOME}/bin:${PATH}
 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${EUID}/bus
 WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
@@ -118,10 +117,15 @@ $#   event-related file name
 $%   event flags (textually)
 $&   event flags (numerically)
 .syntax
-$HOME/watch IN_CREATE,recursive=false /usr/bin/notify-send --expire-time 1000 foo bar
-INCRONTAB
+WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${EUID}/bus
 
-incrontab -l | awk '{system("chmod a+x "$1)}'
+$HOME/watch               IN_CREATE,recursive=false /usr/bin/env DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${EUID}/bus WAYLAND_DISPLAY=${WAYLAND_DISPLAY} /usr/bin/notify-send --expire-time 1000 foo bar
+$HOME/.tmux.conf##default IN_CLOSE_WRITE,recursive=false /usr/bin/notify-send --expire-time 1000 foo bar
+INCRONTAB
+# $HOME/watch               IN_CREATE,recursive=false /usr/bin/env DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${EUID}/bus WAYLAND_DISPLAY=${WAYLAND_DISPLAY} /usr/bin/notify-send --expire-time 1000 foo bar
+
+# incrontab -l | awk '{system("chmod a+x "$1)}'
 
 # ~/watch IN_ALL_EVENTS,recursive=false /usr/bin/notify-send --expire-time 1000 foo bar
 # DEBUG=1
@@ -133,17 +137,9 @@ incrontab -l | awk '{system("chmod a+x "$1)}'
 # ${HOME}/git/org/roam/         IN_CREATE,recursive=false        env -C ${HOME}/git/org gh repo sync
 # ${HOME}/watch/                IN_ALL_EVENTS,recursive=false    /usr/bin/notify-send --expire-time 5000 $# $%
 
-
-
 if false; then
 source <(when jc --zsh-comp)
 fi
-
-# this must be the last file to load
-set - zsh-syntax-highlighting
-if [[ -s ~/src/"$1"/"$1".zsh ]]; then
-source ~/src/"$1"/"$1".zsh
-fi; shift
 
 #
 ## completion
@@ -151,9 +147,11 @@ fi; shift
 ## DOC: https://thevaluable.dev/zsh-completion-guide-examples/
 
 _vpn() {
-    reply=( on off up down 0 1 )
+  reply=( on off up down 0 1 )
 }
 compctl -K {_,}vpn
+
+# compctl -K yadm _git  _complete _approximate
 
 :<<COMPLETION_EXAMPLES
 $ zstyle :completion:<function>:<completer>:<command>:<argument>:<tag>
@@ -172,6 +170,15 @@ zstyle ':completion:*' completer _extensions _complete _approximate
 zstyle ':completion:*:*:cp:*' completer _extensions _complete _approximate
 zstyle ':completion:*:*:vpn:*' completer _vpn
 zstyle ':completion:*:*:wifi:*' completer _complete
+zstyle ':completion:*:*:yadm:*' completer _git
+
+# . $ZSH/oh-my-zsh.sh
+
+# this must be the last file to load
+set - zsh-syntax-highlighting
+if [[ -s ~/src/"$1"/"$1".zsh ]]; then
+source ~/src/"$1"/"$1".zsh
+fi; shift
 
 
 #
@@ -216,11 +223,11 @@ paste-clipboard-x() {
 }
 
 paste-clipboard() {
-   if [[ $WAYLAND_DISPLAY ]]; then
-      LBUFFER+="$(eval wl-paste)"
-   else
-      LBUFFER+="$(eval xclip -out -selection clipboard)"
-   fi
+  if [[ $WAYLAND_DISPLAY ]]; then
+LBUFFER+="$(eval wl-paste)"
+  else
+    LBUFFER+="$(eval xclip -out -selection clipboard)"
+  fi
 }
 
 # zle -N paste-clipboard-wayland
@@ -254,6 +261,7 @@ foo() {
   esac
 }
 zle -N foo
+
 bindkey "^[i" foo
 
 
@@ -269,8 +277,8 @@ fi
 
 if test -d ~/.sh.d; then
 for adhoc in ~/.sh.d/*.zsh; do
-    shellcheck "$adhoc" &>/dev/null || continue
-    . "$adhoc"
+  shellcheck "$adhoc" &>/dev/null || continue
+  . "$adhoc"
 done
 fi
 
@@ -286,5 +294,48 @@ yadm_regex() {
     tr -d '\n' |
     xargs -0 |
     tr '\0' '|'
-
 }
+
+_notify_send() {
+  notify-send --expire-time 300 "${@:-${BUFFER:-}}"
+}
+
+_hook__self-insert__tmux() {
+  tmux set @shell-buffer "$BUFFER"
+}
+
+function self-insert {
+  _hook__self-insert__tmux
+  # _notify_send 'self-insert' "$BUFFER"
+
+  # RBUFFER+="."
+  # execute some other command, but ensure they don't produce any output.
+  zle .self-insert
+}
+zle -N self-insert
+
+_tmux_prompt_helper() {
+  rc=$?
+  set colour{10,9}
+  ((rc)) && shift # true on error
+  tmux set @color $1
+}
+
+# hooks-define-hook zshaddhistory log_command
+# hooks-define-hook self-insert _hook__self-insert__tmux
+# hooks-add-hook self-insert _hook__self-insert__tmux
+prompt_command+=( _yadm_load_config )
+
+_PARENT=$(readlink /proc/$PPID/cmdline)
+
+if [[ $TMUX $TMUX_PANE ]]; then
+case $_PARENT in
+  *tmux*)
+  ;;
+  *)
+    unset TMUX
+    unset TMUX_PANE
+esac
+fi
+
+sed -E '/^[[:print:]]+\(\)/{/^(.*)\(\)/{s##function \1#g}}'
