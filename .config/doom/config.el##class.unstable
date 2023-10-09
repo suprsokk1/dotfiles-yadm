@@ -35,7 +35,7 @@
       (font-spec :family "Iosevka Nerd Font" :size 14  :weight 'light))
 
 ;; (default-value 'frame-title-format)
-(setq frame-title-format (quote ((vc-mode vc-mode))))
+;; (setq frame-title-format)
 
 (setq-hook! (quote (prog-mode-hook text-mode-hook))
   header-line-format
@@ -317,35 +317,9 @@
   (set (quote org-babel-default-header-args:cat)
        (quote ()))
 
-  (add-to-list 'org-babel-shell-names "cat")
+  ;; (org-babel-shell-initialize)
 
-  (org-babel-shell-initialize)
-
-  (defun org-babel-execute:cat (body params)
-    "Execute a block of Shell commands with Babel.
-This function is called by `org-babel-execute-src-block'."
-    (let* ((session (org-babel-sh-initiate-session
-                     (cdr (assq :session params))))
-           (stdin (let ((stdin (cdr (assq :stdin params))))
-                    (when stdin (org-babel-sh-var-to-string
-                                 (org-babel-ref-resolve stdin)))))
-           (results-params (cdr (assq :result-params params)))
-           (value-is-exit-status
-            (or (and
-                 (equal '("replace") results-params)
-                 (not org-babel-shell-results-defaults-to-output))
-                (member "value" results-params)))
-           (cmdline (cdr (assq :cmdline params)))
-           (full-body (concat
-                       (org-babel-expand-body:generic
-                        body params (org-babel-variable-assignments:shell params))
-                       (when value-is-exit-status "\necho $?"))))
-      (org-babel-reassemble-table
-       (org-babel-sh-evaluate session full-body params stdin cmdline)
-       (org-babel-pick-name
-        (cdr (assq :colname-names params)) (cdr (assq :colnames params)))
-       (org-babel-pick-name
-        (cdr (assq :rowname-names params)) (cdr (assq :rownames params))))))
+  ;; (add-to-list 'org-babel-shell-names "cat")
 
   (ignore-errors
     (org-babel-lob-ingest (or (format "%s/_lob.org" doom-user-dir))))
@@ -455,6 +429,7 @@ This function is called by `org-babel-execute-src-block'."
 (global-set-key (kbd "s-p") (quote projectile-find-file))
 
 (map!
+
  "<f12>"           #'flycheck-list-errors
  "<f5>"            #'call-last-kbd-macro
  "C-."             #'mc/mark-next-like-this
@@ -479,25 +454,7 @@ This function is called by `org-babel-execute-src-block'."
  "H-M-l"           #'toggle-truncate-lines
  "H-M-n"           #'split-window-vertically
  "H-M-p"           #'projectile-switch-project
- "H-SPC ."         #'dired-jump
- "H-SPC H-SPC"     #'-refresh
- "H-SPC H-q"       #'delete-other-frames
- "H-SPC TAB"       #'(cmd! (find-file initial-buffer-choice))
- "H-SPC ["         #'mc/edit-beginnings-of-lines
- "H-SPC ]"         #'mc/edit-enda-of-lines
- "H-SPC a"         #'mc/edit-beginnings-of-lines
- "H-SPC b"         #'doom-big-font-mode
- "H-SPC c"         #'doom/goto-private-config-file
- "H-SPC e"         #'mc/edit-enda-of-lines
- "H-SPC h"         #'(cmd! (dired "~"))
- "H-SPC l"         #'-open-library-of-babel
- "H-SPC m"         #'mc/mark-all-like-this ;FIXME
- "H-SPC n"         #'org-capture
- "H-SPC q"         #'delete-other-windows
- "H-SPC r"         nil
- "H-SPC s"         #'org-narrow-to-subtree
- "H-SPC x"         #'doom/open-scratch-buffer
- "H-SPC ~"         #'(cmd! (dired "~"))
+
  "H-["             #'undo
  "H-]"             #'undo-redo
  "H-g"             #'magit-status
@@ -527,23 +484,7 @@ This function is called by `org-babel-execute-src-block'."
  "s-<return>"      #'bookmark-jump
  "s-M-k"           #'doom/kill-this-buffer-in-all-windows
  "s-M-p"           #'projectile-switch-project
- "s-SPC ."         #'dired-jump
- "s-SPC TAB"       #'(cmd! (find-file initial-buffer-choice))
- "s-SPC ["         #'mc/edit-beginnings-of-lines
- "s-SPC ]"         #'mc/edit-enda-of-lines
- "s-SPC a"         #'mc/edit-beginnings-of-lines
- "s-SPC b"         #'doom-big-font-mode
- "s-SPC c"         #'doom/goto-private-config-file
- "s-SPC e"         #'mc/edit-enda-of-lines
- "s-SPC h"         #'(cmd! (dired "~"))
- "s-SPC n"         #'org-capture
- "s-SPC q"         #'delete-other-windows
- "s-SPC r"         nil
- "s-SPC s"         #'org-narrow-to-subtree
- "s-SPC s-SPC"     #'-refresh
- "s-SPC s-q"       #'delete-other-frames
- "s-SPC x"         #'doom/open-scratch-buffer
- "s-SPC ~"         #'(cmd! (dired "~"))
+
  "s-["             'undo
  "s-]"             'undo-redo
  "s-g"             #'magit-status
@@ -553,6 +494,50 @@ This function is called by `org-babel-execute-src-block'."
  "s-m s-m"         #'mc/mark-all-like-this
  "s-n"             #'split-window-horizontally
  "s-p"             #'projectile-find-file
+
+ (:prefix "s-SPC"
+          "m"         '+zen/toggle-fullscreen
+          "SPC"       #'org-roam-node-find
+          "."         #'dired-jump
+          "TAB"       #'(cmd! (find-file initial-buffer-choice))
+          "["         #'mc/edit-beginnings-of-lines
+          "]"         #'mc/edit-enda-of-lines
+          "a"         #'mc/edit-beginnings-of-lines
+          "b"         #'doom-big-font-mode
+          "c"         #'doom/goto-private-config-file
+          "e"         #'mc/edit-enda-of-lines
+          "h"         #'(cmd! (dired "~"))
+          "n"         #'org-capture
+          "q"         #'delete-other-windows
+          "r"         nil
+          "s"         #'org-narrow-to-subtree
+          "s-SPC"     #'-refresh
+          "s-q"       #'delete-other-frames
+          "x"         #'doom/open-scratch-buffer
+          "~"         #'(cmd! (dired "~")))
+
+ (:prefix "H-SPC"
+          "."         #'dired-jump
+          "H-SPC"     #'-refresh
+          "H-q"       #'delete-other-frames
+          "TAB"       #'(cmd! (find-file initial-buffer-choice))
+          "["         #'mc/edit-beginnings-of-lines
+          "]"         #'mc/edit-enda-of-lines
+          "a"         #'mc/edit-beginnings-of-lines
+          "b"         #'doom-big-font-mode
+          "c"         #'doom/goto-private-config-file
+          "e"         #'mc/edit-enda-of-lines
+          "h"         #'(cmd! (dired "~"))
+          "l"         #'-open-library-of-babel
+          "m"         #'mc/mark-all-like-this ;FIXME
+          "n"         #'org-capture
+          "q"         #'delete-other-windows
+          "r"         nil
+          "s"         #'org-narrow-to-subtree
+          "x"         #'doom/open-scratch-buffer
+          "~"         #'(cmd! (dired "~"))
+
+          )
  )
 
 
@@ -567,8 +552,9 @@ This function is called by `org-babel-execute-src-block'."
   )
 
 (map!
-
- :map global-map
+ ;; :after windmove-mode
+ :map   windmove-mode-map
+ ;; :map global-map
  "H-r" #'consult-buffer
  "s-r" #'consult-buffer
  "H-M-k" #'doom/kill-this-buffer-in-all-windows
@@ -579,7 +565,6 @@ This function is called by `org-babel-execute-src-block'."
  "M-o r"  #'highlight-regexp
  "M-o w"  #'highlight-phrase
 
- :map windmove-mode-map
  "s-q"    #'windmove-left
  "s-e"    #'windmove-right
  "s-w"    #'windmove-up
@@ -608,7 +593,7 @@ This function is called by `org-babel-execute-src-block'."
  :map dired-mode-map
  "]"   #'dired-next-marked-file
  "["   #'dired-prev-marked-file
-  "."  #'dired-up-directory
+ "."  #'dired-up-directory
 
  ("," nil
   :prefix ","
@@ -633,18 +618,18 @@ This function is called by `org-babel-execute-src-block'."
   :custom
   (dockerfile-mode-command "docker buildx build"))
 
-(after! org
-  (add-to-list (quote org-babel-shell-names) (quote "tmux"))
-  (add-to-list (quote org-babel-shell-names) (quote "cat"))
-  (add-to-list (quote so-long-minor-modes) (quote display-line-numbers-mode))
+;; (after! org
+;;   (add-to-list (quote org-babel-shell-names) (quote "tmux"))
+;;   (add-to-list (quote org-babel-shell-names) (quote "cat"))
+;;   (add-to-list (quote so-long-minor-modes) (quote display-line-numbers-mode))
 
-  (setq-hook! (quote (org-mode-hook))
-    display-line-numbers-mode -1))
+;;   (setq-hook! (quote (org-mode-hook))
+;;     display-line-numbers-mode -1))
 
 
 ;; (use-package! org-roam
 ;;   :if (string-match "sqlite3" (shell-command-to-string "command -v sqlite3"))
-;;   :bind (("s-SPC SPC" . org-roam-node-find)
+;;   :bind (("SPC" . org-roam-node-find)
 ;;          ("H-SPC SPC" . org-roam-node-find)
 ;;          ("H-SPC t"   . org-roam-tag-add))
 ;;   :catch (lambda (keyword err)
@@ -664,6 +649,16 @@ This function is called by `org-babel-execute-src-block'."
   :config
   (modus-themes-select 'modus-vivendi-tinted)
   :custom
+  (modus-operandi-palette-overrides (quote
+                                     ((fg-main "#333333")
+                                      (comment red-faint)
+                                      (keyword cyan-cooler))))
+  (modus-themes-headings (quote
+                          ((1 . (variable-pitch 1.5))
+                           (2 . (1.3))
+                           (agenda-date . (1.3))
+                           (agenda-structure . (variable-pitch light 1.8))
+                           (t . (1.1)))))
   (modus-themes-variable-pitch-ui t)
   (modus-themes-to-toggle (quote (modus-operandi-tinted modus-vivendi-tinted))))
 
@@ -671,14 +666,34 @@ This function is called by `org-babel-execute-src-block'."
   (interactive)
   (magit-status "/yadm::"))
 
+(after! tramp
+  (add-to-list (quote tramp-methods)
+               (quote ("yadm"
+                       (tramp-login-program "yadm")
+                       (tramp-login-args (("enter")))
+                       (tramp-login-env (("SHELL") ("/bin/sh")))
+                       (tramp-remote-shell "/bin/sh")
+                       (tramp-remote-shell-args ("-c"))))))
 
-(add-to-list (quote tramp-methods)
-             (quote ("yadm"
-                     (tramp-login-program "yadm")
-                     (tramp-login-args (("enter")))
-                     (tramp-login-env (("SHELL") ("/bin/sh")))
-                     (tramp-remote-shell "/bin/sh")
-                     (tramp-remote-shell-args ("-c")))))
+(use-package! ob-tmux
+  ;; Install package automatically (optional)
+  :ensure t
+  :custom
+  (org-babel-default-header-args:tmux
+   '((:results . "silent")	;
+     (:session . "default")	; The default tmux session to send code to
+     (:socket  . nil)))		; The default tmux socket to communicate with
+  ;; The tmux sessions are prefixed with the following string.
+  ;; You can customize this if you like.
+  (org-babel-tmux-session-prefix "ob-")
+  ;; The terminal that will be used.
+  ;; You can also customize the options passed to the terminal.
+  ;; The default terminal is "gnome-terminal" with options "--".
+  (org-babel-tmux-terminal "alacritty")
+  (org-babel-tmux-terminal-opts '("-T" "ob-tmux" "-e"))
+  ;; Finally, if your tmux is not in your $PATH for whatever reason, you
+  ;; may set the path to the tmux binary as follows:
+  (org-babel-tmux-location "/usr/bin/tmux"))
 
 (use-package! -macros
   :no-require t
@@ -723,28 +738,27 @@ This function is called by `org-babel-execute-src-block'."
               (py (eq major-mode 'python-mode))
               (elisp (eq major-mode 'emacs-lisp-mode))
               (el (eq major-mode 'emacs-lisp-mode))
-              (indirect-buffer (quote ;TODO)))
-
+              (indirect-buffer (quote TODO)))
           (quote (when xdg-dir           ;FIXME
                   (let ((desktop-dir (expand-file-name "desktop" xdg-dir))
                         (PARENTS t))
                     (mkdir desktop-dir PARENTS)
                     (if one-window
                         (desktop-change-dir desktop-dir) ;; FIXME
-                      (desktop-save desktop-dir)))))
+                      (desktop-save desktop-dir))))))))
 
-          (widen)
-          (whitespace-cleanup)
-          (bookmark-save)
-          ;; (sh!! "git rev-parse --show-toplevel")
-          (balance-windows)
-          (cond ((eq major-mode 'python-mode)
-                 (unless (window--process-window-list)
-                   (progn
-                     (python-shell-restart)))))
-          (cond ((eq major-mode 'org-mode)
-                 (org-babel-tangle))
-                (t (save-window-excursion (org-babel-detangle))))))))
+    (widen)
+    (whitespace-cleanup)
+    (bookmark-save)
+    ;; (sh!! "git rev-parse --show-toplevel")
+    (balance-windows)
+    (cond ((eq major-mode 'python-mode)
+           (unless (window--process-window-list)
+             (progn
+               (python-shell-restart)))))
+    (cond ((eq major-mode 'org-mode)
+           (org-babel-tangle))
+          (t (save-window-excursion (org-babel-detangle)))))
 
   (defun -clone-line-down (&rest args)
     (interactive "*p")
@@ -791,14 +805,14 @@ This function is called by `org-babel-execute-src-block'."
   (defun -cmd-on-buffer (CMD)
     (shell-command-on-region (point-min) (point-max) CMD nil t))
 
-  (defun -command-on-buffer (&rest list)
+  (defun -command-on-buffer ()
     (interactive
      (-cmd-on-buffer
       (completing-read
        "Apply script on buffer:"
        (split-string-and-unquote (shell-command-to-string "bash -c 'compgen -A command'"))))))
 
-  (defun -script-on-buffer (&rest list)
+  (defun -script-on-buffer ()
     (interactive
      (-cmd-on-buffer
       (completing-read
@@ -820,7 +834,7 @@ This function is called by `org-babel-execute-src-block'."
 
 (defmacro sh! (CMDLINE)
   `(ignore-errors (string-trim
-                   (shell-command-to-string (concat CMDLINE)))))
+                   (shell-command-to-string (concat ,@CMDLINE)))))
 
 
 (-config-el-eol-hook)
