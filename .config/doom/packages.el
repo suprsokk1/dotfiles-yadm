@@ -9,6 +9,8 @@
 
 (package! sway)
 
+(package! ob-tmux)
+
 ;; (package! dotfiles-emacs-bindings
 ;;   :recipe (:repo "/home/gepr/git/dotfiles-emacs-bindings"))
 
