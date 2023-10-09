@@ -8,11 +8,12 @@
        vertico
 
        :ui
-       indent-guides
+       ;; indent-guides
        hl-todo
        treemacs
        zen
-       (modeline +light)
+       ;; (modeline +light)
+       modeline
        (ligatures +extra +fira +iosevka)
        (popup +defaults)
 
