@@ -1,14 +1,24 @@
+:PROPERTIES:
+:HEADER-ARGS: :results silent
+:END:
 #+title: Library of babel
+#+startup: noindent
 
 #+begin_src elisp
 (setenv "DEBUG" "0")
-#+end_src
-
-#+name: head
-#+begin_src bash
+(org-babel-lob-ingest)
 #+end_src
 
 * TODO default org-babel post eval ~:post post(...,data=*this*)~
 #+name: post
-#+begin_src python :results output raw :var
+#+begin_src python :var cat="--show-all"
+data = (_ for _ in vars())
+print(data)
+#+end_src
+
+* DONE join
+#+name: join
+#+begin_src shell :shebang "#!/usr/libexec/platform-python" :var s="\n" :var d="\n" :var t=(quote (foo bar baz)) :results drawer
+return vars()
+# return str() if type(t) is str else str(d).join(t)
 #+end_src
