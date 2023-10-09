@@ -264,6 +264,10 @@ bindsym $Super+t mode $menu_mode
 # for_window [class="(?i)firefox"] title_format --pango_markup "<span foreground='red'>%title</span>"
 for_window [class="(?i)firefox"] title_format "<span foreground='red'>%title</span>"
 
+set $lock 'swaylock -f '
+
+bindswitch --reload --locked lid:on exec $lock
+
 
 # # volume down
 # bindsym --to-code --locked XF86AudioLowerVolume   exec pactl set-sink-volume @DEFAULT_SINK@ -$audio_step%
