@@ -3,7 +3,25 @@
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
 
-(("skel"
+(("-- applications --"
+ (filename . "~.local/share/applications/")
+ (front-context-string)
+ (rear-context-string . "ifi-off.desktop\n")
+ (position . 658)
+ (last-modified 25891 39398 995870 348000))
+("tmuc"
+ (filename . "~.config/doom/config.el")
+ (front-context-string . ";; :map global-m")
+ (rear-context-string . "dmove-mode-map\n ")
+ (position . 17609)
+ (last-modified 25889 50380 125113 461000))
+("alacritty"
+ (filename . "~.config/alacritty/alacritty.yml")
+ (front-context-string . "        (ipfs:|i")
+ (rear-context-string . "\n    - regex: |\n")
+ (position . 860)
+ (last-modified 25889 38318 138764 470000))
+("skel"
  (filename . "/etc/skel/")
  (front-context-string . ".mozilla\n  -rw-r")
  (rear-context-string . "34 Jan 19  2023 ")
@@ -46,7 +64,7 @@
  (position . 4456)
  (last-modified 25861 29851 675268 366000))
 ("-- org notes --"
- (filename . "~/git/org/notes.org")
+ (filename . "/home/gepr/git/org/notes.org")
  (front-context-string . "\n** [2023-09-16 ")
  (rear-context-string . "oindent\n\n* Inbox")
  (position . 134)
@@ -142,9 +160,9 @@
  (rear-context-string . "ng.\n  history: 0")
  (position . 625))
 ("org-capture-last-stored"
- (filename . "~/git/org/roam/20231005075436-fdignore.org")
+ (filename . "/home/gepr/git/org/roam/20231009080108-rclone_sync.org")
  (front-context-string)
- (rear-context-string . "itle: .fdignore\n")
- (position . 87)
- (last-modified 25886 20383 113448 572000))
+ (rear-context-string . " rclone - Sync \n")
+ (position . 92)
+ (last-modified 25891 38693 959450 475000))
 )
