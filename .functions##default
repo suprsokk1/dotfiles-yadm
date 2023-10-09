@@ -3,11 +3,22 @@ precmd() {
     eval "${PROMPT_COMMAND:+$PROMPT_COMMAND}"
 }
 
+_yadm_load_config() {
+    yadm
+}
+
 command_not_found_handle() {
+    local eval
+    eval="$(yadm config sh.command-not-found-handle)"
+    ${eval:-~/bin/,} "$@"
+}
+
+command_not_found_handle_DEPRICATED() {
     command_not_found_handle() {
         print -ln "Custom: 'Command not found': ${@//$'\n'/\;}" >2
         return 127
     }
+    ~$1 ||:
     # test -f /etc/redhat-release
     exe="$1"
     basename=${1##*/}
