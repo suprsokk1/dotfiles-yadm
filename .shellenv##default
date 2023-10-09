@@ -13,6 +13,17 @@ path+=("$p")
    fi
 done
 
+
+if [[ ${TMUX}${TMUX_PANE} ]]; then
+case `# Parent`$(readlink /proc/$PPID/cmdline) in
+  *tmux*);;
+  *) # FIXME DOOM Emacs env import
+     unset TMUX
+     unset TMUX_PANE
+esac
+fi
+
+
 eval "${TMUX:+PAGER=\cat}"
 eval "${TMUX:+SYSTEMD_PAGER=\cat}"
 

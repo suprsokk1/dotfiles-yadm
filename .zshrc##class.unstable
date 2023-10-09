@@ -75,18 +75,16 @@ for ITEM in aliases functions parameters; do
 done
 
 # activate oh-my-zsh
-if [[ -s $ZSH/oh-my-zsh.sh ]]; then
-. $ZSH/oh-my-zsh.sh
-fi
+if [[ -s $ZSH/oh-my-zsh.sh ]]; then . $ZSH/oh-my-zsh.sh; fi
 
 # detect tmux popup window
 if [[ $TMUX ]]; then
 if [[ $TMUX_PANE ]]; then
 
 ## normal pane
-
 # when active tmux will display
 PROMPT="${PROMPT//git_prompt_info/true}"
+PS1='➤ '
 
 else
 
@@ -146,7 +144,7 @@ fi
 ##
 ## DOC: https://thevaluable.dev/zsh-completion-guide-examples/
 
-_vpn() {
+function _vpn {
   reply=( on off up down 0 1 )
 }
 compctl -K {_,}vpn
@@ -193,7 +191,7 @@ bindkey "^[l" down-case-word
 ##
 zmodload -i zsh/parameter
 
-insert-last-command-output() {
+function insert-last-command-output {
   LBUFFER+="$(eval $history[$((HISTCMD-1))])"
 }
 zle -N insert-last-command-output
@@ -204,7 +202,7 @@ bindkey "^Q^L" insert-last-command-output
 ## TODO replace word at point
 ##
 
-fzf-replace-word() {
+function fzf-replace-word {
   fzf --preview "echo $words[-1]"
 }
 zle -N fzf-replace-word
@@ -214,15 +212,15 @@ zle -N fzf-replace-word
 ## Clipboard
 ##
 
-paste-clipboard-wayland() {
+function paste-clipboard-wayland {
   LBUFFER+="$(eval wl-paste)"
 }
 
-paste-clipboard-x() {
+function paste-clipboard-x {
   LBUFFER+="$(eval xclip -out -selection clipboard)"
 }
 
-paste-clipboard() {
+function paste-clipboard {
   if [[ $WAYLAND_DISPLAY ]]; then
 LBUFFER+="$(eval wl-paste)"
   else
@@ -248,13 +246,13 @@ bindkey "^[y" paste-clipboard
 ## FIXME Pretty print JSON
 ##
 
-pretty-print-json() {
+function pretty-print-json {
   LBUFFER="$(eval jq <<< \"$json\")"
 }
 zle -N pretty-print-json
 bindkey "^Q^J" pretty-print-json
 
-foo() {
+function foo {
   case ${#LBUFFER} in
     0) tmux display-message "Nothing to do.." ;;
     *) tmux split -H "cat"
@@ -287,7 +285,7 @@ fi
 ## ls / exa
 ##
 
-yadm_regex() {
+function yadm_regex {
   yadm config --get-regex ^regex |
     cut -d. -f 2- |
     sed -E 's#^([[:print:]]+)[[:space:]](.*)#(?P<\1>\2)#' |
@@ -296,25 +294,44 @@ yadm_regex() {
     tr '\0' '|'
 }
 
-_notify_send() {
+function _notify_send {
   notify-send --expire-time 300 "${@:-${BUFFER:-}}"
 }
 
-_hook__self-insert__tmux() {
+function _hook__self-insert__tmux {
   tmux set @shell-buffer "$BUFFER"
 }
 
-function self-insert {
-  _hook__self-insert__tmux
+function edit-cmdline {
+  tmux set @shell-buffer "$BUFFER"
+  # _hook__self-insert__tmux
+  case ${#LBUFFER} in
+    [3-9])
+    ;;
+    *)
+  esac
   # _notify_send 'self-insert' "$BUFFER"
-
   # RBUFFER+="."
   # execute some other command, but ensure they don't produce any output.
+}
+
+function self-insert {
+  edit-cmdline
   zle .self-insert
 }
+function backward-delete-char {
+  edit-cmdline
+  zle .backward-delete-char
+}
+function backward-delete-word {
+  edit-cmdline
+  zle .backward-delete-word
+}
 zle -N self-insert
+zle -N backward-delete-char
+zle -N backward-delete-word
 
-_tmux_prompt_helper() {
+function _tmux_prompt_helper {
   rc=$?
   set colour{10,9}
   ((rc)) && shift # true on error
@@ -324,18 +341,5 @@ _tmux_prompt_helper() {
 # hooks-define-hook zshaddhistory log_command
 # hooks-define-hook self-insert _hook__self-insert__tmux
 # hooks-add-hook self-insert _hook__self-insert__tmux
+
 prompt_command+=( _yadm_load_config )
-
-_PARENT=$(readlink /proc/$PPID/cmdline)
-
-if [[ $TMUX $TMUX_PANE ]]; then
-case $_PARENT in
-  *tmux*)
-  ;;
-  *)
-    unset TMUX
-    unset TMUX_PANE
-esac
-fi
-
-sed -E '/^[[:print:]]+\(\)/{/^(.*)\(\)/{s##function \1#g}}'
