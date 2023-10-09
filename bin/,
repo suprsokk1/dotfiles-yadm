@@ -2,7 +2,6 @@
 # -*- mode: sh -*-
 shopt -s extglob
 
-set -a
 PATH=${PATH:-${HOME}/bin:${PATH}}
 DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/${EUID}/bus}
 WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-1}
@@ -14,172 +13,151 @@ name=${0##*/}
 realname=$(readlink "$name")
 parent=$(readlink /proc/$PPID/exe)
 
-notify-send --expire-time 500 ${@:-,}
+# yadm config --regex ${ext:-`date +%s`} >&2
+notify-send --expire-time 100 ${@:-,}
 
-if [[ $DEBUG ]] ; then
-    notify-send --expire-time 1000 ${@:-,}
-fi
+trap TRAPEXIT EXIT
 
-function __start__ {
-    __main__
+TRAPEXIT() {
+    rc=$?
+    case $rc in
+        0) __main__ ;;
+        *)
+    esac
 }
 
+
 function __main__ {
+    shebang=$(head -1 "${@:-/dev/null}")
+    notify-send --expire-time 5000 "$0" "$parent:$name:$*"
 
-shebang=$(head -1 "$@")
-
-notify-send --expire-time 5000 "$0" "$parent:$name:$@"
-
-case $name in
-    SUDO_ASKPASS|sudo-askpass)
-        pass local
-        ;;
-    ,)
-        # if parent application call on ','
-        case $parent in
-            *alacritty*)
-            # TODO
+    case $name in
+        SUDO_ASKPASS|sudo-askpass)
+            pass local
             ;;
-            *ansible*)
-                echo "$@"
-                ;;
-            *zsh*)
 
-                case $@ in
-                    fswatch)
-                        shift
-                        fswatch -o "$1" `# Watchdir` \
-                            --event Created \
-                            --event Updated \
-                            --event Removed \
-                            --event Renamed \
-                            --event OwnerModified \
-                            --event AttributeModified \
-                            --event MovedFrom \
-                            --event MovedTo \
-                            --exclude ".git" |
-                            xargs \
-                                --max-args \
-                                --replace IGNORE ,
-                        ;;
-                    *)
-                esac
-                ;;
-            *incron*)
+        ,)
+            # if parent application call on ','
+            case $parent in
+                *alacritty*)
                 # TODO
                 ;;
-            *cronie*)
-                # TODO
-                :
-                ;;
-            *fzf*)
-                # FIXME
-                case $# in
-                    1)
-                        # pcre_compile -m "$(yadm config --get regex.ansi)"
-                        # pcre_match -b -- "$@"
+                *ansible*)
+                    echo "$@"
+                    ;;
+                *zsh*)
+                    case $@ in
+                        fswatch)
+                            shift
+                            fswatch -o "$1" `# Watchdir` \
+                                --event Created \
+                                --event Updated \
+                                --event Removed \
+                                --event Renamed \
+                                --event OwnerModified \
+                                --event AttributeModified \
+                                --event MovedFrom \
+                                --event MovedTo \
+                                --exclude ".git" |
+                                xargs --max-args --replace IGNORE ,
+                            ;;
+                        *)
+                    esac
+                    ;;
 
-                        if test -f "$1" || test -L "$1"
-                        then
-                            highlight -O ansi --force < "$1"
+                *cron*)   ;;&
+                *incron*) ;;
+                *cronie*) ;;
+                *fzf*)
+                    # FIXME
+                    case $# in
+                        1)
+                            # pcre_compile -m "$(yadm config --get regex.ansi)"
+                            # pcre_match -b -- "$@"
 
-                        elif test -d "$1"
-                        then
-                            :
+                            if test -f "$1" || test -L "$1"
+                            then
+                                highlight -O ansi --force < "$1"
 
-                        fi
-                        ;;
-                    *)
-                esac
+                            elif test -d "$1"
+                            then
+                                :
 
-                ;;
-            *fswatch*)
-                file=
-                case "$event" in
-                    *)
-                esac
+                            fi
+                            ;;
+                        *)
+                    esac
+                    ;;
 
-                repo="$1"
-                cd $repo
-                git add .
-                git commit -m"auto-triggered sync"
-                git pull origin master
-                git push origin master
-                ;;
-            *emacs*)
-                case $shebang in
-                    *python)
-                        python "$@"
-                        ;;
-                    *)
-                esac
+                *fswatch*) `# TODO` ;;
 
-                if isGit; then
-                    echo $GIT_DIR
-                fi
+                *emacs*)
+                    case $shebang in
+                        *python)
+                            python "$@"
+                            ;;
+                        *)
+                    esac
 
-                case $@ in
-                    *sway*)
-                        sway -C && sway reload
-                        echo RC:$?
-                        ;;
-                    *)
-                esac
+                    if isGit; then
+                        echo $GIT_DIR
+                    fi
 
-                case $ext in
-                    org)
-                        emacsclient --eval '(org-babel-execute-maybe)'
-                        ;;
+                    case $@ in
+                        *sway*)
+                            sway -C && sway reload
+                            echo RC:$?
+                            ;;
+                        *)
+                    esac
 
-                    sh)
-                        eval "$1"
-                        exit
-                        ;;
-                    yml|yaml)
-                        if grep -- '---' "$1" && grep -- '^- hosts:' "$_"; then
-                            runPlay "$1"
-                        fi
-                        ;;
-                    py)
-                        command emacsclient --eval '(run-python)'
-                        command emacsclient --eval '(python-shell-send-file "'"$1"'")'
-                        command emacsclient --eval '(+popup/toggle)'
-                        # python3 "$1"
-                        ;;
-                    nim)
-                        nim c -r --verbosity:0 "$1"
-                        ;;
-                    rs)
-                        PS4='${0}:${LINENO}: '
-                        set -o errexit -o xtrace
-                        pushd $(mktemp -d)
-                        rustc "$1" -o out
-                        ./out
-                        ;;
-                    *)
-                esac
+                    case $ext in
+                        js)         node "$1" ;;
+                        org)        emacsclient --eval '(org-babel-execute-maybe)' ;;
+                        sh)         eval "$1"; exit ;;
+                        yml|yaml)   if grep -- '---' "$1" && grep -- '^- hosts:' "$_"; then
+                                        runPlay "$1"
+                                    fi
+                            ;;
 
+                        py) command emacsclient --eval '(run-python)'
+                            command emacsclient --eval '(python-shell-send-file "'"$1"'")'
+                            command emacsclient --eval '(+popup/toggle)'
+                            ;;
+
+                        nim)
+                            nim c -r --verbosity:0 "$1"
+                            ;;
+
+                        rs)
+                            PS4='${0}:${LINENO}: '
+                            set -o errexit -o xtrace
+                            pushd $(mktemp -d)
+                            rustc "$1" -o out
+                            ./out
+                            ;;
+
+                        *)
+                    esac
+                    ;;
+                *)  test -x "$1" && grep -q -w -- 'bash' "$1" && eval "$1" && exit 0
+                    case $ext in
+                        sqlite) sqlite3 -line "$1" '.tables' ;;
+                        *)
+                    esac
+
+            esac
             ;;
-            *)
-                test -x "$1" && grep -q -w -- 'bash' "$1" && eval "$1" && exit 0
+        *)
+    esac
 
-                case $ext in
-                    sqlite) sqlite3 -line "$1" '.tables' ;;
-                    *)
-                esac
+    case $# in
+        [0-1])
 
-        esac
         ;;
-    *)
-esac
-
-case $# in
-    [0-1])
-
-    ;;
-    *)
-        exit
-esac
+        *)
+            exit
+    esac
 
 }
 
@@ -208,13 +186,10 @@ function runPlay {
             pass _ansible/become | tee fifo > /dev/null &
             export ANSIBLE_PASSWORD_FILE=fifo
         fi
-            ansible-playbook $(realpath --relative-base="$_" "$1")
+        ansible-playbook $(realpath --relative-base="$_" "$1")
         return
         # echo pwd: $PWD
     else
         ansible-playbook "$1"
     fi
 }
-
-
-__start__
