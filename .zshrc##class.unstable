@@ -8,6 +8,7 @@
 # TODO disable bell
 # TODO disable all predefined static dirs
 
+
 # zmodload zsh/regex
 zmodload zsh/pcre
 
@@ -212,25 +213,20 @@ zle -N fzf-replace-word
 ## Clipboard
 ##
 
-function paste-clipboard-wayland {
-  LBUFFER+="$(eval wl-paste)"
-}
-
-function paste-clipboard-x {
-  LBUFFER+="$(eval xclip -out -selection clipboard)"
-}
-
 function paste-clipboard {
-  if [[ $WAYLAND_DISPLAY ]]; then
-LBUFFER+="$(eval wl-paste)"
-  else
-    LBUFFER+="$(eval xclip -out -selection clipboard)"
-  fi
+  LBUFFER+=$(if [[ $WAYLAND_DISPLAY ]]; then wl-paste ; else xclip -out -selection clipboard; fi)
+}
+zle -N paste-clipboard
+
+function pipe-to-emacs {
+  :
 }
 
-# zle -N paste-clipboard-wayland
-# zle -N paste-clipboard-x
-zle -N paste-clipboard
+function fzf-buffer {
+  tmux display-popup -E -B -e "FZF_DEFAULT_COMMAND=tmux paste-buffer -p"
+}
+zle -N fzf-buffer
+bindkey "^[^[" fzf-buffer
 
 # if [[ $WAYLAND_DISPLAY ]]; then
 # bindkey "^[y" paste-clipboard-wayland
@@ -302,7 +298,7 @@ function _hook__self-insert__tmux {
   tmux set @shell-buffer "$BUFFER"
 }
 
-function edit-cmdline {
+function on-change-hook {
   tmux set @shell-buffer "$BUFFER"
   # _hook__self-insert__tmux
   case ${#LBUFFER} in
@@ -316,15 +312,16 @@ function edit-cmdline {
 }
 
 function self-insert {
-  edit-cmdline
+  on-change-hook
   zle .self-insert
 }
 function backward-delete-char {
-  edit-cmdline
+  on-change-hook
   zle .backward-delete-char
 }
+
 function backward-delete-word {
-  edit-cmdline
+  on-change-hook
   zle .backward-delete-word
 }
 zle -N self-insert
@@ -333,11 +330,13 @@ zle -N backward-delete-word
 
 function _tmux_prompt_helper {
   rc=$?
+  tmux set @rc    $rc
   set colour{10,9}
   ((rc)) && shift # true on error
   tmux set @color $1
 }
 
+# FIXME / TODO
 # hooks-define-hook zshaddhistory log_command
 # hooks-define-hook self-insert _hook__self-insert__tmux
 # hooks-add-hook self-insert _hook__self-insert__tmux
