@@ -4,8 +4,10 @@ BROWSER=qutebrowser
 EDITOR=emacsclient
 LANG=en_US.UTF-8
 RIPGREP_CONFIG_PATH=$HOME/.ripgreprc
-TMPDIR=${XDG_RUNTIME_DIR:-$TMPDIR}/tmp
-TMPDIR=${TMPDIR/?tmp?tmp/\/tmp}
+TMPDIR=${XDG_RUNTIME_DIR:-$TMPDIR}${XDG_RUNTIME_DIR:+$XDG_RUNTIME_DIR/tmp}
+if ! [[ $TMPDIR ]]; then
+    TMPDIR
+fi
 
 for p in $HOME/{,go,.{local,cargo}/}bin
 do if ! [[ $p =~ $path ]]; then
@@ -13,33 +15,10 @@ path+=("$p")
    fi
 done
 
-
-if [[ ${TMUX}${TMUX_PANE} ]]; then
-case `# Parent`$(readlink /proc/$PPID/cmdline) in
-  *tmux*);;
-  *) # FIXME DOOM Emacs env import
-     unset TMUX
-     unset TMUX_PANE
-esac
-fi
-
-
 eval "${TMUX:+PAGER=\cat}"
 eval "${TMUX:+SYSTEMD_PAGER=\cat}"
 
-export PAGER
-
-# cleanup env for non tmux terminals
-case $(readlink /proc/$PPID/exe `# get parent exe`) in
-    *tmux*)
-    ;;
-    *)
-        case ${#TMUX} in
-            0);;
-            *)
-                eval "$(set | sed -E '/^(TMUX[^=]*).*/!d;{s##unset \\1#}')"
-        esac
-esac
+read _parent < <(sed -E 's|Name: ||' /proc/$PPID/exe)
 
 if [[ $- =~ i ]]; then
 test -f $HOME/.aliases && . $HOME/.aliases
