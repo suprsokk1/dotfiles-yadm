@@ -8,15 +8,16 @@
 	helper = !/usr/bin/gh auth git-credential
 [alias]
 	add-alt = "find .*'#'* -exec  yadm add --force {} +"
-	a-HARD-reset = reset --hard
 	root = rev-parse --show-toplevel
-	a-status = status --porcelain
 	ui = ! gitui
 	New = "!git init ||: ; git add --all; git commit -m ."
 	sync = !git pull --autostash && git checkout -b do-not-commit/`date +%s` && git commit --all --message .
-	ls = !git ls-files | xargs ls -o -l -d --dired --color=always --group-directories-first
+	ls = ls-files
 	s = !git status --porcelain | colrm 1 2 | xargs ls -l -d --dired --color=always --group-directories-first
 	add-alt = "!find .*'#'* -exec  yadm add --force {} +; yadm status"
+	list = ls-files
+    rg = '! echo TODO'
+    grep = '! echo TODO'
 [init]
 	defaultBranch = main
 [core]
