@@ -1,10 +1,9 @@
-version = emacs-29.1
-
-repo = git://git.savannah.gnu.org/emacs.git
-deps = git libgccjit libgccjit-devel dnf-plugins-core
-configure =  --with-native-compilation
-configure += --with-json
-configure += --with-pgtk
+version		= emacs-29.1
+repo		= git://git.savannah.gnu.org/emacs.git
+deps		= git libgccjit libgccjit-devel dnf-plugins-core
+configure	= --with-native-compilation
+configure  += --with-json
+configure  += --with-pgtk
 
 MAKEOPTS = -j9
 
