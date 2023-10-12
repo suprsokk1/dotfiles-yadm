@@ -1,25 +1,26 @@
-;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+;;; $DOOMDIR/config.el -*- mode: emacs-lisp; lexical-binding: t; -*-
 ;; TODO sway-mode
 ;; TODO magit + yadm: list todos, but limit to files git
 ;; TODO change alpha when loosing frame focus ()
-
 
 (defun -config-el-eol-hook ())
 
 (add-hook! (quote (-config-el-eol-hook))
   (require '-functions nil t)
-  (setq -reloaded (boundp '-reloaded)
-        -toggle   (boundp '-reloaded)
-        compilation-scroll-output t
-        input-method              "norwegian-keyboard")
-  (blink-cursor-mode 1)
-  (global-hide-mode-line-mode 1)
-  ;; (hide-mode-line-mode t)
-  (set-frame-parameter nil 'alpha-background 100)
-  ;; (set-frame-parameter nil 'alpha-background 90) ;uncomment to enable opacity
-  ;; (add-to-list (quote so-long-minor-modes) (quote smartparens-mode))
-  (setq-hook! (quote conf-mode-hook js-mode-hook)
-    display-line-numbers-type (quote absolute)))
+  (progn
+    (setq -reloaded (boundp '-reloaded)
+          -toggle   (boundp '-reloaded)
+          compilation-scroll-output t
+          input-method              "norwegian-keyboard")
+    (blink-cursor-mode 1)
+    (global-hide-mode-line-mode 1)
+    ;; (global-hide-mode-line-mode -1)
+    ;; (hide-mode-line-mode t)
+    (set-frame-parameter nil 'alpha-background 100)
+    ;; (set-frame-parameter nil 'alpha-background 90) ;uncomment to enable opacity
+    ;; (add-to-list (quote so-long-minor-modes) (quote smartparens-mode))
+    (setq-hook! (quote conf-mode-hook js-mode-hook)
+      display-line-numbers-type (quote absolute))))
 
 (setq-hook! (quote (org-mode-hook))
   display-line-numbers-mode -1)
@@ -32,23 +33,35 @@
   doom-big-font            (font-spec :family "Fira Mono" :size 19)))
 
 (setq doom-font
-      (font-spec :family "Iosevka Nerd Font" :size 14  :weight 'light))
+      (font-spec :family "Iosevka Nerd Font" :size 16  :weight 'light))
 
 ;; (default-value 'frame-title-format)
 ;; (setq frame-title-format)
 
-(setq-hook! (quote (prog-mode-hook text-mode-hook))
+(add-hook! (quote (rainbow-mode))
+           (hl-line-mode -1))
+
+(use-package! conf-mode
+  :mode (rx "sway"))
+
+(setq-hook! (quote (fundamental-mode-hook prog-mode-hook text-mode-hook))
   header-line-format
-  (quote ("%e" mode-line-front-space
-          (:propertize
-           ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
-           display (min-width (5.0)))
-          mode-line-frame-identification
-          mode-line-buffer-identification
-          "   "
-          mode-line-position
-          (vc-mode vc-mode)
-          "  "  mode-line-misc-info mode-line-end-spaces)))
+  (quote ("%e"
+          (:eval
+           (doom-modeline--buffer-mode-icon)))))
+
+;; (setq-hook! (quote (prog-mode-hook text-mode-hook))
+;;   header-line-format
+;;   (quote ("%e" mode-line-front-space
+;;           (:propertize
+;;            ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
+;;            display (min-width (5.0)))
+;;           mode-line-frame-identification
+;;           mode-line-buffer-identification
+;;           "   "
+;;           mode-line-position
+;;           (vc-mode vc-mode)
+;;           "  "  mode-line-misc-info mode-line-end-spaces)))
 
 (quote (let ((NAME (quote light))
              (FAMILY "Iosevka Nerd Font")
@@ -552,9 +565,6 @@
   )
 
 (map!
- ;; :after windmove-mode
- :map   windmove-mode-map
- ;; :map global-map
  "H-r" #'consult-buffer
  "s-r" #'consult-buffer
  "H-M-k" #'doom/kill-this-buffer-in-all-windows
@@ -564,7 +574,6 @@
  "M-o l"  #'highlight-lines-matching-regexp
  "M-o r"  #'highlight-regexp
  "M-o w"  #'highlight-phrase
-
  "s-q"    #'windmove-left
  "s-e"    #'windmove-right
  "s-w"    #'windmove-up
