@@ -1,18 +1,17 @@
-#-* - mode: conf -*-
+# -*- mode: conf -*-
 # TODO static size popup buffer
 
 set -g base-index 1
 set -g pane-base-index 1
 
-set -g @pane-stem "#{pane_current_path}#[fg=blue]"
+set -g @pane-stem "#{pane_current_path}#[fg=blue] #{@tmp}"
 set -g @RC       "(#[fg=#{@color}]#{@rc}#[fg=off])"
 
-set -g @active   "#{E:@pane-stem}#{E:@RC}"
+set -g @active   " #{E:@pane-stem}#{E:@RC} "
 set -g @inactive "#{E:@pane-stem}#[fg=blue]"
 set -g @inactive  ''
 
-
- # set -as terminal-features 'xterm*:extkeys'
+# set -as terminal-features 'xterm*:extkeys'
 set-option -sa terminal-overrides  ',xterm:Tc'
 # set-option -sa terminal-features   ',rxvt-unicode-256color:clipboard'
 ### vvvv may not work vvvv ###
