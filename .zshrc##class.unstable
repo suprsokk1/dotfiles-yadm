@@ -7,6 +7,13 @@
 # TODO tmux completion
 # TODO disable bell
 # TODO disable all predefined static dirs
+# FIXME / TODO
+# hooks-define-hook zshaddhistory log_command
+# hooks-define-hook self-insert _hook__self-insert__tmux
+# hooks-add-hook self-insert _hook__self-insert__tmux
+
+prompt_command+=( _yadm_load_config )
+
 
 
 # zmodload zsh/regex
@@ -33,14 +40,6 @@ esac
 # force tmux to truncate lines
 # setterm --linewrap off
 
-hash -d yadm=$HOME/.config/yadm
-hash -d run="${XDG_RUNTIME_DIR:-/run/user/${EUID:-$(id -u)}}"
-hash -d config="${XDG_CONFIG_HOME:-$HOME/.config}"
-hash -d fonts=$HOME/.local/share/fonts
-hash -d autorun=$HOME/.config/autorun
-hash -d desktop=$HOME/.local/share/applications
-hash -d apps=$HOME/.local/share/applications
-
 ZSH=~/.oh-my-zsh
 ZSH_THEME=${ZSH_THEME:-simple}
 if [[ $TMUX ]]; then plugins+=( git ); fi
@@ -49,6 +48,15 @@ plugins+=( zsh-autosuggestions )
 plugins+=( direnv )
 plugins+=( fzf )
 plugins+=( tmux )
+
+hash -d yadm=$HOME/.config/yadm
+hash -d run="${XDG_RUNTIME_DIR:-/run/user/${EUID:-$(id -u)}}"
+hash -d config="${XDG_CONFIG_HOME:-$HOME/.config}"
+hash -d fonts=$HOME/.local/share/fonts
+hash -d autorun=$HOME/.config/autorun
+hash -d desktop=$HOME/.local/share/applications
+hash -d apps=$HOME/.local/share/applications
+hash -d zsh=$ZSH
 
 # plugins+=(h) # breaks zsh-autosuggestions?
 
@@ -81,12 +89,10 @@ if [[ -s $ZSH/oh-my-zsh.sh ]]; then . $ZSH/oh-my-zsh.sh; fi
 # detect tmux popup window
 if [[ $TMUX ]]; then
 if [[ $TMUX_PANE ]]; then
-
 ## normal pane
 # when active tmux will display
 PROMPT="${PROMPT//git_prompt_info/true}"
 PS1='➤ '
-
 else
 
   ## popup
@@ -150,7 +156,7 @@ function _vpn {
 }
 compctl -K {_,}vpn
 
-# compctl -K yadm _git  _complete _approximate
+compctl -K _git yadm
 
 :<<COMPLETION_EXAMPLES
 $ zstyle :completion:<function>:<completer>:<command>:<argument>:<tag>
@@ -315,6 +321,7 @@ function self-insert {
   on-change-hook
   zle .self-insert
 }
+
 function backward-delete-char {
   on-change-hook
   zle .backward-delete-char
@@ -324,6 +331,7 @@ function backward-delete-word {
   on-change-hook
   zle .backward-delete-word
 }
+
 zle -N self-insert
 zle -N backward-delete-char
 zle -N backward-delete-word
@@ -335,10 +343,3 @@ function _tmux_prompt_helper {
   ((rc)) && shift # true on error
   tmux set @color $1
 }
-
-# FIXME / TODO
-# hooks-define-hook zshaddhistory log_command
-# hooks-define-hook self-insert _hook__self-insert__tmux
-# hooks-add-hook self-insert _hook__self-insert__tmux
-
-prompt_command+=( _yadm_load_config )
