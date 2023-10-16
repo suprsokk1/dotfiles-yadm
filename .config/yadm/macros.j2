@@ -1,0 +1,34 @@
+{% macro banner(title) %}
+#
+## {{ title }}
+##
+
+{% endmacro %}
+
+{%- macro section(data) -%}
+{%- set wrap = kwargs.get('wrap', '"') -%}
+{%- set title = kwargs.get('title', False) -%}
+{%- set prefix = kwargs.get('prefix', False) -%}
+{%- set suffix = kwargs.get('suffix', False) -%}
+{%- set head = kwargs.get('head', False) -%}
+{%- set tail = kwargs.get('tail', False) -%}
+{%- if title -%}
+{{ banner(title) }}
+{%- endif -%}
+{%- if head -%}{{ head }}{%- endif -%}
+{%- if data.__class__.__name__ == 'dict' -%}
+{%- for name, value in data.items() -%}
+{{ kwargs.get('prefix','') }}{{ name }}{{ kwargs.get('separator','=') }}{{ wrap }}{{ value }}{{ wrap }}{{ kwargs.get('suffix','\n') if not loop.last else '' }}
+{%- endfor -%}
+{%- else -%}
+{%- set separator = kwargs.get('separator', False) -%}
+{%- for item in data -%}
+{%- if prefix -%}{{ prefix }}{%- endif -%}
+{{ item }}
+{%- if suffix -%}{{ suffix }}{%- endif -%}
+{%- if separator -%}{{ separator if not loop.last else '' }}{%- endif -%}
+{%- endfor %}
+{%- endif -%}
+{%- if tail -%}{{ tail }}{%- endif -%}
+{%- endmacro -%}
+

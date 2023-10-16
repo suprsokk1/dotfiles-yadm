@@ -1,0 +1,19 @@
+# -*- mode: sh -*-#
+{# .zshrc -*- mode: mmm -*- #}
+{%- import '.config/yadm/macros.j2' as macro -%}
+{{ macro.section(['1091', '2034'], prefix='SC', separator=',', head='# shellcheck disable=') }}
+
+{%- set env = dict(ZSH="$HOME/.oh-my-zsh", ZSH_THEME='simple') -%}
+{%- set plugins = ['zsh-autosuggestions', 'direnv', 'fzf', 'tmux'] -%}
+{%- set static_dirs = dict(yadm='${HOME}/.config/yadm', run='${XDG_RUNTIME_DIR:-/run/user/${EUID:-$(id -u)}}', config='${XDG_CONFIG{HOME}:-${HOME}/.config}', fonts='${HOME}/.local/share/fonts', autorun='${HOME}/.config/autorun', desktop='${HOME}/.local/share/applications', apps='${HOME}/.local/share/applications', zsh='$ZSH') -%}
+
+
+{{ macro.section(env) }}
+{{ macro.section(static_dirs, title="static dirs", prefix="hash -d ") }}
+{{ macro.section(plugins, title="plug-in's", separator=' ', head='plugins=(', tail=')') }}
+
+test -d $HOME/bin && path+=( ~/bin )
+
+ZSH_THEME='simple'
+
+source ~zsh/oh-my-zsh.sh
