@@ -32,8 +32,7 @@ alias -- rl='reload'
 # alias -- cat='command highlight -O ansi --force' # FIXME / TODO
 # alias -- ,man='tmux display-popup -B' # FIXME
 
-alias -- buf='command stdbuf -oL'
-
+alias -- --='command stdbuf -oL'
 alias -- edit='command ${EDITOR:-${VISUAL:-vi}} `test [[ $EDITOR =~ emacs ]] && echo --no-wait`'
 
 alias -- json_="command grep -Poz '{[\s\S]+}'"

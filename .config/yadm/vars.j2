@@ -1,0 +1,17 @@
+{# ~/.config/yadm/vars.j2 #}
+{%- set EQUAL = '=' -%}
+{%- set EXCLAMATION_MARK = '!' -%}
+{%- set NEWLINE = '\n' -%}
+{%- set PLUSS = '+' -%}
+{%- set QUOTE = "'" -%}
+{%- set LEFT_PARENTHESIS = '(' -%}
+{%- set RIGHT_PARENTHESIS = ')' -%}
+{%- set SPACE = ' ' -%}
+{%- set TAB = '\t' -%}
+{%- set doom_emacs_packages = ['rainbow-delimiters', 'systemd-mode', 'mmm-mode', 'sway', 'ob-tmux'] -%}
+{%- set zsh_env = dict(ZSH='$HOME/.oh-my-zsh', ZSH_THEME='simple') -%}
+{%- set zsh_plugins = ['zsh-autosuggestions', 'direnv', 'fzf', 'tmux'] -%}
+{%- set static_dirs = dict(yadm='${HOME}/.config/yadm', run='${XDG_RUNTIME_DIR:-/run/user/${EUID:-$(id -u)}}', config='${XDG_CONFIG_HOME:-${HOME}/.config}', fonts='${HOME}/.local/share/fonts', autorun='${HOME}/.config/autorun', desktop='${HOME}/.local/share/applications', apps='${HOME}/.local/share/applications', zsh='$ZSH') -%}
+{%- set path = ['$HOME/.pyenv/bin', '$HOME/bin', '/usr/bin', '/usr/local/bin', '/usr/local/sbin', '/usr/sbin', '$HOME/.cargo/bin', '$HOME/.local/bin', '$HOME/go/bin', '$HOME/opt/doom-emacsdir/bin'] -%}
+{%- set prompt_command = ['~/.functions', '~/.aliases'] -%}
+{%- set shellcheck_disable = ['1091', '2034'] -%}

@@ -4,12 +4,15 @@
 set -g base-index 1
 set -g pane-base-index 1
 
-set -g @pane-stem "#{pane_current_path}#[fg=blue] #{@tmp}"
-set -g @RC       "(#[fg=#{@color}]#{@rc}#[fg=off])"
+set -g @pane-stem  "#{pane_current_path}#[fg=blue] #{@tmp}"
+set -g @RC         "(#[fg=#{@color}]#{@rc}#[fg=off])"
+# set -g @buffer         "(#[fg=#{@color}]#{@shell-buffer}#[fg=off])"
+# set -g @buffer         "[#[fg=#{@color}]#{@shell-buffer}#[fg=off]]"
+set -g @buffer         "#[fg=#{@color}]#{@shell-buffer}#[fg=off]"
 
-set -g @active   " #{E:@pane-stem}#{E:@RC} "
-set -g @inactive "#{E:@pane-stem}#[fg=blue]"
-set -g @inactive  ''
+set -g @active     "#{E:@pane-stem}#{E:@buffer}"
+set -g @inactive   "#{E:@pane-stem}#[fg=blue]"
+set -g @inactive   ''
 
 # set -as terminal-features 'xterm*:extkeys'
 set-option -sa terminal-overrides  ',xterm:Tc'
@@ -131,8 +134,8 @@ set -s command-alias pass='pipe-pane -I pass\\  '
 # bind p display-popup -E "sh -c 'tmux capturep -p -S - | #{@fzf}"
 
 # set -g @plugin 'catppuccin/tmux'
-set -g @tmux_power_theme 'sky'
-# set -g @tmux_power_theme 'gold'
+# set -g @tmux_power_theme 'sky'
+set -g @tmux_power_theme 'gold'
 
 set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'tmux-plugins/tmux-sensible'

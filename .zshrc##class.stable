@@ -1,40 +1,4 @@
 # .zshrc -*- mode: sh -*-
-
-# TODO pre-commit hook; replace secrets and identifying/private information
-# TODO move customizations to $ZSH/custom/; ~$ZSH/custom/<modname>/<modname>.module.zsh~
-# 💡 alias/override command options; f.ex. alias grep.only-matching='func or command' override grep --only-matching
-# FIXME tmux pane format; subtitute shell prompt
-# TODO tmux completion
-# TODO disable bell
-# TODO disable all predefined static dirs
-# FIXME / TODO
-# hooks-define-hook zshaddhistory log_command
-# hooks-define-hook self-insert _hook__self-insert__tmux
-# hooks-add-hook self-insert _hook__self-insert__tmux
-
-TMPDIR=${XDG_RUNTIME_DIR}/tmp
-TMUX_TMPDIR=${TMPDIR}/tmux
-_PARENT=$(readlink /proc/$PPID/exe | sed 's|/.*/||')
-mkdir -p -- "$TMUX_TMPDIR"
-
-export {,TMUX_}TMPDIR
-
-# function tmux {
-#   eval "$@" | if [[ $funcstack ]]; then
-#     cat &>/dev/null
-#   else
-#     cat
-#   fi
-# }
-
-case $_PARENT in
-  *emacs*)
-    unset TMUX_PANE
-    unset TMUX
-    ;;
-  *)
-esac
-
 prompt_command+=( _yadm_load_config )
 
 # zmodload zsh/regex
@@ -45,22 +9,17 @@ case $(xdg-settings get default-web-browser) in
   *) xdg-settings set default-web-browser /usr/share/applications/org.qutebrowser.qutebrowser.desktop
 esac
 
-if command -v yadm &>/dev/null; then
-yadm config
-~/.local/share/qutebrowser/userscripts/myscript
-fi &>/dev/null
-
 # force tmux to truncate lines
 # setterm --linewrap off
 
 ZSH=~/.oh-my-zsh
 ZSH_THEME=${ZSH_THEME:-simple}
+
+FZF_DEFAULT_OPTS="--layout=reverse --height=7"
+FZF_DEFAULT_COMMAND=$HOME/bin/,
+
 if [[ $TMUX ]]; then plugins+=( git ); fi
 # plugins-=( pipenv )
-plugins+=( zsh-autosuggestions )
-plugins+=( direnv )
-plugins+=( fzf )
-# plugins+=( tmux )
 
 hash -d yadm=$HOME/.config/yadm
 hash -d run="${XDG_RUNTIME_DIR:-/run/user/${EUID:-$(id -u)}}"
@@ -72,9 +31,6 @@ hash -d apps=$HOME/.local/share/applications
 hash -d zsh=$ZSH
 
 # plugins+=(h) # breaks zsh-autosuggestions?
-
-FZF_DEFAULT_OPTS="--layout=reverse --height=7"
-FZF_DEFAULT_COMMAND=$HOME/bin/,
 
 prompt_command=()
 prompt_command+=( '_tmux_prompt_helper' )
@@ -314,12 +270,10 @@ function _notify_send {
 }
 
 function _hook__self-insert__tmux {
-  [[ $TMUX_PANE ]] || return 1
   tmux set @shell-buffer "$BUFFER"
 }
 
 function on-change-hook {
-  [[ $TMUX_PANE ]] || return 1
   tmux set @shell-buffer "$BUFFER"
   # _hook__self-insert__tmux
   case ${#LBUFFER} in
@@ -347,24 +301,15 @@ function backward-delete-word {
   zle .backward-delete-word
 }
 
-if [[ $TMUX_PANE ]]; then
 zle -N self-insert
 zle -N backward-delete-char
 zle -N backward-delete-word
-fi
 
 function _tmux_prompt_helper {
   rc=$?
-  tmux set @rc $rc &>/dev/null ||:
+  tmux set @rc $rc
   set colour{10,9}
-  ((rc)) && shift  # true on error
-  tmux set @color $1 &>/dev/null ||:
-  tmux set @color $1 &>/dev/null ||:
+  ((rc)) && shift # true on error
+  tmux set @color $1
+  tmux set @color $1
 }
-
-if [ -d ~/.pyenv ]; then
-  PPS1="$PS1"
-  . ~/.pyenv/bin/activate
-  PS1="$PPS1"
-  unset PPS1
-fi

@@ -27,6 +27,7 @@ from custom import *
 c.tabs.position = 'right'
 
 # darkmode enabled for supported pages
+# TODO read yadm config
 config.set('colors.webpage.darkmode.enabled', True)
 
 # Which cookies to accept. With QtWebEngine, this setting also controls
@@ -154,4 +155,7 @@ config.set('content.javascript.enabled', True, 'chrome://*/*')
 # Type: Bool
 config.set('content.javascript.enabled', True, 'qute://*/*')
 
+
 config.set('content.headers.user_agent', 'Mozilla/5.0 ({os_info}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99 Safari/537.36', 'https://*.slack.com/*')
+
+config.set('content.javascript.enabled', False, 'https://linuxize.com/*')

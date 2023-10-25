@@ -6,10 +6,18 @@
 
 config_version: 2
 settings:
+  colors.completion.even.bg:
+    global: '#000'
+  colors.completion.odd.bg:
+    global: '#000'
+  colors.completion.scrollbar.bg:
+    global: '#000'
   content.blocking.method:
     global: both
+  content.javascript.enabled:
+    global: true
   fonts.default_family:
-    global: Iosevka
+    global: Ubuntu Nerd Font
   tabs.position:
     global: right
   tabs.show:

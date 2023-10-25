@@ -1,0 +1,32 @@
+# -*- mode: sh -*-
+precmd() {
+    eval "${PROMPT_COMMAND:+$PROMPT_COMMAND}"
+}
+
+unalias ls &>/dev/null ||:
+ls() {
+    args=( ${exa[*]} )
+    local exa
+    exa=( --icons --group-directories-first )
+    exa+=( $args )
+    for arg; do
+        if  [[ $arg =~ ^-- ]]; then
+            # longopts
+            exa+=("$arg")
+        elif [[ $arg =~ ^-[a-zA-Z] ]]; then
+            # shortopts
+            for c in `# split short options` $(command grep --extended-regexp --only-matching -- '[[:alpha:]]' <<< "${arg//-/}"); do
+                case $c in
+                    [aA]) exa+=( --all ) ;;
+                    o)    `#TODO`;;
+                    t)    exa+=( --time modified );;
+                    G|-)  `# discard` ;;
+                    *)    exa+=( -"$c" )
+                esac
+            done
+        else
+            exa+=( "$arg" )
+        fi
+    done
+    eval "exa ${exa[*]}"
+}
