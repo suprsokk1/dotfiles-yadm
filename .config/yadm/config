@@ -11,6 +11,7 @@
 	delimiter = ,
 [env]
 	SHELL = /bin/zsh
+	FOO = bar
 [qutebrowser "colors.webpage.darkmode"]
 	enabled = True
 [include]
@@ -25,7 +26,3 @@
     PATH = $HOME/.local/bin
     PATH = $HOME/go/bin
     PATH = $HOME/opt/doom-emacsdir/bin
-[foo]
-    bar = foo
-    bar = bar
-    bar = baz
