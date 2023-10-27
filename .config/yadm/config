@@ -1,40 +1,31 @@
-[environment]
-	SHELL = /bin/zsh
-[regex]
-	ansi = "\\x1b\\[[0-9;]*m"
-	url = "^(((ht|f)tp(s?))://)?(www.|[a-zA-Z].)[a-zA-Z0-9-.]+.(com|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk)(:[0-9]+)*(/($|[a-zA-Z0-9.,;?'\\+&%$#=~_-]+))*$"
 [class]
-	local = home
+	local = unstable
 [yadm]
 	auto-alt = 1
+[zsh]
+	plugins = gh,doctl,az,zsh-autosuggestions,direnv,fzf
+[regex]
+	ansi = \\x1b\\[[0-9;]*m
+	url = ^(((ht|f)tp(s?))://)?(www.|[a-zA-Z].)[a-zA-Z0-9-.]+.(com|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk)(:[0-9]+)*(/($|[a-zA-Z0-9.,;?\\+&%$\#=~_-]+))*$
 [array]
 	delimiter = ,
-[zsh]
-	plugins = gh,doctl,az
-[install]
-	pup = go install github.com/ericchiang/pup@main
-[installer]
-	go = go
-[pup]
-	privider = github
-	repo = ericchiang/pup
-	branch = main
-	installer = go
-	owner-username = ericchiang
-	name = pup
-	type = package
-[go]
-	args = go,install
-	dnf = golang
-	installer = dnf,yum,brew
-[github]
-	site = github.com
-	type = provider
-[sh]
-	command-not-found-handle = /home/geir/bin/,
-[regex2json]
-	recipe = go install gitlab.com/tozd/regex2json/cmd/regex2json@main
-	owner = tozd
-[gitlab]
-	recipe = go,install,gitlab.com/tozd/{name}/cmd/{name}@{branch}
-	site = gitlab.com
+[env]
+	SHELL = /bin/zsh
+[qutebrowser "colors.webpage.darkmode"]
+	enabled = True
+[include]
+	path = ~/.local/share/yadm/config
+[environment]
+    PATH = $HOME/.pyenv/bin
+    PATH = $HOME/bin
+    PATH = /usr/bin
+    PATH = /usr/local/bin
+    PATH = /usr/sbin
+    PATH = $HOME/.cargo/bin
+    PATH = $HOME/.local/bin
+    PATH = $HOME/go/bin
+    PATH = $HOME/opt/doom-emacsdir/bin
+[foo]
+    bar = foo
+    bar = bar
+    bar = baz

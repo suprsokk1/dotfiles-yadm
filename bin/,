@@ -1,47 +1,90 @@
-#!/usr/bin/env -S bash
-# -*- mode: sh -*-
+#!/usr/bin/env bash
+# -*- mode: sh[bash] -*-
+# shellcheck disable=2092,2096
 shopt -s extglob
 
-PATH=${PATH:-${HOME}/bin:${PATH}}
-DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/${EUID}/bus}
-WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-1}
+# trap TRAPEXIT EXIT
 
-script="$(which $0|xargs realpath)"
+export PATH=${PATH:-${HOME}/bin:${PATH}}
+export DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/${EUID}/bus}
+export WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-1}
+
+script="$(which "$0"|xargs realpath)"
 ext=${1##*.}
-functions=( "$(compgen -A function)" )
 name=${0##*/}
 realname=$(readlink "$name")
 parent=$(readlink /proc/$PPID/exe)
+functions=( "$(compgen -A function)" )
+notify_send_msg_title='comma'
+notify_send_msg_timeout=3000
+
+function msg {
+    command env notify-send --expire-time "${notify_send_msg_timeout:-5000}" "${notify_send_msg_title}" "${BASH_FUNCNAME[*]:-${FUNCNAME[*]}}:$*"
+}
+
+if [[ ${1#} -eq 1 ]]; then
+    # [[ $1 =~ [:,.] ]] || exit
+    :
+fi
+
+if [ $# -gt 1 ]; then
+    if [[ $DEBUG ]]; then
+        msg "multiple:$*"
+    fi
+
+    for arg; do
+        $script "$arg"
+    done
+
+    exit 0
+fi
 
 if false; then
     yadm config --regex ${ext:-`date +%s`} >&2
 fi
 
+# TRAPEXIT() {
+#     rc=$?
+#     case $rc in
+#         0) __main__ "${BASH_ARGV[*]}" ;;
+#         *)
+#             exit "$rc"
+#     esac
+# }
 
-if [[ $DEBUG ]]; then
-    notify-send --expire-time 100 ${@:-,}
-fi
-
-trap TRAPEXIT EXIT
-
-TRAPEXIT() {
-    rc=$?
-    case $rc in
-        0) __main__ ;;
-        *)
-    esac
+function __start__ {
+    __main__
 }
-
 
 function __main__ {
     shebang=$(head -1 "${@:-/dev/null}")
-    notify-send --expire-time 1000 "$0" "$parent:$name:$*"
+
+    if [[ $parent =~ fzf$ ]]; then
+        if command -v highlight &>/dev/null; then
+            highlight -O ansi --force
+        fi
+    fi
+
+    if [[ $DEBUG ]]; then
+        msg "$parent:$name:$*"
+    fi
+
+    if [[ $* =~ \.[ot]tf$ ]]; then
+        _install_fonts "${BASH_ARGV[@]}"
+        return
+    fi
+
+    # yadm aliases
+    if [[ $* =~ \#{2} ]]; then
+        _yadm_alias_handler "${BASH_ARGV[@]}"
+        return
+    fi
 
     case $name in
         SUDO_ASKPASS|sudo-askpass)
-            pass local
+            command pass local
+            return
             ;;
-
         ,)
             # if parent application call on ','
             case $parent in
@@ -52,6 +95,13 @@ function __main__ {
                     echo "$@"
                     ;;
                 *zsh*)
+                    case $ext in
+                        otf|ttf)
+                            find "$*" -type f -exec realpath {} \;
+                            ;;
+                        *)
+
+                    esac
                     case $@ in
                         fswatch)
                             shift
@@ -106,7 +156,7 @@ function __main__ {
                     esac
 
                     if isGit; then
-                        echo $GIT_DIR
+                        echo "$GIT_DIR"
                     fi
 
                     case $@ in
@@ -138,7 +188,7 @@ function __main__ {
                         rs)
                             PS4='${0}:${LINENO}: '
                             set -o errexit -o xtrace
-                            pushd $(mktemp -d)
+                            pushd "$(mktemp -d)"
                             rustc "$1" -o out
                             ./out
                             ;;
@@ -168,6 +218,18 @@ function __main__ {
 }
 
 
+_yadm_alias_handler() {
+    # [[ $* =~  ]] || exit 1
+    msg "$@"
+    command yadm add --force "$*"
+}
+
+
+_install_fonts() {
+    command install --compare --verbose -D -- ~/.local/share/fonts "$@"
+}
+
+
 function isGit {
     git rev-parse --show-toplevel &>/dev/null
 }
@@ -188,7 +250,7 @@ function runPlay {
     pushd "$gitdir"
 
     if pushd "$(git rev-parse --show-toplevel)"; then
-        if test 1 -eq  $(yq '..|select(has("become")).become' "$1"); then
+        if test 1 -eq  "$(yq '..|select(has(\"become\")).become' "$1")"; then
             pass _ansible/become | tee fifo > /dev/null &
             export ANSIBLE_PASSWORD_FILE=fifo
         fi
@@ -199,3 +261,21 @@ function runPlay {
         ansible-playbook "$1"
     fi
 }
+
+
+yadmHandler() {
+    :<<__YADM_HELP__
+    YADM_HOOK_COMMAND      # The command which triggered the hook
+    YADM_HOOK_EXIT         # The exit status of the yadm command
+    YADM_HOOK_FULL_COMMAND # The yadm command with all command line arguments
+    YADM_HOOK_REPO         # The path to the yadm repository
+    YADM_HOOK_WORK         # The path to the work-tree
+__YADM_HELP__
+
+}
+
+
+__start__
+# if [[ $DEBUG ]]; then
+#     command notify-send --expire-time $notify_send_msg_timeout ${@:-,}
+# fi

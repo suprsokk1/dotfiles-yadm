@@ -1,15 +1,15 @@
 {#-*- mode: jinja2 -*-#}
 # .zshrc -*- mode: sh -*-
 
-{%- import HOME + "/.config/yadm/macros.j2" as macro -%}
-{%- import HOME + "/.config/yadm/vars.j2" as vars -%}
+{%- import HOME + "/.config/yadm/macro.j2" as macro -%}
+{%- import HOME + "/.config/yadm/var.j2" as var -%}
 
-{{ macro.section(vars.shellcheck_disable, prefix='SC', separator=',', head='# shellcheck disable=') }}
-{{ macro.section(vars.zsh_env) }}
-{{ macro.section(vars.static_dirs, title="static dirs", prefix="hash -d ") }}
-{{ macro.section(vars.zsh_plugins, title="zsh plug-in's", separator=vars.SPACE, head='plugins=' + vars.LEFT_PARENTHESIS, tail=vars.RIGHT_PARENTHESIS) }}
-{{ macro.section(vars.path, title="PATH", separator=vars.NEWLINE, prefix=vars.SPACE*2, head='path=' + vars.LEFT_PARENTHESIS + vars.NEWLINE, tail=vars.NEWLINE + vars.RIGHT_PARENTHESIS) }}
-{{ macro.section(vars.prompt_command, title="PROMPT_COMMAND", head='prompt_command=()' + vars.NEWLINE, prefix="prompt_command+=(", suffix=vars.RIGHT_PARENTHESIS, separator=vars.NEWLINE) }}
+{{ macro.section(var.shellcheck_disable, prefix='SC', separator=',', head='# shellcheck disable=') }}
+{{ macro.section(var.zsh_env) }}
+{{ macro.section(var.static_dirs, title="static dirs", prefix="hash -d ") }}
+{{ macro.section(var.zsh_plugins, title="zsh plug-in's", separator=var.SPACE, head='plugins=' + var.LEFT_PARENTHESIS, tail=var.RIGHT_PARENTHESIS) }}
+{{ macro.section(var.path, title="PATH", separator=var.NEWLINE, prefix=var.SPACE*2, head='path=' + var.LEFT_PARENTHESIS + var.NEWLINE, tail=var.NEWLINE + var.RIGHT_PARENTHESIS) }}
+{{ macro.section(var.prompt_command, title="PROMPT_COMMAND", head='prompt_command=()' + var.NEWLINE, prefix="prompt_command+=(", suffix=var.RIGHT_PARENTHESIS, separator=var.NEWLINE) }}
 
 {# source ~/.pyenv/bin/activate #}
 source "$ZSH"/oh-my-zsh.sh

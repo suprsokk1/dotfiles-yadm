@@ -1,11 +1,11 @@
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
-{# ~/.zshrc##template.j2cli -*- mode: jinja2  -*- #}
+{# packages.el##template.j2cli,class.unstable -*- mode: jinja2  -*- #}
 
-{%- import HOME + '/.config/yadm/macros.j2' as macro -%}
-{%- import HOME + '/.config/yadm/vars.j2' as vars -%}
+{%- import HOME + '/.config/yadm/macro.j2' as macro -%}
+{%- import HOME + '/.config/yadm/var.j2' as var -%}
 
-{{ macro.section(vars.doom_emacs_packages, prefix=vars.LEFT_PARENTHESIS + 'package' + vars.EXCLAMATION_MARK + vars.SPACE, suffix=vars.RIGHT_PARENTHESIS, separator=vars.NEWLINE*2) }}
+{{ macro.section(var.doom_emacs_packages, prefix=var.LEFT_PARENTHESIS + 'package' + var.EXCLAMATION_MARK + var.SPACE, suffix=var.RIGHT_PARENTHESIS, separator=var.NEWLINE*2) }}
 
 ;; To install a package with Doom you must declare them here and run 'doom sync'
 ;; on the command line, then restart Emacs for the changes to take effect -- or
