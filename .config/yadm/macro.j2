@@ -1,3 +1,4 @@
+{# ~/.config/yadm/macro.j2 #}
 {% macro banner(title) %}
 #
 ## {{ title }}
@@ -32,3 +33,35 @@
 {%- if tail -%}{{ tail }}{%- endif -%}
 {%- endmacro -%}
 
+{%- macro lisp(data) -%}
+{{ macro.section(data, head='(', tail=')', **kwargs) }}
+{%- endmacro -%}
+
+{%- macro wrap(_wrap, around) -%}
+{{ var.DELIMITER_BEGINNING[_wrap] }}{{ around }}{{ var.DELIMITER_END[_wrap] }}
+{%- endmacro -%}
+
+{%- macro git_config(data) -%}
+{% for section, value in data.items() %}
+[{{ section }}]
+{%- for k, v in value.items() %}
+{%- if v.__class__.__name__ == 'list' -%}
+{%- for i in v %}
+	{{ k }} = {{ i }}
+{%- endfor %}
+{%- else %}
+	{{ k }} = {{ v }}
+{%- endif -%}
+{% endfor %}
+{% endfor %}
+{%- endmacro -%}
+
+{%- macro systemd_section(name, data) -%}
+{%- set data = data if not data.__class__.__name__ == 'dict' else [(*_) for _ in data.items()] -%}
+{% for section, value in data.items() %}
+[{{ name }}]
+{%- for k, v in value.items() %}
+{{ k }} = {{ i }}
+{%- endfor %}
+{% endfor %}
+{%- endmacro -%}

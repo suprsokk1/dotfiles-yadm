@@ -8,7 +8,7 @@
 {# TODO change alpha when loosing frame focus () #}
 
 {%- import HOME + '/.config/yadm/macro.j2' as macro -%}
-{%- import HOME + '/.config/yadm/var.j2' as vars -%}
+{%- import HOME + '/.config/yadm/var.j2' as var -%}
 
 ;; start: .config/doom/conf.d/_functions.el
 {%- include '.config/doom/conf.d/_functions.el' -%}
@@ -22,10 +22,28 @@
 {%- include '.config/doom/conf.d/_bindings.el' -%}
 ;; end: .config/doom/conf.d/_bindings.el
 
+(map! "M-RET"   'M-RET!
+      "H-SPC c" 'doom/goto-private-config-file
+)
+
+(defun yadm ()
+  (interactive)
+  (magit-status "/yadm::"))
+
+(after! tramp
+  (add-to-list (quote tramp-methods)
+               (quote ("yadm"
+                       (tramp-login-program "yadm")
+                       (tramp-login-args (("enter")))
+                       (tramp-login-env (("SHELL") ("/bin/sh")))
+                       (tramp-remote-shell "/bin/sh")
+                       (tramp-remote-shell-args ("-c"))))))
+
 (add-load-path! (expand-file-name "load.d" doom-private-dir))
 
 (set (quote bookmark-default-file)
      (expand-file-name "_bookmarks.el" doom-user-dir))
+
 
 (use-package! modus-themes
   :ensure t

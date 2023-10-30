@@ -1,13 +1,26 @@
-{# ~/.config/yadm/vars.j2 #}
+{# ~/.config/yadm/var.j2 #}
 {%- set EQUAL = '=' -%}
+{%- set PERCENT = '%' -%}
+{%- set HYPHEN = '-' -%}
 {%- set EXCLAMATION_MARK = '!' -%}
-{%- set NEWLINE = '\n' -%}
 {%- set PLUSS = '+' -%}
 {%- set QUOTE = "'" -%}
+{%- set SPACE = ' ' -%}
+{%- set NEWLINE = '\n' -%}
+{%- set TAB = '\t' -%}
 {%- set LEFT_PARENTHESIS = '(' -%}
 {%- set RIGHT_PARENTHESIS = ')' -%}
-{%- set SPACE = ' ' -%}
-{%- set TAB = '\t' -%}
+{%- set PARENTHESIS = dict(left=LEFT_PARENTHESIS, right=RIGHT_PARENTHESIS) -%}
+{%- set LEFT_CURLYBRACKET = '{' -%}
+{%- set RIGHT_CURLYBRACKET = '}' -%}
+{%- set CURLYBRACKET = dict(left=LEFT_CURLYBRACKET, right=RIGHT_CURLYBRACKET) -%}
+{%- set LEFT_BRACKET = '[' -%}
+{%- set RIGHT_BRACKET = ']' -%}
+{%- set BRACKET = dict(left=LEFT_BRACKET, right=RIGHT_BRACKET) -%}
+{%- set DELIMITER = {RIGHT_PARENTHESIS:LEFT_PARENTHESIS, LEFT_PARENTHESIS: RIGHT_PARENTHESIS, RIGHT_CURLYBRACKET:LEFT_CURLYBRACKET, LEFT_CURLYBRACKET: RIGHT_CURLYBRACKET, RIGHT_BRACKET:LEFT_BRACKET, LEFT_BRACKET: RIGHT_BRACKET} -%}
+{%- set DELIMITER_BEGINNING = {RIGHT_PARENTHESIS:LEFT_PARENTHESIS, LEFT_PARENTHESIS: LEFT_PARENTHESIS, RIGHT_CURLYBRACKET:LEFT_CURLYBRACKET, LEFT_CURLYBRACKET: RIGHT_CURLYBRACKET, RIGHT_BRACKET:LEFT_BRACKET, LEFT_BRACKET: LEFT_BRACKET} -%}
+{%- set DELIMITER_END = {RIGHT_PARENTHESIS:RIGHT_PARENTHESIS, LEFT_PARENTHESIS: RIGHT_PARENTHESIS, RIGHT_CURLYBRACKET:LEFT_CURLYBRACKET, LEFT_CURLYBRACKET: RIGHT_CURLYBRACKET, RIGHT_BRACKET:RIGHT_BRACKET, RIGHT_BRACKET: RIGHT_BRACKET} -%}
+
 {%- set doom_emacs_packages = ['rainbow-delimiters', 'systemd-mode', 'mmm-mode', 'sway', 'ob-tmux'] -%}
 {%- set zsh_env = dict(ZSH='$HOME/.oh-my-zsh', ZSH_THEME='simple') -%}
 {%- set zsh_plugins = ['zsh-autosuggestions', 'direnv', 'fzf', 'tmux'] -%}
@@ -15,3 +28,5 @@
 {%- set path = ['$HOME/.pyenv/bin', '$HOME/bin', '/usr/bin', '/usr/local/bin', '/usr/local/sbin', '/usr/sbin', '$HOME/.cargo/bin', '$HOME/.local/bin', '$HOME/go/bin', '$HOME/opt/doom-emacsdir/bin'] -%}
 {%- set prompt_command = ['~/.functions', '~/.aliases'] -%}
 {%- set shellcheck_disable = ['1091', '2034'] -%}
+
+{%- set DUBLE_QUOTE = '''"''' -%}

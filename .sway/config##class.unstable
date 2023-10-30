@@ -85,7 +85,6 @@ exec_always {
    doom --doomdir ~/.config/doom sync
 }
 
-
 bindsym --to-code {
    Mod4+d exec --no-startup-id "rofi -show drun -modi drun,window,ssh"
    Mod3+d exec --no-startup-id "rofi -show drun -modi drun,window,ssh"
@@ -169,9 +168,9 @@ for_window   [class='.*']  floating enable
 # for_window [class='(?i)emacs']        move to workspace 1
 for_window   [title='(?i)emacs']        move to workspace 1; border 3px
 
-assign       [class='(?i)emacs']        1
-assign       [class='(?i)qutebrowser']  2
-assign       [class='(?i)alacritty']    3
+assign       [app_id='(?i)emacs']        1
+assign       [app_id='(?i)qutebrowser']  2
+assign       [app_id='(?i)alacritty']    3
 
 set $one    25 ppt
 set $two    33 ppt
@@ -254,7 +253,6 @@ mode $menu_mode {
      }
 }
 
-
 set $unit 10 ppt
 
 bindsym $Super+t mode $menu_mode
@@ -262,12 +260,12 @@ bindsym $Super+t mode $menu_mode
 # bindsym --to-code Mod4+0 exec --no-startup-id "alacritty --class=Menu"
 
 # for_window [class="(?i)firefox"] title_format --pango_markup "<span foreground='red'>%title</span>"
-for_window [class="(?i)firefox"] title_format "<span foreground='red'>%title</span>"
+for_window [class="(?i)firefox"]  title_format "<span foreground='red'>%title</span>"
 
-for_window [title="SCAP"] floating enabled
+for_window [title="SCAP"]         floating enabled
 for_window [title="GNOME Tweaks"] floating enabled
 
-set $lock 'swaylock -f '
+set $lock 'swaylock -f --color "#000000"'
 
 bindswitch --reload --locked lid:on exec $lock
 

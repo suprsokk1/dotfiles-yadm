@@ -1,9 +1,9 @@
 # -*- mode: sh -*-
 precmd() {
+
     eval "${PROMPT_COMMAND:+$PROMPT_COMMAND}"
 }
 
-unalias ls &>/dev/null ||:
 ls() {
     args=( ${exa[*]} )
     local exa
@@ -29,4 +29,20 @@ ls() {
         fi
     done
     eval "exa ${exa[*]}"
+}
+
+getParentPid() {
+    grep  /proc/$pid/exe
+}
+
+getParentName() {
+    for pid; do sed -E '/Name: /s|||' /proc/$pid/status; done
+}
+
+getParentExecutable() {
+    for pid; do readlink /proc/$pid/exe; done
+}
+
+isTmux() {
+    sed -E '//{s###}' /proc/`pgrep --oldest`/status
 }

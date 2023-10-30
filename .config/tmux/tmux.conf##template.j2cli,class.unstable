@@ -122,36 +122,25 @@ bind -n C-\\ split-window -c '#{pane_current_path}' \; select-layout tiled
 # bind -n C-Tab select-pane -t\! # last pane
 # bind -n C-| new-window
 
-# 9 = bright green
-
-# >>>>>WORK IN PROGRESS>>>>>>
-set -s command-alias man='display-popup "man $cmd" -e cmd='
-set -s command-alias pass='pipe-pane -I pass\\  '
-# <<<<<<WORK IN PROGRESS<<<<<<
-
-# bind u display-popup -E "sh -c 'tmux capturep -p -S - | #{@fzf}'"
-# bind p display-popup -E "sh -c 'tmux capturep -p -S - | #{@fzf} | xargs -I, -0 tmux send-keys '\'','\''"
-# bind p display-popup -E "sh -c 'tmux capturep -p -S - | #{@fzf}"
 
 # set -g @plugin 'catppuccin/tmux'
 # set -g @tmux_power_theme 'sky'
+
 set -g @tmux_power_theme 'gold'
 
-set -g @plugin 'tmux-plugins/tpm'
-set -g @plugin 'tmux-plugins/tmux-sensible'
-set -g @plugin 'rickstaa/tmux-notify'
-set -g @plugin 'jaclu/tmux-menus'
-set -g @plugin 'roosta/tmux-fuzzback'
+{%- for plugin in ['tmux-plugins/tpm', 'tmux-plugins/tmux-sensible', 'rickstaa/tmux-notify', 'jaclu/tmux-menus', 'roosta/tmux-fuzzback', 'wfxr/tmux-power', 'wfxr/tmux-fzf-url'] -%}
+set -g @plugin {{ plugin }}{{ '\n' }}
+{%- endfor -%}
 
-set -g @plugin 'wfxr/tmux-power'
-set -g @plugin 'wfxr/tmux-fzf-url'
+# set -g @catppuccin_flavor 'latte'
+# set -g @catppuccin_flavor 'macchiato'
 
 set -g @fzf-url-bind          'Tab'
 set -g @fzf-url-open          'qutebrowser'
 set -g @fzf-url-history-limit '2000'
 set -g @fzf-url-fzf-options   '-w 50% -h 50% --multi -0 --no-preview --no-border'
 
-source-file ${HOME}/.config/tmux/by-env/${XDG_SESSION_TYPE}.conf
+{%- include HOME + "/.config/tmux/by-env/" +  XDG_SESSION_TYPE + ".conf" -%}
 
 run "sh -c 'test -d ~/.local/share/tpm || env -C ~/.local/share/ git clone https://github.com/tmux-plugins/tpm'"
 run ' ~/.local/share/tpm/tpm'
@@ -162,5 +151,7 @@ bind r source $HOME/.tmux.conf \; run 'notify-send --expire-time 2000 Reloaded ~
 unbind Space
 # unbind :
 
-# set -g @catppuccin_flavor 'latte'
-# set -g @catppuccin_flavor 'macchiato'
+# >>>>>WORK IN PROGRESS>>>>>>
+set -s command-alias man='display-popup "man $cmd" -e cmd='
+set -s command-alias pass='pipe-pane -I pass\\  '
+# <<<<<<WORK IN PROGRESS<<<<<<
