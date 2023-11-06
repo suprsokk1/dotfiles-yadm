@@ -1,0 +1,848 @@
+;;; $DOOMDIR/config.el -*- mode: emacs-lisp; lexical-binding: t; -*-
+;; TODO sway-mode
+;; TODO magit + yadm: list todos, but limit to files git
+;; TODO change alpha when loosing frame focus ()
+
+(defun -config-el-eol-hook ())
+
+(add-hook! (quote (-config-el-eol-hook))
+  (require '-functions nil t)
+  (progn
+    (setq -reloaded (boundp '-reloaded)
+          -toggle   (boundp '-reloaded)
+          compilation-scroll-output t
+          input-method              "norwegian-keyboard")
+    (blink-cursor-mode 1)
+    (global-hide-mode-line-mode 1)
+    ;; (global-hide-mode-line-mode -1)
+    ;; (hide-mode-line-mode t)
+    (set-frame-parameter nil 'alpha-background 100)
+    ;; (set-frame-parameter nil 'alpha-background 90) ;uncomment to enable opacity
+    ;; (add-to-list (quote so-long-minor-modes) (quote smartparens-mode))
+    (setq-hook! (quote conf-mode-hook js-mode-hook)
+      display-line-numbers-type (quote absolute))))
+
+;; (add-hook 'doom-after-reload-hook )
+
+(setq-hook! (quote (org-mode-hook))
+  display-line-numbers-mode -1)
+
+;; EXAMPLE
+(quote
+ (setq doom-font                (font-spec :family "Input Mono Narrow" :size 12 :weight 'semi-light)
+  doom-variable-pitch-font (font-spec :family "Fira Sans") ; inherits `doom-font''s :size
+  doom-unicode-font        (font-spec :family "Input Mono Narrow" :size 12)
+  doom-big-font            (font-spec :family "Fira Mono" :size 19)))
+
+(setq doom-font
+      (font-spec :family "Iosevka Nerd Font" :size 16  :weight 'light))
+
+;; (default-value 'frame-title-format)
+;; (setq frame-title-format)
+
+(add-hook! (quote (rainbow-mode))
+           (hl-line-mode -1))
+
+(use-package! conf-mode
+  :mode (rx "sway"))
+
+(setq-hook! (quote (fundamental-mode-hook prog-mode-hook text-mode-hook))
+  header-line-format
+  (quote ("%e"
+          (:eval
+           (doom-modeline--buffer-mode-icon)))))
+
+;; (setq-hook! (quote (prog-mode-hook text-mode-hook))
+;;   header-line-format
+;;   (quote ("%e" mode-line-front-space
+;;           (:propertize
+;;            ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
+;;            display (min-width (5.0)))
+;;           mode-line-frame-identification
+;;           mode-line-buffer-identification
+;;           "   "
+;;           mode-line-position
+;;           (vc-mode vc-mode)
+;;           "  "  mode-line-misc-info mode-line-end-spaces)))
+
+;; (quote (let ((NAME (quote light))
+;;              (FAMILY "Iosevka Nerd Font")
+;;              (NAME (quote doom-font)))
+;;         `(setq (font-spec :family FAMILY :size  :weight ,(quote WEIGHT))
+;;                doom-big-font  (font-spec :family "Fira Mono" :size 19))))
+
+;; (add-to-list 'default-frame-alist
+;;              '(font . ""))
+
+(set (quote +snippets-dir)
+     (or (expand-file-name "snippets" (file-truename doom-user-dir))
+         (expand-file-name "snippets" (expand-file-name doom-user-dir))))
+
+(set (quote doom-theme)
+     (quote doom-dracula))
+
+(set (quote doom-scratch-initial-major-mode)
+     (quote fundamental-mode))
+
+(global-set-key (kbd "H-b") 'backward-word) ; H is for hyper
+
+;; (set (quote doom-modeline-mode-alist) )
+
+(mkdir "~/.local/emacs" t)
+
+(set (quote custom-file)
+     (expand-file-name "custom.el" "~/.local/emacs"))
+
+;; (set (quote global-hide-mode-line-mode) 1)
+
+;; (set (quote initial-buffer-choice)
+;;      (or (expand-file-name "dashboard.org" doom-user-dir)
+;;          (expand-file-name "todo.org" org-directory)))
+
+(set (quote comint-move-point-for-output) t)
+
+(set (quote doom-modeline-major-mode-icon) t)
+
+;; (set (quote dired-listing-switches) "--ahl -v --group-directories-first")
+
+;; (set (quote -dired-longopts)
+;;      (mapconcat (quote symbol-name)
+;;                 (quote (--block-size=1
+;;                         --group-directories-first
+;;                         --human-readable
+;;                         --numeric-uid-gid
+;;                         --ignore-backups
+;;                         --color=never
+;;                         --no-group)) " "))
+
+(defmacro %string (&rest BODY)
+  `(mapconcat (quote symbol-name) (quote (,@BODY)) " "))
+
+(set (quote -dired-ignore-extensions)
+     (concat "--ignore=*."
+             (mapconcat (quote symbol-name)
+                        (quote (zip gz)) " --ignore=*.")))
+
+(let ((% (concat -dired-ignore-extensions
+                 " "
+                 (%string --block-size=1
+                          --group-directories-first
+                          --human-readable
+                          --numeric-uid-gid
+                          --ignore-backups
+                          --color=never
+                          --no-group))))
+  (setq-hook! (quote (dired-mode-hook))
+    dired-listing-switches %))
+
+(let ((% (mapconcat 'symbol-name (quote (-dired-ignore-extensions -dired-longopts)) " ")))
+  (setq-hook! (quote dired-mode-hook)
+    dired-listing-switches %))
+
+(set (quote doom-projectile-cache-blacklist)
+     (quote ("/tmp")))
+
+(set (quote bookmark-default-file)
+     (expand-file-name "_bookmarks.el" doom-user-dir))
+
+(set (quote shift-select-mode)
+     nil)
+
+(set (quote display-line-numbers-type)
+     nil)
+
+(set-ligatures! (quote org-mode)
+  :src_block "#+src_begin"
+  :true "yes" :false "no"
+  )
+
+(plist-put! +ligatures-extra-symbols
+            ;; org
+            :name          "»"
+            :src_block     "»"
+            :src_block_end "«"
+            :quote         "“"
+            :quote_end     "”"
+            ;; ;; Functional
+            ;; :lambda        "λ"
+            ;; :def           "ƒ"
+            ;; :composition   "∘"
+            ;; :map           "↦"
+            ;; ;; Types
+            ;; :null          "∅"
+            ;; :true          "𝕋"
+            ;; :false         "𝔽"
+            ;; :int           "ℤ"
+            ;; :float         "ℝ"
+            ;; :str           "𝕊"
+            ;; :bool          "𝔹"
+            ;; :list          "𝕃"
+            ;; ;; Flow
+            ;; :not           "￢"
+            ;; :in            "∈"
+            ;; :not-in        "∉"
+            ;; :and           "∧"
+            ;; :or            "∨"
+            ;; :for           "∀"
+            ;; :some          "∃"
+            ;; :return        "⟼"
+            ;; :yield         "⟻"
+            ;; ;; Other
+            ;; :union         "⋃"
+            ;; :intersect     "∩"
+            ;; :diff          "∖"
+            ;; :tuple         "⨂"
+            ;; :pipe          "" ;; FIXME: find a non-private char
+            ;; :dot           "•"
+            )
+
+;; (highlight-regexp
+;;  (rx ?' ?\\  ?' ?')
+;;  'hi-pink
+;;  )
+
+;; '\''
+
+(quote
+ (setq +ligatures-extra-alist
+  (quote
+   ((dired-mode
+     ("rwx" . "7")
+     ("rw-" . "6")
+     ("r-x" . "5")
+     ("r--" . "4")
+     ("-wx" . "3")
+     ("-r-" . "2")
+     ("--x" . "1")
+     ("---" . "0"))
+
+    (emacs-lisp-mode
+     ("lambda" . "λ")
+     ("'\\\\''" . "⍞"))
+
+    (org-mode
+     ("#+BEGIN_QUOTE" . "“")
+     ("#+BEGIN_SRC" . "»")
+     ("#+END_QUOTE" . "”")
+     ("#+END_SRC" . "«")
+     ("#+NAME:" . "»")
+     ("#+NAME:" . "»")
+     ("#+begin_quote" . "“")
+     ("#+begin_src" . "»")
+     ("#+end_quote" . "”")
+     ("#+end_src" . "«")
+     ("#+name:" . "»")
+     ("no" . "𝔽")
+     ("yes" . "𝕋"))
+
+    (sh-mode
+     ("[[" . "⟦")
+     ("]]" . "⟧")
+     ("function" . "ƒ")
+     ("true" . "𝕋")
+     ("false" . "𝔽")
+     ("!" . "￢")
+     ("&&" . "∧")
+     ("||" . "∨")
+     ("in" . "∈")
+     ("for" . "∀")
+     ("return" . "⟼")
+     ("." . "•")
+     ("source" . "•")
+     ("function" . "ƒ")
+     ("true" . "𝕋")
+     ("false" . "𝔽")
+     ("!" . "￢")
+     ("&&" . "∧")
+     ("||" . "∨")
+     ("in" . "∈")
+     ("for" . "∀")
+     ("return" . "⟼")
+     ("." . "•")
+     ("source" . "•")
+     ("function" . "ƒ")
+     ("true" . "𝕋")
+     ("false" . "𝔽")
+     ("!" . "￢")
+     ("&&" . "∧")
+     ("||" . "∨")
+     ("in" . "∈")
+     ("for" . "∀")
+     ("return" . "⟼")
+     ("." . "•")
+     ("source" . "•")
+     ("." . "•")
+     ("return" . "⟼")
+     ("for" . "∀")
+     ("in" . "∈")
+     ("||" . "∨")
+     ("&&" . "∧")
+     ("!" . "￢")
+     ("false" . "𝔽")
+     ("true" . "𝕋")
+     ("function" . "ƒ"))
+    (t)))))
+
+(after! python
+  (set (quote +python-ipython-repl-args)
+       (quote ("-i" "--simple-prompt" "--no-color-info")))
+
+  (set (quote +python-jupyter-repl-args)
+       (quote ("--simple-prompt"))))
+
+(after! org
+  (let ((% (expand-file-name "agenda.lst" doom-user-dir)))
+    (unless (file-exists-p %)
+      (write-file % nil))
+    (set (quote org-agenda-files) %))
+
+  (set (quote default)
+       (quote ((org-babel-default-header-args . (default-value (quote org-babel-default-header-args))))))
+
+  (set (quote org-babel-default-header-args)
+       (quote ((:session . "none")
+               (:noweb . "yes")
+               (:exports . "code")
+               (:mkdirp . "yes")
+               (:cache . "no")
+               (:tangle-mode . 384)     ; (identity #o0600)
+               (:results . "replace")
+               (:comments . "link")
+               (:hlines . "no")
+               (:tangle . "no"))))
+
+  (set (quote org-babel-default-header-args:python)
+       (quote ((:tangle-mode . 448))))
+
+  (set (quote org-babel-default-header-args:sh)
+       (quote ((:session . "none")
+               (:tangle-mode . 448)
+               (:mkdirp . "yes"))))
+
+  (set (quote org-babel-default-header-args:zsh)
+       (quote ((:results . "raw replace drawer"))))
+
+  (set (quote org-babel-default-header-args:bash)
+       (quote ((:session . "none")
+               (:tangle-mode . 448)
+               (:prologue . ". ~/.functions;. ~/.aliases")
+               (:results . "raw replace drawer")
+               (:mkdirp . "yes"))))
+
+  (set (quote org-babel-default-header-args:cat)
+       (quote ()))
+
+  ;; (org-babel-shell-initialize)
+
+  ;; (add-to-list 'org-babel-shell-names "cat")
+
+  (ignore-errors
+    (org-babel-lob-ingest (or (format "%s/_lob.org" doom-user-dir))))
+
+  (defun ek/babel-ansi ()
+    (when-let ((beg (org-babel-where-is-src-block-result nil nil)))
+      (save-excursion
+        (goto-char beg)
+        (when (looking-at org-babel-result-regexp)
+          (let ((end (org-babel-result-end))
+                (ansi-color-context-region nil))
+            (ansi-color-apply-on-region beg end))))))
+
+  (defun -babel-ansi ()
+    "TODO Apply ANSI colors on region after"
+    (save-excursion
+      (when (looking-at org-babel-result-regexp)
+        (let ((end (org-babel-result-end))
+              (ansi-color-context-region nil))
+          (ansi-color-apply-on-region beg end)))))
+
+  (add-hook 'org-babel-after-execute-hook 'ek/babel-ansi))
+
+(defmacro sh!! (CMDLINE)
+  `(ignore-errors
+     (string= "0" (string-trim (shell-command-to-string (concat ,CMDLINE " &> /dev/null; echo $?"))))))
+
+(defmacro ENV! ()
+  "Convert environment vars into assoc list (hash table)"
+  `(mapcar
+    (lambda (_)
+      (let* ((LIST (split-string-and-unquote _ "="))
+             (KEY (car LIST))
+             (VALUE (mapconcat (lambda(_)_) (cdr LIST) "=")))
+        `(,(intern KEY) . ,VALUE)))
+    (split-string-and-unquote (sh! "cat /proc/$PPID/environ") "\0")))
+
+(defun M-RET! (&rest BODY)
+  "Default M-RET action"
+  (interactive)
+  (quote (progn
+           (unless (string= "-" (projectile-project-name))
+             (recompile))))
+  (eval (assoc-default major-mode -compile)))
+
+(defun M-RET! (&rest BODY)
+  "Default M-RET action"
+  (interactive)
+  (cond
+   ((eq major-mode (quote python-mode))
+    (run-python)
+    (unless (string-match "*Python*" (with-output-to-string (princ (-all-window-buffers))))
+      (switch-to-buffer-other-window "*Python*"))
+    (let ((% (buffer-file-name)))
+      (if % (python-shell-send-file %) (python-shell-send-buffer))))
+   (t (let ((compile-command (format "command /usr/bin/env , %s" (buffer-file-name))))
+        (recompile)))))
+
+(defvar -compile
+  (quote
+   ;; EXPECT / TCL
+   ((tcl-mode . (recompile))
+
+    ;; YAML
+    (yaml-mode .  (progn (when nil
+                           (setq-local compile-command (format "command /usr/bin/env ./%" (buffer-file-name)))
+                           (recompile))
+                         (recompile)))
+
+    ;; MAKEFILE
+    (makefile-gmake-mode .  (recompile))
+
+    ;; EMACS LISP
+    (emacs-lisp-mode .  (eval-buffer))
+
+    ;; SHELL
+    (sh-mode . (progn (let (($ (buffer-file-name))
+                            (% (make-temp-file nil nil ".sh")))
+                        (save-excursion
+                          (goto-char 0)
+                          (when (looking-at (rx "bash")) (setq-local compile-command (format "cp %s %s; bash $_" $ %))) ;; FIXME
+                          (when (looking-at (rx "zsh")) (setq-local compile-command (format "cp %s %s; zsh $_" $ %)))) ;; FIXME
+                        (unless (string= "-" (projectile-project-name))
+                          (recompile)))))
+
+    ;; PYTHON
+    (python-mode . (progn
+                     (let (($ python-shell-buffer-name)
+                           (% (buffer-file-name))
+                           (prev (get-buffer (buffer-name))))
+
+                       (unless (-is-running $)
+                         (run-python))
+
+                       (message "DEBUG:%s" %)
+
+                       (python-shell-send-file %)
+
+                       (unless (-is-visible $)
+                         (progn
+                           (when (eq 1 (count-windows))
+                             (split-window-sensibly))
+                           (switch-to-buffer-other-window
+                            (-get-buffer python-shell-buffer-name))))))))))
+
+(global-set-key (kbd "M-RET") #'M-RET!)
+(global-set-key (kbd "s-p") (quote projectile-find-file))
+
+(map!
+
+ "<f12>"           #'flycheck-list-errors
+ "<f5>"            #'call-last-kbd-macro
+ "C-."             #'mc/mark-next-like-this
+ "C-<iso-lefttab>" #'flycheck-previous-error
+ "C-<tab>"         #'flycheck-next-error
+ "C-c SPC SPC"     #'-refresh
+ "H-."             #'dired-jump
+ "H-/"             #'+default/search-buffer
+ "H-0"             #'balance-windows
+ ;; "H-8"             #'-mark-all-like-this
+ ;; "s-8"             #'(cmd! (isearch-forward-symbol-at-point)(occur))
+ "s-8"             (lambda (&rest BODY) (interactive)(isearch-forward-symbol-at-point)(apply (quote occur) BODY))
+ "H-;"             #'company-yasnippet
+ "H-<backspace>"   #'delete-pair
+ "H-<down>"        #'-clone-line-down "s-<down>"        #'-clone-line-down
+ "H-<return>"      #'bookmark-jump
+ "H-<up>"          #'-clone-line-up "s-<up>"            #'-clone-line-up
+ "H-M-0"           #'balance-windows-area
+ "H-M-["           #'winner-undo
+ "H-M-]"           #'winner-redo
+ "H-M-k"           #'doom/kill-this-buffer-in-all-windows
+ "H-M-l"           #'toggle-truncate-lines
+ "H-M-n"           #'split-window-vertically
+ "H-M-p"           #'projectile-switch-project
+
+ "H-["             #'undo
+ "H-]"             #'undo-redo
+ "H-g"             #'magit-status
+ "H-i f"           #'+default/insert-file-path
+ "H-k"             #'delete-window
+ "H-l"             #'display-line-numbers-mode
+ "H-m"             #'+zen/toggle-fullscreen
+ "H-n"             #'split-window-horizontally
+ "H-p"             #'projectile-find-file
+ "H-{"             #'flycheck-previous-error
+ "H-}"             #'flycheck-next-error
+ "M-["             #'previous-error
+ "M-]"             #'next-error
+ "M-s-0"           #'balance-windows-area
+ "M-s-<return>"    #'org-roam-node-find
+ "M-s-["           #'winner-undo
+ "M-s-]"           #'winner-redo
+ "M-s-k"           #'doom/kill-this-buffer-in-all-windows
+ "M-s-l"           #'toggle-truncate-lines
+ "M-s-n"           #'split-window-vertically
+ "s-."             #'dired-jump
+ "s-/"             #'+default/search-buffer
+ "s-0"             #'balance-windows
+ ;; "s-8"             #'-mark-all-like-this
+ "s-;"             #'company-yasnippet
+ "s-<backspace>"   #'delete-pair
+ "s-<return>"      #'bookmark-jump
+ "s-M-k"           #'doom/kill-this-buffer-in-all-windows
+ "s-M-p"           #'projectile-switch-project
+
+ "s-["             'undo
+ "s-]"             'undo-redo
+ "s-g"             #'magit-status
+ "s-i f"           #'+default/insert-file-path
+ "s-k"             #'delete-window
+ "s-l"             #'display-line-numbers-mode
+ "s-m s-m"         #'mc/mark-all-like-this
+ "s-n"             #'split-window-horizontally
+ "s-p"             #'projectile-find-file
+
+ (:prefix "s-SPC"
+          "m"         '+zen/toggle-fullscreen
+          "SPC"       #'org-roam-node-find
+          "."         #'dired-jump
+          "TAB"       #'(cmd! (find-file initial-buffer-choice))
+          "["         #'mc/edit-beginnings-of-lines
+          "]"         #'mc/edit-enda-of-lines
+          "a"         #'mc/edit-beginnings-of-lines
+          "b"         #'doom-big-font-mode
+          "c"         #'doom/goto-private-config-file
+          "e"         #'mc/edit-enda-of-lines
+          "h"         #'(cmd! (dired "~"))
+          "n"         #'org-capture
+          "q"         #'delete-other-windows
+          "r"         nil
+          "s"         #'org-narrow-to-subtree
+          "s-SPC"     #'-refresh
+          "s-q"       #'delete-other-frames
+          "x"         #'doom/open-scratch-buffer
+          "~"         #'(cmd! (dired "~")))
+
+ (:prefix "H-SPC"
+          "."         #'dired-jump
+          "H-SPC"     #'-refresh
+          "H-q"       #'delete-other-frames
+          "TAB"       #'(cmd! (find-file initial-buffer-choice))
+          "["         #'mc/edit-beginnings-of-lines
+          "]"         #'mc/edit-enda-of-lines
+          "a"         #'mc/edit-beginnings-of-lines
+          "b"         #'doom-big-font-mode
+          "c"         #'doom/goto-private-config-file
+          "e"         #'mc/edit-enda-of-lines
+          "h"         #'(cmd! (dired "~"))
+          "l"         #'-open-library-of-babel
+          "m"         #'mc/mark-all-like-this ;FIXME
+          "n"         #'org-capture
+          "q"         #'delete-other-windows
+          "r"         nil
+          "s"         #'org-narrow-to-subtree
+          "x"         #'doom/open-scratch-buffer
+          "~"         #'(cmd! (dired "~"))
+
+          )
+ )
+
+
+(map! :map dired-mode-map
+      "D" nil
+      "r" #'dired-do-rename-regexp
+      )
+
+(after! conf-mode
+  (highlight-phrase "bindsym" 'bold)
+  ;; (highlight-phrase "")
+  )
+
+(map!
+ "H-r" #'consult-buffer
+ "s-r" #'consult-buffer
+ "H-M-k" #'doom/kill-this-buffer-in-all-windows
+ "M-s-k" #'doom/kill-this-buffer-in-all-windows
+ "H-\\"   #'+vterm/toggle
+ "s-\\"   #'+vterm/toggle
+ "M-o l"  #'highlight-lines-matching-regexp
+ "M-o r"  #'highlight-regexp
+ "M-o w"  #'highlight-phrase
+ "s-q"    #'windmove-left
+ "s-e"    #'windmove-right
+ "s-w"    #'windmove-up
+ "s-s"    #'windmove-down
+ "H-q"    #'windmove-left
+ "H-e"    #'windmove-right
+ "H-w"    #'windmove-up
+ "H-s"    #'windmove-down
+ "M-s-q"  #'windmove-swap-states-left
+ "M-H-q"  #'windmove-swap-states-left
+ "M-s-e"  #'windmove-swap-states-right
+ "M-H-e"  #'windmove-swap-states-right
+ "M-s-w"  #'windmove-swap-states-up
+ "M-H-w"  #'windmove-swap-states-up
+ "M-s-s"  #'windmove-swap-states-down
+ "M-H-s"  #'windmove-swap-states-down
+ "C-c m m" 'mc/mark-all-like-this
+ )
+
+
+
+(map!
+ :map dired-mode-map
+ "]"   #'dired-next-marked-file
+ "["   #'dired-prev-marked-file
+ "."  #'dired-up-directory
+
+ ("," nil
+  :prefix ","
+  "," #'dired-unmark-all-marks)
+
+ ;; ("." nil
+ ;;  :prefix "."
+ ;;  "." #'dired-up-directory)
+
+ ("/" nil
+  :prefix "/"
+  "/" #'dired-mark-files-regexp
+  "." #'dired-mark-files-containing-regexp))
+
+(setq-hook! (quote (comint-mode-hook))
+  comint-buffer-maximum-size 20000 ; Increase comint buffer size.
+  comint-prompt-read-only t )      ; Make the prompt read only.
+
+(use-package! dockerfile-mode
+  :init (setenv "DOCKER_BUILDKIT" "1")
+  :mode "dockerfile\(?:\.[[:word:]]+\)?\'"
+  :custom
+  (dockerfile-mode-command "docker buildx build"))
+
+;; (after! org
+;;   (add-to-list (quote org-babel-shell-names) (quote "tmux"))
+;;   (add-to-list (quote org-babel-shell-names) (quote "cat"))
+;;   (add-to-list (quote so-long-minor-modes) (quote display-line-numbers-mode))
+
+;;   (setq-hook! (quote (org-mode-hook))
+;;     display-line-numbers-mode -1))
+
+
+;; (use-package! org-roam
+;;   :if (string-match "sqlite3" (shell-command-to-string "command -v sqlite3"))
+;;   :bind (("SPC" . org-roam-node-find)
+;;          ("H-SPC SPC" . org-roam-node-find)
+;;          ("H-SPC t"   . org-roam-tag-add))
+;;   :catch (lambda (keyword err)
+;;            (message (error-message-string err))))
+
+;; (use-package! windmove
+;;   :bind )
+
+;; (use-package! org-crypt)
+
+;; (use-package! hi-lock
+;;   :bind )
+
+(use-package! modus-themes
+  :ensure t
+  :load-path "~/src/modus-themes"
+  :config
+  (modus-themes-select 'modus-vivendi-tinted)
+  :custom
+  (modus-operandi-palette-overrides (quote
+                                     ((fg-main "#333333")
+                                      (comment red-faint)
+                                      (keyword cyan-cooler))))
+  (modus-themes-headings (quote
+                          ((1 . (variable-pitch 1.5))
+                           (2 . (1.3))
+                           (agenda-date . (1.3))
+                           (agenda-structure . (variable-pitch light 1.8))
+                           (t . (1.1)))))
+  (modus-themes-variable-pitch-ui t)
+  (modus-themes-to-toggle (quote (modus-operandi-tinted modus-vivendi-tinted))))
+
+(defun yadm ()
+  (interactive)
+  (magit-status "/yadm::"))
+
+(after! tramp
+  (add-to-list (quote tramp-methods)
+               (quote ("yadm"
+                       (tramp-login-program "yadm")
+                       (tramp-login-args (("enter")))
+                       (tramp-login-env (("SHELL") ("/bin/sh")))
+                       (tramp-remote-shell "/bin/sh")
+                       (tramp-remote-shell-args ("-c"))))))
+
+(use-package! ob-tmux
+  ;; Install package automatically (optional)
+  :ensure t
+  :custom
+  (org-babel-default-header-args:tmux
+   '((:results . "silent")	;
+     (:session . "default")	; The default tmux session to send code to
+     (:socket  . nil)))		; The default tmux socket to communicate with
+  ;; The tmux sessions are prefixed with the following string.
+  ;; You can customize this if you like.
+  (org-babel-tmux-session-prefix "ob-")
+  ;; The terminal that will be used.
+  ;; You can also customize the options passed to the terminal.
+  ;; The default terminal is "gnome-terminal" with options "--".
+  (org-babel-tmux-terminal "alacritty")
+  (org-babel-tmux-terminal-opts '("-T" "ob-tmux" "-e"))
+  ;; Finally, if your tmux is not in your $PATH for whatever reason, you
+  ;; may set the path to the tmux binary as follows:
+  (org-babel-tmux-location "/usr/bin/tmux"))
+
+(use-package! -macros
+  :no-require t
+  :config
+  (defmacro -all-windows ()
+    `(flatten-list (mapcar #'window-list (frame-list))))
+
+  (defmacro -all-buffers ()
+    `(flatten-list (mapcar #'buffer-list (frame-list))))
+
+  (defmacro -all-window-buffers ()
+    `(flatten-list (mapcar #'window-buffer (-all-windows))))
+
+  (defmacro -all-process-buffers ()
+    `(flatten-list (mapcar #'process-buffer (process-list))))
+
+  (defmacro -get-buffer ($buffer-name)
+    `(get-buffer
+      (with-temp-buffer
+        (insert (with-output-to-string
+                  (princ (-all-process-buffers))))
+        (re-search-backward (rx ?* ,(eval $buffer-name) ?*) nil t)
+        (buffer-substring (match-beginning 0)
+                          (match-end 0))))))
+
+(use-package! -functions
+  :no-require t
+  :config
+  (defun -refresh (&rest _)
+    "TODO add `-refresh' as hook to `display-buffer'"
+    (interactive)
+    (ignore-errors (doom/reload-font))
+    (recentf-cleanup)
+
+    (if (region-active-p)
+        (yas-new-snippet)
+      (let ((window-count (length (window-list)))) ;
+        (let ((one-window (eq window-count 1))
+              (xdg-dir (getenv "XDG_RUNTIME_DIR"))
+              (writeroom (featurep 'writeroom-room))
+              (python (eq major-mode 'python-mode))
+              (py (eq major-mode 'python-mode))
+              (elisp (eq major-mode 'emacs-lisp-mode))
+              (el (eq major-mode 'emacs-lisp-mode))
+              (indirect-buffer (quote TODO)))
+          (quote (when xdg-dir           ;FIXME
+                  (let ((desktop-dir (expand-file-name "desktop" xdg-dir))
+                        (PARENTS t))
+                    (mkdir desktop-dir PARENTS)
+                    (if one-window
+                        (desktop-change-dir desktop-dir) ;; FIXME
+                      (desktop-save desktop-dir))))))))
+
+    (widen)
+    (whitespace-cleanup)
+    (bookmark-save)
+    ;; (sh!! "git rev-parse --show-toplevel")
+    (balance-windows)
+    (cond ((eq major-mode 'python-mode)
+           (unless (window--process-window-list)
+             (progn
+               (python-shell-restart)))))
+    (cond ((eq major-mode 'org-mode)
+           (org-babel-tangle))
+          (t (save-window-excursion (org-babel-detangle)))))
+
+  (defun -clone-line-down (&rest args)
+    (interactive "*p")
+    (message "clone-line-up %s" (quote args))
+    (save-excursion
+      (beginning-of-line)
+      (insert (buffer-substring (eol)(bol)) "\n")))
+
+  (defun -clone-line-up ()              ;FIXME
+    (interactive "*p")
+    (line! -1)
+    (message "clone-line-down %s"))
+
+  ;; TODO when symbol at point is interactive defun; display bindings
+
+  (defun -list (&rest list)
+    (interactive
+     (insert
+      (completing-read "Insert filename:"
+                       (-fd "-tf --max-depth=${_FD_MAX_DEPTH:-4} . $HOME/")))))
+
+  (defun -zsh-history (&rest list)
+    (interactive
+     (insert
+      (completing-read "Insert zsh history"
+                       (let ((exe "zsh")
+                             (prefix "")
+                             (args (format "-c '%s'"
+                                           "print -ln ${(F)history}|sort|uniq")))
+                         (delete nil (split-string
+                                      (shell-command-to-string
+                                       (concat prefix exe args (eval `(concat ,@ARGS))))
+                                      "\n")))))))
+
+  (defun -fd (&rest ARGS)
+    (let ((exe "fd")
+          (prefix "/usr/bin/env -")
+          (args (concat "--print0 --hidden")))
+      (delete nil (split-string
+                   (shell-command-to-string
+                    (concat prefix exe args (eval `(concat ,@ARGS))))
+                   "\0"))))
+
+  (defun -cmd-on-buffer (CMD)
+    (shell-command-on-region (point-min) (point-max) CMD nil t))
+
+  (defun -command-on-buffer ()
+    (interactive
+     (-cmd-on-buffer
+      (completing-read
+       "Apply script on buffer:"
+       (split-string-and-unquote (shell-command-to-string "bash -c 'compgen -A command'"))))))
+
+  (defun -script-on-buffer ()
+    (interactive
+     (-cmd-on-buffer
+      (completing-read
+       "Apply script on buffer:"
+       (-fd "-tf -tx --max-depth=${_FD_MAX_DEPTH:-3} . $HOME/"))))))
+
+(after! ob-async
+  (setq ob-async-no-async-languages-alist '("ipython" "python")))
+
+(after! rainbow-delimiters
+  (add-hook! (quote (python-mode-hook))
+    (quote rainbow-delimiters-mode))
+  (custom-set-faces
+   '(rainbow-delimiters-depth-1-face ((t (:foreground "gray"))))))
+
+
+(ignore-errors
+  (load-file (format "~/.%s.el" (getenv "HOSTNAME"))))
+
+(defmacro sh! (CMDLINE)
+  `(ignore-errors (string-trim
+                   (shell-command-to-string (concat ,@CMDLINE)))))
+
+
+(-config-el-eol-hook)

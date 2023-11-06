@@ -1,0 +1,26 @@
+# -*- mode: conf -*-
+{# -*- mode: jinja2 -*- #}
+
+{%- set border_pixel = 1 -%}
+
+{%- set g01 = '#333333' -%}
+{%- set g02 = '#222222' -%}
+{%- set t01 = '#ffffff' -%}
+{%- set i01 = '#2e9ef4' -%}
+{%- set i01 = '#ff8c00' -%}
+{%- set b01 = '#4c7899' -%}
+{%- set b02 = '#b8860b' -%}
+
+
+# class					border		backgr.	text		indicator	child_border
+client.focused				{{b01}}	#285577	{{t01}}	{{i01}}	{{b02}}
+client.focused_inactive	{{g01}}	#5f676a	{{t01}}	#484e50	#5f676a
+client.unfocused			{{g01}}	{{g02}}	#888888	#292d2e	{{g02}}
+client.urgent				#2f343a	#900000	{{t01}}	#900000	#900000
+client.placeholder			#000000	#0c0c0c	{{t01}}	#000000	#0c0c0c
+
+client.background			#000000
+
+default_border pixel {{ border_pixel }}
+
+for_window [class=".*"] border_pixel {{ border_pixel }}

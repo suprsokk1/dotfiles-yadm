@@ -2,83 +2,119 @@
 # -*- mode: sh[bash] -*-
 # shellcheck disable=2092,2096
 shopt -s extglob
+set -x
 
-# trap TRAPEXIT EXIT
+declare -x tmp
+
+tmp="$(mktemp)"
+
+trap 'TRAPEXIT' EXIT
+
+TRAPEXIT() {
+    rm -v "$tmp"
+}
 
 export PATH=${PATH:-${HOME}/bin:${PATH}}
 export DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/${EUID}/bus}
 export WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-1}
+declare -a -x args
 
+args=("$@")
 script="$(which "$0"|xargs realpath)"
-ext=${1##*.}
-name=${0##*/}
 realname=$(readlink "$name")
 parent=$(readlink /proc/$PPID/exe)
 functions=( "$(compgen -A function)" )
 notify_send_msg_title='comma'
 notify_send_msg_timeout=3000
 
-function msg {
-    command env notify-send --expire-time "${notify_send_msg_timeout:-5000}" "${notify_send_msg_title}" "${BASH_FUNCNAME[*]:-${FUNCNAME[*]}}:$*"
-}
 
-if [[ ${1#} -eq 1 ]]; then
-    # [[ $1 =~ [:,.] ]] || exit
-    :
-fi
-
-if [ $# -gt 1 ]; then
-    if [[ $DEBUG ]]; then
-        msg "multiple:$*"
-    fi
-
-    for arg; do
-        $script "$arg"
-    done
-
-    exit 0
-fi
-
-if false; then
-    yadm config --regex ${ext:-`date +%s`} >&2
-fi
-
-# TRAPEXIT() {
-#     rc=$?
-#     case $rc in
-#         0) __main__ "${BASH_ARGV[*]}" ;;
-#         *)
-#             exit "$rc"
-#     esac
-# }
+test -s ~/.functions && source ~/.functions
 
 function __start__ {
     __main__
 }
 
-function __main__ {
-    shebang=$(head -1 "${@:-/dev/null}")
+function _after_template_render_hook {
+    [[ $@ ]] || return 1
+    template="$1"
+    output="$2"
+    output_ext="${output##*.}"
+    template_ext="${template##*.}"
+    case $output_ext in
+        j2)
+            ;;
+        *)
+    esac
+}
 
-    if [[ $parent =~ fzf$ ]]; then
-        if command -v highlight &>/dev/null; then
-            highlight -O ansi --force
-        fi
-    fi
 
-    if [[ $DEBUG ]]; then
-        msg "$parent:$name:$*"
-    fi
+function _file_handler {
+    set -x
+    [[ $@ ]] || return 1
+    file="$1"
+    # shebang=$(sed -E '1'  "$file")
+    ext=${1##*.}
+    name=${0##*/}
 
-    if [[ $* =~ \.[ot]tf$ ]]; then
-        _install_fonts "${BASH_ARGV[@]}"
-        return
-    fi
+    case "$file" in
+        *\#\#*template*j2*)
+            yadm add --force "$file" || return $?
+            highlight -O ansi --force "${file%%\#*}"
+            return $?
+            ;;
+        *)
+    esac
 
+    case $ext in
+        otf|ttf)
+            _install_fonts "$file"
+            ;;
+        j2)
+            template="$file"
+            dest="${dest:-${template%.${ext}}}"
+
+            unset file
+            # read -r dest <(sed -E '/^\{#[[:space:]]/!d;s|[#\{} ]||g;/dest/!d;s|.*:||' "$template")
+            j2 -e HOME="$HOME" -f json -o "$tmp" "$template" <("$HOME"/.config/yadm/helpers/parse-gitconfig)
+            # grep --silent -- 'Traceback \(most recent call last\):'
+            # ((${?})) && uniq "$tmp" | highlight -O ansi --force
+
+            case $dest in
+                *sway*)
+                    sway --validate --check "$tmp"
+                    return 1
+                        ;;
+                *)
+            esac
+
+            uniq "$tmp" | highlight -O ansi --force
+            cat --show-all "$tmp"
+            install --verbose -DT -- "$tmp" "$dest"
+
+            # for rc; do [[ $rc -ne 1 ]] || continue; highlight -O ansi --force "$dest"; done
+            ;;
+        *)
+    esac
+
+    return
+    # FIXME
     # yadm aliases
     if [[ $* =~ \#{2} ]]; then
         _yadm_alias_handler "${BASH_ARGV[@]}"
         return
     fi
+}
+
+function __main__ {
+    set - ${args[@]}
+    mapfile files < <(for arg ; do test -s "$arg" || continue ; echo -en "$arg" ; done)
+
+    for file ; do _file_handler "$file"; done
+    # find $@ \
+    # \( -type f -name '*.zip' -and -exec   \)  \
+    # -or \( -type f -name '*.tar' -and -exec  \)  \
+    #     2>/dev/null
+    return
 
     case $name in
         SUDO_ASKPASS|sudo-askpass)
@@ -272,6 +308,11 @@ yadmHandler() {
     YADM_HOOK_WORK         # The path to the work-tree
 __YADM_HELP__
 
+}
+
+
+function msg {
+    command env notify-send --expire-time "${notify_send_msg_timeout:-5000}" "${notify_send_msg_title}" "${BASH_FUNCNAME[*]:-${FUNCNAME[*]}}:$*"
 }
 
 

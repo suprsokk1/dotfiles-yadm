@@ -129,7 +129,7 @@ bind -n C-\\ split-window -c '#{pane_current_path}' \; select-layout tiled
 set -g @tmux_power_theme 'gold'
 
 {%- for plugin in ['tmux-plugins/tpm', 'tmux-plugins/tmux-sensible', 'rickstaa/tmux-notify', 'jaclu/tmux-menus', 'roosta/tmux-fuzzback', 'wfxr/tmux-power', 'wfxr/tmux-fzf-url'] -%}
-set -g @plugin {{ plugin }}{{ '\n' }}
+set -g @plugin {{ plugin }}
 {%- endfor -%}
 
 # set -g @catppuccin_flavor 'latte'

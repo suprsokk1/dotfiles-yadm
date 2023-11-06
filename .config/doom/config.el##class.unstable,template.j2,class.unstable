@@ -1,11 +1,9 @@
 {#-*- mode: jinja2 -*-#}
 ;;; $DOOMDIR/config.el -*- mode: emacs-lisp; lexical-binding: t; -*-
-
 ;; UN-STABLE
-
-{# TODO sway-mode #}
-{# TODO magit + yadm: list todos, but limit to files git #}
-{# TODO change alpha when loosing frame focus () #}
+{#  TODO sway-mode -#}
+{#- TODO magit + yadm: list todos, but limit to files git -#}
+{#- TODO change alpha when loosing frame focus () #}
 
 {%- import HOME + '/.config/yadm/macro.j2' as macro -%}
 {%- import HOME + '/.config/yadm/var.j2' as var -%}

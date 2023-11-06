@@ -4,6 +4,7 @@ precmd() {
     eval "${PROMPT_COMMAND:+$PROMPT_COMMAND}"
 }
 
+unalias ls
 ls() {
     args=( ${exa[*]} )
     local exa
