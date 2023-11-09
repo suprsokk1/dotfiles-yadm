@@ -1,0 +1,91 @@
+{#-*- mode: jinja2 -*-#}
+
+set -g mouse           on
+set -g base-index      1
+set -g pane-base-index 1
+
+set -g @pane-stem  "#{pane_current_path}#[fg=blue] #{@tmp}"
+set -g @RC         "(#[fg=#{@color}]#{@rc}#[fg=off])"
+set -g @buffer     "#[fg=#{@color}]#{@shell-buffer}#[fg=off]"
+
+set -g @active     "#{E:@pane-stem}#{E:@buffer}"
+set -g @inactive   "#{E:@pane-stem}#[fg=blue]"
+set -g @inactive   ''
+
+set-option -sa terminal-overrides  ',xterm:Tc'
+set-option -sa terminal-features   ',rxvt-unicode-256color:clipboard:extkeys'
+set-option -g  update-environment  'DISPLAY WAYLAND_DISPLAY SWAYSOCK SSH_ASKPASS SSH_AUTH_SOCK'
+
+set -g @red   colour9
+set -g @green colour10
+
+set-option -g pane-border-status top
+
+set-option -g pane-border-format @inactive
+set-option -g synchronize-panes  off
+
+set-hook -g after-split-window 'select-layout tiled'
+set-hook -g after-kill-pane    'select-layout tiled'
+set-hook -g pane-focus-out     'set-option -p pane-border-format "#{E:@inactive}"'
+set-hook -g pane-focus-in      'set-option -p pane-border-format "#{E:@active}"'
+
+set -g @capture 'capture-pane -C -p -S -'
+set -s command-alias cap='#{@capture}'
+set -s command-alias capp='#{E:@capture} -t"{last}"'
+set -s command-alias capl='#{E:@capture} -t"{left}"'
+set -s command-alias capr='#{E:@capture} -t"{right}"'
+
+set -s command-alias sync='set synchronize-panes'
+set -s command-alias pop='display-popup -E'
+
+set -g @fzf 'fzf --ansi'
+
+set -g prefix C-Space
+
+unbind C-b
+unbind -n C-t
+
+unbind -T prefix t
+bind -n C-z resize-pane -Z
+
+unbind -n M-y
+unbind -n M-t
+unbind -n 'M-`'
+bind -n 'M-`' display-popup -E
+
+set-option -gw xterm-keys on
+
+bind C-s setw synchronize-panes
+
+bind -n M-Tab select-pane -t'{previous}'
+bind -n M-S-Tab select-pane -t'{next}'
+
+bind -n M-1 select-pane -t1
+bind -n M-2 select-pane -t2
+bind -n M-3 select-pane -t3
+bind -n M-4 select-pane -t4
+
+bind -n M-\} next-layout
+bind -n M-\{ previous-layout
+
+bind -n M-\] next-window
+bind -n M-\[ previous-window
+
+bind -n C-\\ split-window -c '#{pane_current_path}' \; select-layout tiled
+
+set -g @tmux_power_theme 'gold'
+
+{% set plugins = ['tmux-plugins/tpm', 'tmux-plugins/tmux-sensible', 'rickstaa/tmux-notify', 'jaclu/tmux-menus', 'roosta/tmux-fuzzback', 'wfxr/tmux-power', 'wfxr/tmux-fzf-url'] -%}
+{{ macro.section(plugins) }}
+
+set -g @fzf-url-bind          'Tab'
+set -g @fzf-url-open          'qutebrowser'
+set -g @fzf-url-history-limit '2000'
+set -g @fzf-url-fzf-options   '-w 50% -h 50% --multi -0 --no-preview --no-border'
+
+{%- include HOME + "/.config/tmux/by-env/" +  XDG_SESSION_TYPE + ".conf" -%}
+
+run "sh -c 'test -d ~/.local/share/tpm || (mkdir -p ~/.local/share/tpm; env -C ~/.local/share/ git clone https://github.com/tmux-plugins/tpm)'"
+run ' ~/.local/share/tpm/tpm'
+
+unbind Space

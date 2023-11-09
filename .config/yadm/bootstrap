@@ -1,0 +1,21 @@
+#!/bin/bash
+dir="$(dirname "$0")"
+. /etc/os-release
+distro=ID
+release=VERSION_ID
+cd "$dir" || exit 1
+
+if [ -f /etc/redhat-release ]; then
+    sudo dnf install --assumeyes python-virtualenv python-pip gcc-go golang-bin cargo
+fi
+
+. "$dir"/bootstrap.d/${!distro}/${!release}
+
+if [ -f ~/.pyenv/bin/pip ]; then
+    "${HOME:-~}"/.pyenv/bin/pip install --upgrade pip
+    "${HOME:-~}"/.pyenv/bin/pip install -r "$dir"/requirements.txt
+fi
+
+yadm alt
+template="$dir"/env.j2.j2
+j2 -o "${template%.*}"  -f json "$template" <(helpers/parse-gitconfig | tee /dev/stderr)

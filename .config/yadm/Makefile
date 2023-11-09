@@ -1,15 +1,8 @@
-include generate.mk
+HOME ?= $(shell getent passwd ${EUID} | cut -d: -f6)
 
-tmp = $(mktemp --dry-run) $(mktemp --dry-run)
+${HOME}/.local/share/src/yadm: ${HOME}/.local/share/src
+	git clone --depth 1 https://github.com/TheLocehiliosan/yadm.git
+	ln -sfrv $*/yadm/yadm ${HOME}/bin/yadm
 
-
-help:
-	@ echo TODO
-
-test:
-	@ echo TODO
-
-install:
-	ansible-playbook ansible-playbook.yml
-
-fonts: nerdfonts
+${HOME}/.local/share/src:
+	mkdir -pv "$@"

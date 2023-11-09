@@ -120,7 +120,7 @@
       (switch-to-buffer-other-window "*Python*"))
     (let ((% (buffer-file-name)))
       (if % (python-shell-send-file %) (python-shell-send-buffer))))
-   (t (let ((compile-command (format "command /usr/bin/env , %s" (buffer-file-name))))
+   (t (let ((compile-command (format "command ~/bin/, %s" (buffer-file-name))))
         (recompile)))))
 
 (provide '_functions)

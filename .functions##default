@@ -1,10 +1,9 @@
 # -*- mode: sh -*-
 precmd() {
-
     eval "${PROMPT_COMMAND:+$PROMPT_COMMAND}"
 }
 
-unalias ls
+unalias ls &>/dev/null ||:
 ls() {
     args=( ${exa[*]} )
     local exa
@@ -20,7 +19,7 @@ ls() {
                 case $c in
                     [aA]) exa+=( --all ) ;;
                     o)    `#TODO`;;
-                    t)    exa+=( --time modified );;
+                    t)    exa+=( --time modified ) ;;
                     G|-)  `# discard` ;;
                     *)    exa+=( -"$c" )
                 esac
