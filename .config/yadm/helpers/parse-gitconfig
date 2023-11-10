@@ -4,8 +4,11 @@ import json
 import re
 from subprocess import run, Popen, PIPE, DEVNULL
 from pathlib import Path
+import logging
+import logging.handlers
+from collections import defaultdict
 
-rc = 0
+
 
 def main():
     def _dump(path):
@@ -17,20 +20,45 @@ def main():
             data.update(parse(_dump(interpolate_path(path))))
 
     data = parse(_dump(os.environ['HOME'] + "/.config/yadm/config"))
-    paths = data.get('include', {}).get('path', {})
+    paths = data.get('include', {}).get('path', [])
     if type(paths) is str:
         _update(paths)
     else:
         _update(*paths)
 
+    # TODO detect parent
     print(json.dumps(data))
+
+
+def parse(raw, **kwargs):
+    data = dict()
+    key = None
+
+    for line in raw.decode().splitlines():
+        if '#' in line.split('=')[0]:
+            continue
+
+        if line.startswith('['):
+            key = line.strip('[]"').split(' "')
+            key = '.'.join(key)
+            data[key] = dict()
+        else:
+            k, v = line.lstrip(' \t').split(' = ')
+            data[key][k] = [*data[key].get(k,[]), kwargs.get('handler', interpolate_path)(v)]
+
+    data.update({k.split('.')[0]:{k.split('.')[1]:v} for k,v in data.items() if '.' in k})
+    for k, v in dict(data).items():
+        if '.'in k:
+            del data[k]
+
+    return data
 
 
 def interpolate_path(path):
     backtick = '''`'''
     if not backtick in path:
         return path
-    begginning, cmd, end = path.split(backtick)
+    beginning, cmd, end = path.split(backtick)
     res = (
         run(cmd.split(), capture_output=True)
         .stdout
@@ -38,7 +66,9 @@ def interpolate_path(path):
         .strip()
     )
 
-    new_path = ''.join([begginning, res, end])
+    new_path = ''.join([beginning, res, end])
+    if not Path(new_path).exists():
+        return path
     Path(new_path).parent.mkdir(parents=True, exist_ok=True)
     Path(new_path).touch()
 
@@ -56,56 +86,6 @@ def num(func):
         else:
             return ret
     return _num
-
-import logging
-import logging.handlers
-
-log = logging.getLogger('MyLogger')
-log.setLevel(logging.DEBUG)
-handler = logging.handlers.SysLogHandler(address = '/dev/log')
-log.addHandler(handler)
-log.debug('this is debug')
-log.critical('this is critical')
-
-
-def parse(raw):
-    regexp = re.compile(r'^[^[:print:]]*')
-    # re.compile(r'\/{4}')        # TODO unescape regexp pattern
-
-    raw_string = raw.decode()
-    lines = raw_string.splitlines()
-    section_heads = [_ for _ in lines if _.startswith('[')]
-    res = dict()
-    while section_heads:
-        head = section_heads.pop()
-        i = lines.index(head)
-        clean_list = list(tuple(regexp.sub('', line).split(' = ')) for line in lines[i+1:-1])
-
-        @num
-        def _func(uniq_key):
-            items = [val for key, val in clean_list if key == uniq_key]
-            return items if len(items) > 1 else items.pop()
-
-        res.update({head[1:-1]:{
-            uniq_key:_func(uniq_key)
-            for uniq_key in {x[0]  for x in clean_list}
-        }})
-
-        def _foo(k, v):
-            del res[k]
-            return k.split(' ')[0], (k.split("\"")[1], v)
-
-        temp = dict(res) # copy res
-
-        res.update(
-            _foo(k, v)
-            for k, v in temp.items()
-            if ' ' in k
-        )
-
-        del lines[i:-1]
-
-    return res
 
 
 if __name__ == '__main__':
