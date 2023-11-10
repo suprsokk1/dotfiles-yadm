@@ -14,6 +14,9 @@ TRAPEXIT() {
     rm -v "$tmp"
 }
 
+# TODO FILE in `yadm ls` ? yadm add FILE : cat /dev/null
+# TODO
+
 export PATH=${PATH:-${HOME}/bin:${PATH}}
 export DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/${EUID}/bus}
 export WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-1}
