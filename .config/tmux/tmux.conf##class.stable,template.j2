@@ -1,16 +1,5 @@
 {#-*- mode: jinja2 -*-#}
 
-set -g mouse           on
-set -g base-index      1
-set -g pane-base-index 1
-
-{%- macro pane-stem() -%}
-#{pane_current_path}#[fg=blue] #{@tmp}
-{%- endmacro -%}
-
-(#[fg=#{@color}]#{@rc}#[fg=off])
-#[fg=#{@color}]#{@shell-buffer}#[fg=off]
-
 set -g @pane-stem  "#{pane_current_path}#[fg=blue] #{@tmp}"
 set -g @RC         "(#[fg=#{@color}]#{@rc}#[fg=off])"
 set -g @buffer     "#[fg=#{@color}]#{@shell-buffer}#[fg=off]"
@@ -19,15 +8,10 @@ set -g @active     "#{E:@pane-stem}#{E:@buffer}"
 set -g @inactive   "#{E:@pane-stem}#[fg=blue]"
 set -g @inactive   ''
 
-set-option -sa terminal-overrides  ',xterm:Tc'
-set-option -sa terminal-features   ',rxvt-unicode-256color:clipboard:extkeys'
-set-option -g  update-environment  'DISPLAY WAYLAND_DISPLAY SWAYSOCK SSH_ASKPASS SSH_AUTH_SOCK'
-
 set -g @red   colour9
 set -g @green colour10
 
 set-option -g pane-border-status top
-
 set-option -g pane-border-format @inactive
 set-option -g synchronize-panes  off
 
@@ -84,7 +68,7 @@ set -g @tmux_power_theme 'gold'
 
 {% set plugins = ['tmux-plugins/tpm', 'tmux-plugins/tmux-sensible', 'rickstaa/tmux-notify', 'jaclu/tmux-menus', 'roosta/tmux-fuzzback', 'wfxr/tmux-power', 'wfxr/tmux-fzf-url'] -%}
 
-{{ section(plugins, prefix="set -g @plugin", wrap=DUBLE_QUOTE) }}
+{{ section(plugins, separator=NEWLINE, prefix="set -g @plugin", wrap=DUBLE_QUOTE) }}
 
 set -g @fzf-url-bind          'Tab'
 set -g @fzf-url-open          'qutebrowser'
@@ -93,7 +77,7 @@ set -g @fzf-url-fzf-options   '-w 50% -h 50% --multi -0 --no-preview --no-border
 
 {%- include HOME + "/.config/tmux/by-env/" +  XDG_SESSION_TYPE + ".conf" -%}
 
-run "sh -c 'test -d ~/.local/share/tpm || (mkdir -p ~/.local/share/tpm; env -C ~/.local/share/ git clone https://github.com/tmux-plugins/tpm)'"
-run ' ~/.local/share/tpm/tpm'
+{# run "sh -c 'test -d ~/.local/share/tpm || (mkdir -p ~/.local/share/tpm; env -C ~/.local/share/ git clone https://github.com/tmux-plugins/tpm)'" #}
+run '/bin/bash $HOME/.local/share/tpm/tpm'
 
 unbind Space

@@ -2,7 +2,6 @@
 # -*- mode: sh[bash] -*-
 # shellcheck disable=2092,2096
 shopt -s extglob
-set -x
 
 declare -x tmp
 
@@ -15,7 +14,7 @@ TRAPEXIT() {
 }
 
 # TODO FILE in `yadm ls` ? yadm add FILE : cat /dev/null
-# TODO
+# TODO ','s
 
 export PATH=${PATH:-${HOME}/bin:${PATH}}
 export DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/${EUID}/bus}
@@ -29,7 +28,7 @@ parent=$(readlink /proc/$PPID/exe)
 functions=( "$(compgen -A function)" )
 notify_send_msg_title='comma'
 notify_send_msg_timeout=3000
-
+read -r yadm_auto_alt < <(yadm config yadm.auto-alt | sed s,0,false,\;s,1,true,)
 
 test -s ~/.functions && source ~/.functions
 
@@ -59,10 +58,38 @@ function _file_handler {
     ext=${1##*.}
     name=${0##*/}
 
+
+    case "$script" in
+        script)
+
+            return
+            ;;
+        *)
+    esac
+
+    case "$file" in
+        */Makefile)
+            env -C "${file%/*}" emacsclient  --no-wait --eval '(let ((compile-command "make")) (compile compile-command))'
+            return
+            ;;
+        *)
+    esac
+
+    
     case "$file" in
         *\#\#*template*j2*)
-            yadm add --force "$file" || return $?
-            highlight -O ansi --force "${file%%\#*}"
+            template="$file"
+            unset file
+            yadm add --force "$template"
+
+            if ! $yadm_auto_alt; then
+                "${HOME}"/bin/j2 \
+                    -f json      \
+                    -o "$tmp"    \
+                    "$template"
+
+            fi
+
             return $?
             ;;
         *)
@@ -75,26 +102,35 @@ function _file_handler {
         j2)
             template="$file"
             dest="${dest:-${template%.${ext}}}"
-
             unset file
-            # read -r dest <(sed -E '/^\{#[[:space:]]/!d;s|[#\{} ]||g;/dest/!d;s|.*:||' "$template")
-            j2 -e HOME="$HOME" -f json -o "$tmp" "$template" <("$HOME"/.config/yadm/helpers/parse-gitconfig)
-            # grep --silent -- 'Traceback \(most recent call last\):'
-            # ((${?})) && uniq "$tmp" | highlight -O ansi --force
+
+            "${HOME}"/bin/j2 \
+                -f json      \
+                -o "$tmp"    \
+                "$template"  \
+
+            # if ! j2 -e HOME="$HOME" -o "$tmp" "$template" <(sed '/^{#[ \t]\(.*\)[ \t]#}/!d;s||\1|' "$template" || "$HOME"/.config/yadm/helpers/parse-gitconfig)
+            # then
+            # fi
 
             case $dest in
                 *sway*)
                     sway --validate --check "$tmp"
                     return 1
-                        ;;
+                    ;;
                 *)
             esac
 
-            uniq "$tmp" | highlight -O ansi --force
-            cat --show-all "$tmp"
-            install --verbose -DT -- "$tmp" "$dest"
+            if ! grep --silent -P '\S' "$tmp"; then
+                exit $?
+            fi
 
-            # for rc; do [[ $rc -ne 1 ]] || continue; highlight -O ansi --force "$dest"; done
+            printf '<<<<<<<<<< %s >>>>>>>>>>' 'START'
+            uniq "$tmp" | highlight -O ansi --force
+            printf '<<<<<<<<<< %s >>>>>>>>>>' 'END'
+
+            # cat --show-all "$tmp"
+            install --verbose -DT -- "$tmp" "$dest"
             ;;
         *)
     esac

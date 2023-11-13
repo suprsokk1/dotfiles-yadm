@@ -33,6 +33,40 @@
 {%- if tail -%}{{ tail }}{%- endif -%}
 {%- endmacro -%}
 
+{# Alternative section #}
+
+{%- macro alt_section(data) -%}
+{%- set wrap = kwargs.get('wrap', '"') -%}
+{%- set title = kwargs.get('title', False) -%}
+{%- set prefix = kwargs.get('prefix', False) -%}
+{%- set suffix = kwargs.get('suffix', False) -%}
+{%- set head = kwargs.get('head', False) -%}
+{%- set tail = kwargs.get('tail', False) -%}
+{%- if title -%}
+{{ banner(title) }}
+{%- endif -%}
+{%- if head -%}{{ head }}{%- endif -%}
+{%- if data.__class__.__name__ == 'dict' -%}
+{%- for name, value in data.items() -%}
+{{- kwargs.get('prefix', '') -}}
+{{- name -}}
+{{- kwargs.get('separator', '=') -}}
+{{- wrap -}}
+{{- section(value) -}}
+{{- wrap -}}
+{%- endfor -%}
+{%- else -%}
+{%- set separator = kwargs.get('separator', False) -%}
+{%- for item in data -%}
+{%- if prefix -%}{{ prefix }}{%- endif -%}
+{{ item }}
+{%- if suffix -%}{{ suffix }}{%- endif -%}
+{%- if separator -%}{{ separator if not loop.last else '' }}{%- endif -%}
+{%- endfor %}
+{%- endif -%}
+{%- if tail -%}{{ tail }}{%- endif -%}
+{%- endmacro -%}
+
 {%- macro lisp(data) -%}
 {{ macro.section(data, head='(', tail=')', **kwargs) }}
 {%- endmacro -%}
@@ -54,14 +88,4 @@
 {%- endif -%}
 {% endfor %}
 {% endfor %}
-{%- endmacro -%}
-
-{%- macro systemd_section(name, data) -%}
-{# {%- set data = data if not data.__class__.__name__ == 'dict' else [(*_) for _ in data.items()] -%} #}
-{# {% for section, value in data.items() %} #}
-{# [{{ name }}] #}
-{# {%- for k, v in value.items() %} #}
-{# {{ k }} = {{ i }} #}
-{# {%- endfor %} #}
-{# {% endfor %} #}
 {%- endmacro -%}

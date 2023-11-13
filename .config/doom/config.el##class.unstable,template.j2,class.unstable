@@ -5,8 +5,6 @@
 {#- TODO magit + yadm: list todos, but limit to files git -#}
 {#- TODO change alpha when loosing frame focus () #}
 
-{%- import HOME + '/.config/yadm/macro.j2' as macro -%}
-{%- import HOME + '/.config/yadm/var.j2' as var -%}
 
 ;; start: .config/doom/conf.d/_functions.el
 {%- include '.config/doom/conf.d/_functions.el' -%}
@@ -27,6 +25,8 @@
 (defun yadm ()
   (interactive)
   (magit-status "/yadm::"))
+
+(map! "H-SPC y" 'yadm)
 
 (after! tramp
   (add-to-list (quote tramp-methods)

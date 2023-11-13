@@ -1,3 +1,25 @@
 # ~/.tmux.conf##default -*- mode: conf -*-
 
+set -g base-index      1
+set -g pane-base-index 1
+set -g mouse           on
+
+# on|external|off
+set -s set-clipboard on
+
+# wl-copy|xsel|xclipboard|xclip
+set -s copy-command 'wl-copy'
+
+# set -s set-clipboard external
+# set -s set-clipboard off
+
+set-option -sa terminal-overrides  ',xterm:Tc'
+
+set-option -sa terminal-features   ',rxvt-unicode-256color:clipboard:extkeys'
+
+set-option -g  update-environment  'TMPDIR DISPLAY WAYLAND_DISPLAY SWAYSOCK SSH_ASKPASS SSH_AUTH_SOCK'
+
 source-file ~/.config/tmux/tmux.conf
+
+# run "sh -c 'test -d ~/.local/share/tpm || (mkdir -p ~/.local/share/tpm; env -C ~/.local/share/ git clone https://github.com/tmux-plugins/tpm)'"
+run "make -C ~/.config/yadm/src/tmux-tpm"

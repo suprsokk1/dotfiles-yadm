@@ -1,8 +1,6 @@
 {#-*- mode: jinja2 -*-#}
 # -*- mode: conf -*-
 
-{%- import HOME + '/.config/yadm/macro.j2' as macro %}
-{%- import HOME + '/.config/yadm/var.j2' as var %}
 
 {%- macro mode_default_bindings() %}
     {%- set inside_bindsym = kwargs.get('inside_bindsym', kwargs.get('inside', False)) %}
@@ -36,7 +34,7 @@
 {%- set kill_mode           =  "Kill window?" %}
 {%- set layout_mode         =  "1: Default(tiled) 2: Tabbed 3: Stacked" %}
 {%- set menu_mode           =  "1: Move to workspace  2: Layout 3:  q: kill window" %}
-{%- set resize_mode         =  macro.section([one,two,three,four], separator=" : ") %}
+{%- set resize_mode         =  section([one,two,three,four], separator=" : ") %}
 
 {%- set toggle_a_mode       = "** A **" %}
 {%- set toggle_b_mode       = "** B **" %}
@@ -110,7 +108,7 @@ bindsym --to-code {{ Meta }}+{{ Super }}+c    reload
 # bindsym --to-code {{ Hyper }}+{{ Meta }}+c    reload
 # bindsym --to-code {{ Hyper }}+{{ Meta }}+c    mode "restart"
 
-bar {{ var.LEFT_CURLYBRACKET }}
+bar {{ LEFT_CURLYBRACKET }}
     # strip_workspace_numbers yes|no
     strip_workspace_numbers yes
 
@@ -124,26 +122,26 @@ bar {{ var.LEFT_CURLYBRACKET }}
     # mode hide
     modifier Mod4
 
-{{ var.RIGHT_CURLYBRACKET }}
+{{ RIGHT_CURLYBRACKET }}
 
-{# exec_always {{ var.LEFT_CURLYBRACKET }} #}
+{# exec_always {{ LEFT_CURLYBRACKET }} #}
 {#    # pkill --exact waybar; waybar # #}
 {#    doom --doomdir ~/.config/doom sync #}
 {# } #}
 
-bindsym --to-code {{ var.LEFT_CURLYBRACKET }}
+bindsym --to-code {{ LEFT_CURLYBRACKET }}
    Mod4+d exec --no-startup-id "rofi -show drun -modi drun,window,ssh"
    Mod3+d exec --no-startup-id "rofi -show drun -modi drun,window,ssh"
-{{ var.RIGHT_CURLYBRACKET }}
+{{ RIGHT_CURLYBRACKET }}
 
-bindsym --to-code --locked {{ var.LEFT_CURLYBRACKET }}
+bindsym --to-code --locked {{ LEFT_CURLYBRACKET }}
   XF86AudioLowerVolume  exec pactl set-sink-volume @DEFAULT_SINK@ -{{ audio_step }}%
   XF86AudioMicMute      exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
   XF86AudioMute         exec pactl set-sink-mute @DEFAULT_SINK@ toggle
   XF86AudioRaiseVolume  exec pactl set-sink-volume @DEFAULT_SINK@ +{{ audio_step }}%
   XF86MonBrightnessDown exec brightnessctl set {{ brighness_step }}%-
   XF86MonBrightnessUp   exec brightnessctl set +{{ brighness_step }}%
-{{ var.RIGHT_CURLYBRACKET }}
+{{ RIGHT_CURLYBRACKET }}
 
 workspace 3
 workspace 2
@@ -154,7 +152,7 @@ bindsym  {{ Super }}+2 workspace 2
 bindsym  {{ Super }}+3 workspace 3
 
 # /usr/include/X11/keysymdef.h
-input type:keyboard {{ var.LEFT_CURLYBRACKET }}
+input type:keyboard {{ LEFT_CURLYBRACKET }}
 
   xkb_options caps:hyper
   # default: 250
@@ -162,13 +160,13 @@ input type:keyboard {{ var.LEFT_CURLYBRACKET }}
 
   # default: 45
   repeat_rate 20
-{{ var.RIGHT_CURLYBRACKET }}
+{{ RIGHT_CURLYBRACKET }}
 
-mode "restart" {{ var.LEFT_CURLYBRACKET }}  {{ mode_default_bindings() }}
+mode "restart" {{ LEFT_CURLYBRACKET }}  {{ mode_default_bindings() }}
 
-{{ var.RIGHT_CURLYBRACKET }}
+{{ RIGHT_CURLYBRACKET }}
 
-input type:touchpad {{ var.LEFT_CURLYBRACKET }}
+input type:touchpad {{ LEFT_CURLYBRACKET }}
       dwt enabled
       tap enabled
       natural_scroll enabled
@@ -180,7 +178,7 @@ input type:touchpad {{ var.LEFT_CURLYBRACKET }}
       # set mouse sensitivity (between -1 and 1)
       pointer_accel 0.5
 
-{{ var.RIGHT_CURLYBRACKET }}
+{{ RIGHT_CURLYBRACKET }}
 
 # include {{ HOME }}/.sway/config.d/*.conf
 # include {{ HOME }}/.i3/config.d/*.conf
@@ -192,7 +190,7 @@ include /etc/sway/config.d/*.
 
 {%- set move_mode = "[1-3]: Move window to workspace" %}
 
-mode "{{ move_mode }}" {{ var.LEFT_CURLYBRACKET }}
+mode "{{ move_mode }}" {{ LEFT_CURLYBRACKET }}
     bindsym 1 move to workspace 1; mode "default"
     bindsym 2 move to workspace 2; mode "default"
     bindsym 3 move to workspace 3; mode "default"
@@ -208,7 +206,7 @@ mode "{{ move_mode }}" {{ var.LEFT_CURLYBRACKET }}
     # Return to default mode
     {{ mode_default_bindings() }}
 
-{{ var.RIGHT_CURLYBRACKET }}
+{{ RIGHT_CURLYBRACKET }}
 
 for_window   [app_id='.*']  floating enable
 
@@ -219,9 +217,9 @@ assign [app_id='(?i)emacs']        1
 assign [app_id='(?i)qutebrowser']  2
 assign [app_id='(?i)alacritty']    3
 
-mode "{{ resize_mode }}" {{ var.LEFT_CURLYBRACKET }}
+mode "{{ resize_mode }}" {{ LEFT_CURLYBRACKET }}
 
-     bindsym --to-code {{ var.LEFT_CURLYBRACKET }}
+     bindsym --to-code {{ LEFT_CURLYBRACKET }}
 
         left    resize shrink   width   {{ unit }}
         Down    resize grow     height  {{ unit }}
@@ -241,13 +239,13 @@ mode "{{ resize_mode }}" {{ var.LEFT_CURLYBRACKET }}
         Return  mode "default"
         Escape  mode "default"
 
-    {{ var.RIGHT_CURLYBRACKET }}
-{{ var.RIGHT_CURLYBRACKET }}
+    {{ RIGHT_CURLYBRACKET }}
+{{ RIGHT_CURLYBRACKET }}
 
 
-mode "{{ kill_mode }}" {{ var.LEFT_CURLYBRACKET }}
+mode "{{ kill_mode }}" {{ LEFT_CURLYBRACKET }}
 
-    bindsym --to-code {{ var.LEFT_CURLYBRACKET }}
+    bindsym --to-code {{ LEFT_CURLYBRACKET }}
        q kill; mode "default"
        {{ Super }}+q kill; mode "default"
        {{ Hyper }}+q kill; mode "default"
@@ -255,23 +253,23 @@ mode "{{ kill_mode }}" {{ var.LEFT_CURLYBRACKET }}
        # Return to default mode
        Return mode "default"
        Escape mode "default"
-    {{ var.RIGHT_CURLYBRACKET }}
-{{ var.RIGHT_CURLYBRACKET }}
+    {{ RIGHT_CURLYBRACKET }}
+{{ RIGHT_CURLYBRACKET }}
 
-mode "{{ layout_mode }}" {{ var.LEFT_CURLYBRACKET }}
-     bindsym --to-code {{ var.LEFT_CURLYBRACKET }}
+mode "{{ layout_mode }}" {{ LEFT_CURLYBRACKET }}
+     bindsym --to-code {{ LEFT_CURLYBRACKET }}
 {%- for layout in ["default", "tabbed", "stacked"] %}
         {{ loop.index }} layout "{{ layout }}" ; exec notify-send "Layout" "{{ layout }}"
 {%- endfor %}
-     {{ var.RIGHT_CURLYBRACKET }}
+     {{ RIGHT_CURLYBRACKET }}
 
     # Return to default mode
     bindsym Return mode "default"
     bindsym Escape mode "default"
-{{ var.RIGHT_CURLYBRACKET }}
+{{ RIGHT_CURLYBRACKET }}
 
-mode "{{ menu_mode }}" {{ var.LEFT_CURLYBRACKET }}
-    bindsym --to-code {{ var.LEFT_CURLYBRACKET }}
+mode "{{ menu_mode }}" {{ LEFT_CURLYBRACKET }}
+    bindsym --to-code {{ LEFT_CURLYBRACKET }}
         1 mode $move_mode
         2 mode $layout_mode
         3 mode $layout_mode
@@ -283,8 +281,8 @@ mode "{{ menu_mode }}" {{ var.LEFT_CURLYBRACKET }}
         {{ Meta -}}+3 border_pixel 3
 
         tab focus right
-    {{ var.RIGHT_CURLYBRACKET }}
-{{ var.RIGHT_CURLYBRACKET }}
+    {{ RIGHT_CURLYBRACKET }}
+{{ RIGHT_CURLYBRACKET }}
 
 {%- set color = dict(lockscreen="#000000") %}
 
@@ -301,9 +299,9 @@ bindswitch --reload --locked lid:on exec $lock
 include colors
 
 {# {% for item in ["(?i)firefox", "GNOME Tweaks"] -%} #}
-{#     for_window  [{{ macro.section(app_id=f"{item}", wrap='"') }}] floating enabled #}
+{#     for_window  [{{ section(app_id=f"{item}", wrap='"') }}] floating enabled #}
 {# {% endfor -%} #}
 
 {# {%- set for_window = dict(firefox=dict(foo="bar")) -%} #}
 
-{# {{ macro.alt_section(for_window, prefix='for_window ', separator=' ') }} #}
+{# {{ alt_section(for_window, prefix='for_window ', separator=' ') }} #}

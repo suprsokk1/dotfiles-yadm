@@ -1,42 +1,54 @@
 #!/usr/bin/env python3
+import argparse
 import os
 import json
+from os.path import join
 import re
-from subprocess import run, Popen, PIPE, DEVNULL
+import sys
+from subprocess import run
 from pathlib import Path
 import logging
-import logging.handlers
-from collections import defaultdict
+import fire
+from box import Box
+import string
+
+logging.basicConfig(level=logging.DEBUG)
 
 
+"""
+TODO detect parent
+"""
 
 def main():
-    def _dump(path):
-        with open(os.path.expanduser(path), "rb") as fd:
-            return fd.read()
+    argparser = argparse.ArgumentParser(
+        prog='parse-gitconfig',
+        description='''Config parser for 'yadm' command''',
+        epilog='TODO')
 
-    def _update(*paths):
-        for path in paths:
-            data.update(parse(_dump(interpolate_path(path))))
-
-    data = parse(_dump(os.environ['HOME'] + "/.config/yadm/config"))
-    paths = data.get('include', {}).get('path', [])
-    if type(paths) is str:
-        _update(paths)
-    else:
-        _update(*paths)
-
-    # TODO detect parent
+    config_filename = os.environ['HOME'] + "/.config/yadm/config"
+    data = parser(config_filename, handler=interpolate_path)
     print(json.dumps(data))
+    # print(json.dumps(data, indent=1))
 
 
+def parser(config_filename, **kwargs):
+    data = parse(Path(config_filename).read_bytes(), **kwargs)
+    for path in data.get('include', {}).get('path', []):
+        data.update(parser(path))
+    return data
+
+
+# TODO implement \n[foo "bar.baz"]\nfoo = bar\n => as {'foo':{'bar':{'baz':{'foo':'}}}}
+#      - parse keys with dots as nested dict/hash
 def parse(raw, **kwargs):
     data = dict()
     key = None
+    _handler = kwargs.get('handler', lambda x : x)
+    import string
 
     for line in raw.decode().splitlines():
-        if '#' in line.split('=')[0]:
-            continue
+        if line.lstrip().startswith('#'): continue
+        if not set(line) - set(string.whitespace): continue
 
         if line.startswith('['):
             key = line.strip('[]"').split(' "')
@@ -44,7 +56,7 @@ def parse(raw, **kwargs):
             data[key] = dict()
         else:
             k, v = line.lstrip(' \t').split(' = ')
-            data[key][k] = [*data[key].get(k,[]), kwargs.get('handler', interpolate_path)(v)]
+            data[key][k] = [*data[key].get(k,[]), _handler(v)]
 
     data.update({k.split('.')[0]:{k.split('.')[1]:v} for k,v in data.items() if '.' in k})
     for k, v in dict(data).items():
@@ -54,25 +66,33 @@ def parse(raw, **kwargs):
     return data
 
 
-def interpolate_path(path):
+def interpolate_string(_string):
     backtick = '''`'''
-    if not backtick in path:
-        return path
-    beginning, cmd, end = path.split(backtick)
-    res = (
-        run(cmd.split(), capture_output=True)
-        .stdout
-        .decode()
-        .strip()
-    )
+    _list = _string.split(backtick)
+    commands = _list[1::2]
+    new_string = list(_list)
 
-    new_path = ''.join([beginning, res, end])
-    if not Path(new_path).exists():
-        return path
-    Path(new_path).parent.mkdir(parents=True, exist_ok=True)
-    Path(new_path).touch()
+    def _replace(replace, _with):
+        index = new_string.index(replace)
+        replaced = new_string.pop(index)
+        logging.log(logging.DEBUG, replaced)
+        new_string.insert(index, _with)
 
-    return new_path
+    for cmd in commands:
+        res = (
+            run(cmd.split(), capture_output=True)
+            .stdout
+            .decode()
+            .strip()
+        )
+
+        _replace(cmd, res)
+
+    return ''.join(new_string)
+
+
+def interpolate_path(path):
+    return Path(interpolate_string(path)).expanduser().absolute().__str__()
 
 
 def num(func):

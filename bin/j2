@@ -1,0 +1,92 @@
+#!/home/geir/.pyenv/bin/python3.11
+# -*- coding: utf-8 -*-
+
+"""
+TODO act like wrapper for j2
+/home/geir/.sway/config##template.j2,class.unstable
+-o
+/home/geir/.sway/config.343865.28874
+"""
+
+from jinja2 import Environment, Template, ChoiceLoader, DictLoader, FileSystemLoader
+from collections import defaultdict
+import os
+import re
+import sys
+
+# TODO PYTHONSTARTUP in global environment
+fd = open(os.environ.get('PYTHONSTARTUP', '/home/geir/.pythonrc'), 'r'); exec(fd.read()); fd.close()
+
+from subprocess import run, Popen, PIPE, DEVNULL
+from pathlib import Path
+from loguru import logger
+from box import Box
+
+
+def main():
+    try:
+        yadm(testing=False if sys.argv[1:] else True)
+    except Exception as e:
+        logger.error(e)
+        sys.exit(1)
+
+
+@logger.catch
+def yadm(**kwargs):
+    data_cmd = '''{HOME}/.config/yadm/helpers/parse-gitconfig'''.format(**os.environ)
+    template_load_path = '''{HOME}/.config/yadm'''.format(**os.environ)
+    default_camelkiller_boxdots = Box(default_box=True, camel_killer_box=True, box_dots=True)
+    camelkiller_boxdots = Box(default_box=False, camel_killer_box=True, box_dots=True)
+    boxdots = Box(default_box=False, camel_killer_box=True, box_dots=False)
+    # data = Box(default_box=True, camel_killer_box=False)
+    _, template_path, _, template_output_path = sys.argv if sys.argv[1:] else None, '/home/geir/.zshrc##template.j2', None, '/tmp/config.XXXXX.YYYYY'
+    template_head = (Path(template_load_path) / 'macro.j2').read_text()
+    template_content = Path(template_path).read_text()
+    choice_loader = ChoiceLoader([
+        FileSystemLoader(os.environ['HOME'] + '/.config/yadm/'),
+    ])
+    environment = Environment(loader=choice_loader)
+    # template = environment.from_string(template_content)
+    # FIXME vvvvvv and ^^^^^^ template lookup fail on render
+    template = environment.from_string('\n'.join(
+        [template_head, template_content]
+    ))
+
+    res = (
+        run(data_cmd.split(), shell=False, capture_output=True)
+        .stdout
+        .decode()
+    )
+
+    data = boxdots.from_json(res)
+
+    # TODO put vars at root level
+    if False:
+        for var in data.meta.rootvar:
+            print(var)
+            print(eval(f"data.{var}"))
+            print(eval(f"data.meta.{var}"))
+
+    data.update(
+        LEFT_PARENTHESIS='(',
+        RIGHT_PARENTHESIS=')',
+        SPACE=' ',
+        NEWLINE='\n',
+    )
+    data.update({k:v for k,v in os.environ.items()
+                 if any(tuple(map(lambda x : k.startswith(x), 'HOME SSH'.split())))
+                 or any(tuple(map(lambda x : k == x, ''.split())))})
+
+    # render template
+    with open(template_output_path, 'w') as fd:
+        fd.write(template.render(**data.to_dict()))
+        # fd.write(template.render(**data))
+
+    if kwargs.get('testing', False):
+        return
+
+    exit()
+
+
+if __name__ == '__main__':
+    main()

@@ -1,12 +1,12 @@
 ;;; $DOOMDIR/config.el -*- mode: emacs-lisp; lexical-binding: t; -*-
-;;; TODO sway-mode
-;;; TODO magit + yadm: list todos, but limit to files git
-;;; TODO change alpha when loosing frame focus ()
+{# TODO sway-mode #}
+{# TODO magit + yadm: list todos, but limit to files git #}
+{# TODO change alpha when loosing frame focus () #}
 
 (defun -config-el-eol-hook ())
 (defun -config-el-timer-hook ())
 
-;; (run-with-timer 0 (* 30 60) '-config-el-timer-hook)
+{# (run-with-timer 0 (* 30 60) '-config-el-timer-hook) #}
 (run-with-timer 0 60 '-config-el-timer-hook)
 
 (defun my/-config-el-timer-hook ()
@@ -40,12 +40,12 @@
 (setq-hook! (quote (org-mode-hook))
   display-line-numbers-mode -1)
 
-(quote
- (setq
-  doom-font                (font-spec :family "Input Mono Narrow" :size 12 :weight 'semi-light)
-  doom-variable-pitch-font (font-spec :family "Fira Sans") ; inherits `doom-font''s :size
-  doom-unicode-font        (font-spec :family "Input Mono Narrow" :size 12)
-  doom-big-font            (font-spec :family "Fira Mono" :size 19)))
+{# (quote #}
+{#  (setq #}
+{#   doom-font                (font-spec :family "Input Mono Narrow" :size 12 :weight 'semi-light) #}
+{#   doom-variable-pitch-font (font-spec :family "Fira Sans") ; inherits `doom-font''s :size #}
+{#   doom-unicode-font        (font-spec :family "Input Mono Narrow" :size 12) #}
+{#   doom-big-font            (font-spec :family "Fira Mono" :size 19))) #}
 
 (setq doom-font
       (font-spec :family "Iosevka Nerd Font" :size 16  :weight 'light))
@@ -266,6 +266,7 @@
                (:mkdirp . "yes")
                (:cache . "no")
                (:tangle-mode . 384)     ; (identity #o0600)
+               (:results . "raw replace drawer")
                (:results . "replace")
                (:comments . "link")
                (:hlines . "no")
@@ -670,6 +671,7 @@
         (let ((one-window (eq window-count 1))
               (xdg-dir (getenv "XDG_RUNTIME_DIR"))
               (writeroom (featurep 'writeroom-room))
+              (org (eq major-mode 'org-mode))
               (python (eq major-mode 'python-mode))
               (py (eq major-mode 'python-mode))
               (elisp (eq major-mode 'emacs-lisp-mode))
@@ -688,11 +690,11 @@
     (bookmark-save)
     ;; (sh!! "git rev-parse --show-toplevel")
     (balance-windows)
-    (cond ((eq major-mode 'python-mode)
-           (unless (window--process-window-list)
-             (progn
-               (python-shell-restart)))))
-    (cond ((eq major-mode 'org-mode)
+
+    (cond (python
+           (progn (python-shell-restart))))
+
+    (cond (org
            (org-babel-tangle))
           (t (save-window-excursion (org-babel-detangle)))))
 
@@ -760,8 +762,8 @@
                   (mapconcat (lambda (BUFFER) (buffer-name BUFFER))
                              (-all-buffers) " ")))
 
-  (defun -buffer-visible-match (MATCH)
-    (message "TODO"))
+  {# (defun -buffer-visible-match (MATCH) #}
+  {#   (message "TODO")) #}
 
   )
 

@@ -1,18 +1,13 @@
 {#-*- mode: jinja2 -*-#}
 # .zshrc -*- mode: sh -*-
 
-{%- import HOME + "/.config/yadm/macro.j2" as macro -%}
-{%- import HOME + "/.config/yadm/var.j2" as var -%}
-
-{{ macro.section(var.shellcheck_disable, prefix='SC', separator=',', head='# shellcheck disable=') }}
-{{ macro.section(var.zsh_env) }}
-{{ macro.section(var.static_dirs, title="static dirs", prefix="hash -d ") }}
-{{ macro.section(var.zsh_plugins, title="zsh plug-in's", separator=var.SPACE, head='plugins=' + var.LEFT_PARENTHESIS, tail=var.RIGHT_PARENTHESIS) }}
-{{ macro.section(var.path, title="PATH", separator=var.NEWLINE, prefix=var.SPACE*2, head='path=' + var.LEFT_PARENTHESIS + var.NEWLINE, tail=var.NEWLINE + var.RIGHT_PARENTHESIS) }}
-{{ macro.section(var.prompt_command, title="PROMPT_COMMAND", head='prompt_command=()' + var.NEWLINE, prefix="prompt_command+=(", suffix=var.RIGHT_PARENTHESIS, separator=var.NEWLINE) }}
+{{ section(shellcheck_disable, prefix='SC', separator=',', head='# shellcheck disable=') }}
+{# {{ section(zsh.env) }} #}
+{{ section(static_dirs, title="static dirs", prefix="hash -d ") }}
+{{ section(zsh_plugins, title="zsh plug-in's", separator=SPACE, head='plugins=' + LEFT_PARENTHESIS, tail=RIGHT_PARENTHESIS) }}
+{{ section(path, title="PATH", separator=NEWLINE, prefix=SPACE*2, head='path=' + LEFT_PARENTHESIS + NEWLINE, tail=NEWLINE + RIGHT_PARENTHESIS) }}
+{{ section(prompt_command, title="PROMPT_COMMAND", head='prompt_command=()' + NEWLINE, prefix="prompt_command+=(", suffix=RIGHT_PARENTHESIS, separator=NEWLINE) }}
 
 {# source ~/.pyenv/bin/activate #}
 source "$ZSH"/oh-my-zsh.sh
 source "$HOME"/.functions
-
-# {{ macro.section(PATH.split(':')) }}
