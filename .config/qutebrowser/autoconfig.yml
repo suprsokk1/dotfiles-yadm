@@ -16,6 +16,8 @@ settings:
     global: both
   content.javascript.enabled:
     global: true
+  content.javascript.prompt:
+    global: false
   fonts.default_family:
     global: Ubuntu Nerd Font
   tabs.position:

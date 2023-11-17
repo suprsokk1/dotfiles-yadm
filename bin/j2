@@ -1,21 +1,22 @@
-#!/home/geir/.pyenv/bin/python3.11
+#!/usr/bin/env python3.11
 # -*- coding: utf-8 -*-
 
 """
 TODO act like wrapper for j2
-/home/geir/.sway/config##template.j2,class.unstable
+~/.sway/config##template.j2,class.unstable
 -o
-/home/geir/.sway/config.343865.28874
+~/.sway/config.343865.28874
 """
 
 from jinja2 import Environment, Template, ChoiceLoader, DictLoader, FileSystemLoader
+from jinja2.exceptions import UndefinedError
 from collections import defaultdict
 import os
 import re
 import sys
 
 # TODO PYTHONSTARTUP in global environment
-fd = open(os.environ.get('PYTHONSTARTUP', '/home/geir/.pythonrc'), 'r'); exec(fd.read()); fd.close()
+fd = open(os.environ.get('PYTHONSTARTUP', '{HOME}/.pythonrc'.format(**os.environ)), 'r'); exec(fd.read()); fd.close()
 
 from subprocess import run, Popen, PIPE, DEVNULL
 from pathlib import Path
@@ -39,18 +40,28 @@ def yadm(**kwargs):
     camelkiller_boxdots = Box(default_box=False, camel_killer_box=True, box_dots=True)
     boxdots = Box(default_box=False, camel_killer_box=True, box_dots=False)
     # data = Box(default_box=True, camel_killer_box=False)
-    _, template_path, _, template_output_path = sys.argv if sys.argv[1:] else None, '/home/geir/.zshrc##template.j2', None, '/tmp/config.XXXXX.YYYYY'
-    template_head = (Path(template_load_path) / 'macro.j2').read_text()
-    template_content = Path(template_path).read_text()
+    _, template_path, _, template_output_path = sys.argv if sys.argv[1:] else None, '~/.zshrc##template.j2', None, '/tmp/config.XXXXX.YYYYY'
     choice_loader = ChoiceLoader([
         FileSystemLoader(os.environ['HOME'] + '/.config/yadm/'),
     ])
     environment = Environment(loader=choice_loader)
     # template = environment.from_string(template_content)
     # FIXME vvvvvv and ^^^^^^ template lookup fail on render
-    template = environment.from_string('\n'.join(
-        [template_head, template_content]
-    ))
+
+    header_template = (
+        (Path(template_load_path) / 'macro.j2')
+        .read_text()
+    )
+
+    input_template = (
+        Path(template_path)
+        .expanduser()
+        .read_text()
+    )
+
+    jinja_template = environment.from_string(
+        header_template + "\n" + input_template
+    )
 
     res = (
         run(data_cmd.split(), shell=False, capture_output=True)
@@ -67,25 +78,54 @@ def yadm(**kwargs):
             print(eval(f"data.{var}"))
             print(eval(f"data.meta.{var}"))
 
-    data.update(
-        LEFT_PARENTHESIS='(',
-        RIGHT_PARENTHESIS=')',
-        SPACE=' ',
-        NEWLINE='\n',
-    )
     data.update({k:v for k,v in os.environ.items()
                  if any(tuple(map(lambda x : k.startswith(x), 'HOME SSH'.split())))
                  or any(tuple(map(lambda x : k == x, ''.split())))})
 
+    data.update(**Vars.__dict__)
+
     # render template
     with open(template_output_path, 'w') as fd:
-        fd.write(template.render(**data.to_dict()))
+        fd.write(jinja_template.render(**data.to_dict()))
         # fd.write(template.render(**data))
 
     if kwargs.get('testing', False):
         return
 
     exit()
+
+
+class Vars(object):
+    COMMA = ','
+    EQUAL = '='
+    PERCENT = '%'
+    HYPHEN = '-'
+    EXCLAMATION_MARK = '!'
+    PLUSS = '+'
+    QUOTE = "'"
+    SPACE = ' '
+    NEWLINE = '\n'
+    TAB = '\t'
+    LEFT_PARENTHESIS = '('
+    RIGHT_PARENTHESIS = ')'
+    PARENTHESIS = dict(left=LEFT_PARENTHESIS, right=RIGHT_PARENTHESIS)
+    LEFT_CURLYBRACKET = '{'
+    RIGHT_CURLYBRACKET = '}'
+    CURLYBRACKET = dict(left=LEFT_CURLYBRACKET, right=RIGHT_CURLYBRACKET)
+    LEFT_BRACKET = '['
+    RIGHT_BRACKET = ']'
+    BRACKET = dict(left=LEFT_BRACKET, right=RIGHT_BRACKET)
+    DELIMITER = {RIGHT_PARENTHESIS:LEFT_PARENTHESIS, LEFT_PARENTHESIS: RIGHT_PARENTHESIS, RIGHT_CURLYBRACKET:LEFT_CURLYBRACKET, LEFT_CURLYBRACKET: RIGHT_CURLYBRACKET, RIGHT_BRACKET:LEFT_BRACKET, LEFT_BRACKET: RIGHT_BRACKET}
+    DELIMITER_BEGINNING = {RIGHT_PARENTHESIS:LEFT_PARENTHESIS, LEFT_PARENTHESIS: LEFT_PARENTHESIS, RIGHT_CURLYBRACKET:LEFT_CURLYBRACKET, LEFT_CURLYBRACKET: RIGHT_CURLYBRACKET, RIGHT_BRACKET:LEFT_BRACKET, LEFT_BRACKET: LEFT_BRACKET}
+    DELIMITER_END = {RIGHT_PARENTHESIS:RIGHT_PARENTHESIS, LEFT_PARENTHESIS: RIGHT_PARENTHESIS, RIGHT_CURLYBRACKET:LEFT_CURLYBRACKET, LEFT_CURLYBRACKET: RIGHT_CURLYBRACKET, RIGHT_BRACKET:RIGHT_BRACKET, RIGHT_BRACKET: RIGHT_BRACKET}
+    doom_emacs_packages = ['rainbow-delimiters', 'systemd-mode', 'mmm-mode', 'sway', 'ob-tmux']
+    zsh_env = dict(ZSH='$HOME/.oh-my-zsh', ZSH_THEME='simple')
+    zsh_plugins = ['zsh-autosuggestions', 'direnv', 'fzf', 'tmux']
+    static_dirs = dict(yadm='${HOME}/.config/yadm', run='${XDG_RUNTIME_DIR:-/run/user/${EUID:-$(id -u)}}', config='${XDG_CONFIG_HOME:-${HOME}/.config}', fonts='${HOME}/.local/share/fonts', autorun='${HOME}/.config/autorun', desktop='${HOME}/.local/share/applications', apps='${HOME}/.local/share/applications', zsh='$ZSH')
+    path = ['$HOME/bin', '$HOME/.pyenv/bin', '/usr/bin', '/usr/local/bin', '/usr/local/sbin', '/usr/sbin', '$HOME/.cargo/bin', '$HOME/.local/bin', '$HOME/go/bin', '$HOME/opt/doom-emacsdir/bin']
+    prompt_command = ['~/.functions', '~/.aliases']
+    shellcheck_disable = ['1091', '2034']
+    DUBLE_QUOTE = '''"'''
 
 
 if __name__ == '__main__':

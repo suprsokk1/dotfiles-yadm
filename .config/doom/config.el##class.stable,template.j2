@@ -697,6 +697,14 @@
     (cond (org
            (org-babel-tangle))
           (t (save-window-excursion (org-babel-detangle)))))
+  ;; (defun)
+
+  (defun wrapper/+lookup/definition (%orig-defun-name &rest args)
+    (let ((results (apply %orig-defun-name args)))
+      (message ">>>>>>>>> %S <<<<<<<<<" results)
+      results))
+
+  (advice-add '+lookup/definition :around #'wrapper/+lookup/definition)
 
   (defun -clone-line-down (&rest args)
     (interactive "*p")

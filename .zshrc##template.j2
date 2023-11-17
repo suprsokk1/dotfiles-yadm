@@ -1,8 +1,8 @@
 {#-*- mode: jinja2 -*-#}
 # .zshrc -*- mode: sh -*-
 
-{{ section(shellcheck_disable, prefix='SC', separator=',', head='# shellcheck disable=') }}
-{# {{ section(zsh.env) }} #}
+{{ section(shellcheck_disable, prefix='SC', separator=COMMA, head='# shellcheck disable=') }}
+{{ section(zsh.env) }}
 {{ section(static_dirs, title="static dirs", prefix="hash -d ") }}
 {{ section(zsh_plugins, title="zsh plug-in's", separator=SPACE, head='plugins=' + LEFT_PARENTHESIS, tail=RIGHT_PARENTHESIS) }}
 {{ section(path, title="PATH", separator=NEWLINE, prefix=SPACE*2, head='path=' + LEFT_PARENTHESIS + NEWLINE, tail=NEWLINE + RIGHT_PARENTHESIS) }}
