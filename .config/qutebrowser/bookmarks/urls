@@ -96,3 +96,20 @@ https://wiki.gentoo.org/wiki/SELinux/Users_and_logins SELinux/Users and logins -
 https://wiki.archlinux.org/title/Desktop_entries Desktop entries - ArchWiki
 https://wiki.archlinux.org/title/Sway Sway - ArchWiki
 https://jinja.palletsprojects.com/en/3.0.x/templates/ Template Designer Documentation — Jinja Documentation (3.0.x)
+https://github.com/awesome-selfhosted/awesome-selfhosted awesome-selfhosted/awesome-selfhosted: A list of Free Software network services and web applications which can be hosted on your own servers
+https://wiki.gentoo.org/wiki/BIND BIND - Gentoo wiki
+https://github.com/tmrts/boilr tmrts/boilr: :zap: boilerplate template manager that generates files or directories from template repositories
+https://docs.python.org/3/howto/unicode.html Unicode HOWTO — Python 3.12.0 documentation
+https://gitpython.readthedocs.io/en/stable/tutorial.html GitPython Tutorial — GitPython 3.1.37 documentation
+https://linuxadmin.io/using-inotifywait-to-monitor-a-directory-and-move-files-to-another-directory/ using inotify-tools to trigger events - LinuxAdmin.io
+https://scrapfly.io/blog/how-to-scrape-without-getting-blocked-tutorial/ How to Scrape Without Getting Blocked? In-Depth Tutorial
+https://home.unicode.org/ Unicode – The World Standard for Text and Emoji
+https://catonmat.net/sed-one-liners-explained-part-one Sed One-Liners Explained, Part I: File Spacing, Numbering and Text Conversion and Substitution
+https://docs.python.org/3/library/argparse.html argparse — Parser for command-line options, arguments and sub-commands — Python 3.12.0 documentation
+https://www.gnu.org/software/make/manual/html_node/File-Name-Functions.html File Name Functions (GNU make)
+https://www.pythontutorial.net/python-oop/python-__new__/ Python __new__
+https://github.com/pre-commit/pre-commit GitHub - pre-commit/pre-commit: A framework for managing and maintaining multi-language pre-commit hooks.
+https://github.com/uhub/awesome-python GitHub - uhub/awesome-python: A curated list of awesome Python frameworks, libraries and software.
+https://loguru.readthedocs.io/en/stable/overview.html Overview — loguru documentation
+https://packaging.python.org/en/latest/tutorials/packaging-projects/ Packaging Python Projects - Python Packaging User Guide
+https://docs.python.org/3/library/trace.html trace — Trace or track Python statement execution — Python 3.12.0 documentation

@@ -4,43 +4,40 @@
 (defun -refresh (&rest _)
   "TODO add `-refresh' as hook to `display-buffer'"
   (interactive)
-  (let* ((window-count (length (window-list)))
-         (one-window (eq window-count 1))
-         (xdg-dir (getenv "XDG_RUNTIME_DIR"))
-         (writeroom (featurep 'writeroom-room))
-         (python (eq major-mode 'python-mode))
-         (py python)
-         (org (eq major-mode 'org-mode))
-         (elisp (eq major-mode 'emacs-lisp-mode))
-         (el (eq major-mode 'emacs-lisp-mode))
-         (indirect-buffer (quote TODO)))
-    (cond ((region-active-p)
-           (yas-new-snippet))
-          (t
-           (ignore-errors (doom/reload-font))
-           (recentf-cleanup)
-           (widen)
-           (whitespace-cleanup)
-           (bookmark-save)
-           ;; (sh!! "git rev-parse --show-toplevel")
-           (balance-windows)
+  (ignore-errors (doom/reload-font))
+  (recentf-cleanup)
+  (if (region-active-p)
+      (yas-new-snippet)
+    (let ((window-count (length (window-list)))) ;
+      (let ((one-window (eq window-count 1))
+            (xdg-dir (getenv "XDG_RUNTIME_DIR"))
+            (writeroom (featurep 'writeroom-room))
+            (org (eq major-mode 'org-mode))
+            (python (eq major-mode 'python-mode))
+            (py (eq major-mode 'python-mode))
+            (elisp (eq major-mode 'emacs-lisp-mode))
+            (el (eq major-mode 'emacs-lisp-mode))
+            (indirect-buffer (quote TODO)))
+        (quote (when xdg-dir           ;FIXME
+                (let ((desktop-dir (expand-file-name "desktop" xdg-dir))
+                      (PARENTS t))
+                  (mkdir desktop-dir PARENTS)
+                  (if one-window
+                      (desktop-change-dir desktop-dir) ;; FIXME
+                    (desktop-save desktop-dir))))))))
 
-           (quote (when xdg-dir           ;FIXME
-                   (let ((desktop-dir (expand-file-name "desktop" xdg-dir))
-                         (PARENTS t))
-                     (mkdir desktop-dir PARENTS)
-                     (if one-window
-                         (desktop-change-dir desktop-dir) ;; FIXME
-                       (desktop-save desktop-dir)))))
-           (cond (python
-                  (unless (window--process-window-list)
-                    (progn
-                      (python-shell-restart)))))
-           (cond (org
-                  (org-babel-tangle))
-                 (t (save-window-excursion (org-babel-detangle))))))
+  (widen)
+  (whitespace-cleanup)
+  (bookmark-save)
+  (balance-windows)
 
-  )
+  (cond (python
+         (python-shell-restart)))
+  (cond (org
+         (org-babel-tangle))
+        (t (save-window-excursion (org-babel-detangle)))))
+
+
 ;;;###autoload
   (defun -clone-line-down (&rest args)
     (interactive "*p")
@@ -122,5 +119,22 @@
       (if % (python-shell-send-file %) (python-shell-send-buffer))))
    (t (let ((compile-command (format "command ~/bin/, %s" (buffer-file-name))))
         (recompile)))))
+
+;;;###autoload
+(defun wrapper/+lookup/definition (%orig-defun-name &rest args)
+  (when (getenv "DEBUG")
+      (let ((LINE (buffer-substring (eol)(bol))))
+    (message "LINE RAW:\n>>>\n%S\n<<<\nLINE RE MATCH:\n>>>\n%s\n<<<"
+             LINE
+             (with-temp-buffer
+               (insert LINE)
+               (list
+                (re-search-backward " ")
+                (re-search-forward " "))))))
+
+  (let ((results (apply %orig-defun-name args))
+        (line (buffer-substring (eol)
+                                (bol))))
+    (message "wrap post: %S" (or results "Exec fail")) results))
 
 (provide '_functions)

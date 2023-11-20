@@ -8,39 +8,45 @@ TODO act like wrapper for j2
 ~/.sway/config.343865.28874
 """
 
-from jinja2 import Environment, Template, ChoiceLoader, DictLoader, FileSystemLoader
-from jinja2.exceptions import UndefinedError
-from collections import defaultdict
 import os
 import re
 import sys
 
-# TODO PYTHONSTARTUP in global environment
 fd = open(os.environ.get('PYTHONSTARTUP', '{HOME}/.pythonrc'.format(**os.environ)), 'r'); exec(fd.read()); fd.close()
+
+from jinja2 import Environment, Template, ChoiceLoader, DictLoader, FileSystemLoader
+from jinja2.exceptions import UndefinedError
+from collections import defaultdict
+
+# TODO PYTHONSTARTUP in global environment
+
 
 from subprocess import run, Popen, PIPE, DEVNULL
 from pathlib import Path
 from loguru import logger
 from box import Box
 
+try:
+    from docopt import docopt   # FIXME
+except Exception:
+    pass
 
 def main():
+    _, template_path, _, template_output_path = sys.argv if sys.argv[1:] else None, '~/.zshrc##template.j2', None, '/tmp/config.XXXXX.YYYYY'
+
     try:
-        yadm(testing=False if sys.argv[1:] else True)
+        yadm(template_path, template_output_path, testing=False if sys.argv[1:] else True)
     except Exception as e:
         logger.error(e)
         sys.exit(1)
 
 
 @logger.catch
-def yadm(**kwargs):
-    data_cmd = '''{HOME}/.config/yadm/helpers/parse-gitconfig'''.format(**os.environ)
+def yadm(template_path, template_output_path, **kwargs):
     template_load_path = '''{HOME}/.config/yadm'''.format(**os.environ)
     default_camelkiller_boxdots = Box(default_box=True, camel_killer_box=True, box_dots=True)
     camelkiller_boxdots = Box(default_box=False, camel_killer_box=True, box_dots=True)
     boxdots = Box(default_box=False, camel_killer_box=True, box_dots=False)
-    # data = Box(default_box=True, camel_killer_box=False)
-    _, template_path, _, template_output_path = sys.argv if sys.argv[1:] else None, '~/.zshrc##template.j2', None, '/tmp/config.XXXXX.YYYYY'
     choice_loader = ChoiceLoader([
         FileSystemLoader(os.environ['HOME'] + '/.config/yadm/'),
     ])
@@ -59,9 +65,62 @@ def yadm(**kwargs):
         .read_text()
     )
 
-    jinja_template = environment.from_string(
-        header_template + "\n" + input_template
-    )
+    comment_char = '#'
+    if template_output_path.endswith('.el'):
+        comment_char = ';'
+
+    comment_length = 3
+    head = "{0} RENDRED FROM TEMPLATE {0}".format(comment_char*comment_length)
+    tail = "{0} RENDRED FROM TEMPLATE {0}".format(comment_char*comment_length)
+    head = ''
+
+    template_content_string = """\
+{_if}
+{0}
+{1}
+{3}
+{_else}
+{2}
+
+######################################
+# ################################## #
+# # !!! PROBLEMS LOADING DATA  !!! # #
+# ################################## #
+######################################
+
+{_endif}
+""".format(
+    head, header_template, input_template, tail,
+    _if="""{%- if LEFT_PARENTHESIS is defined -%}""",
+    _else="""{%- else -%}""",
+    _endif="""{%- endif -%}""",
+)
+
+    jinja_template = environment.from_string(template_content_string)
+    data = load()
+    _vars = Vars()
+    logger.debug(_vars)
+    data.update(_vars.__dict__)
+
+    data['LEFT_PARENTHESIS']
+
+    # render template
+    with open(template_output_path, 'w') as fd:
+        fd.write(jinja_template.render(**data))
+        # fd.write(template.render(**data))
+
+    if kwargs.get('testing', False):
+        return
+
+    exit()
+
+
+def load():
+    template_load_path = '''{HOME}/.config/yadm'''.format(**os.environ)
+    data_cmd = '''{HOME}/.config/yadm/helpers/parse-gitconfig'''.format(**os.environ)
+    default_camelkiller_boxdots = Box(default_box=True, camel_killer_box=True, box_dots=True)
+    camelkiller_boxdots = Box(default_box=False, camel_killer_box=True, box_dots=True)
+    boxdots = Box(default_box=False, camel_killer_box=True, box_dots=False)
 
     res = (
         run(data_cmd.split(), shell=False, capture_output=True)
@@ -71,28 +130,28 @@ def yadm(**kwargs):
 
     data = boxdots.from_json(res)
 
-    # TODO put vars at root level
-    if False:
-        for var in data.meta.rootvar:
-            print(var)
-            print(eval(f"data.{var}"))
-            print(eval(f"data.meta.{var}"))
+    try:
+        # logger.debug(data.meta.rootvar)
+        pass
+    except Exception as e:
+        logger.error(e)
+
+
+    # # TODO put vars at root level
+    # if False:
+    #     for var in data.meta.rootvar:
+    #         print(var)
+    #         print(eval(f"data.{var}"))
+    #         print(eval(f"data.meta.{var}"))
 
     data.update({k:v for k,v in os.environ.items()
                  if any(tuple(map(lambda x : k.startswith(x), 'HOME SSH'.split())))
                  or any(tuple(map(lambda x : k == x, ''.split())))})
 
-    data.update(**Vars.__dict__)
+    data = data.to_dict()
+    data.update(Vars.__dict__)
 
-    # render template
-    with open(template_output_path, 'w') as fd:
-        fd.write(jinja_template.render(**data.to_dict()))
-        # fd.write(template.render(**data))
-
-    if kwargs.get('testing', False):
-        return
-
-    exit()
+    return data
 
 
 class Vars(object):

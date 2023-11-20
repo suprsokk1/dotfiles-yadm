@@ -1,10 +1,18 @@
+{# packages.el##template.j2cli -*- mode: jinja2  -*- #}
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
-{# packages.el##template.j2cli -*- mode: jinja2  -*- #}
 
-{# {%- extends HOME + '/.config/yadm/_imports.j2' -%} #}
+{%- if LEFT_PARENTHESIS is defined -%}
+{{ section(doom_emacspackages, prefix=LEFT_PARENTHESIS + 'package' + EXCLAMATION_MARK + SPACE, suffix=RIGHT_PARENTHESIS, separator=NEWLINE*2) }}
+{%- else -%}
 
-{{ section(doom_emacs_packages, prefix=LEFT_PARENTHESIS + 'package' + EXCLAMATION_MARK + SPACE, suffix=RIGHT_PARENTHESIS, separator=NEWLINE*2) }}
+(package! rainbow-delimiters)
+(package! systemd-mode)
+(package! mmm-mode)
+(package! sway)
+(package! ob-tmux)
+
+{%- endif -%}
 
 {# To install a package with Doom you must declare them here and run 'doom sync' #}
 {# on the command line, then restart Emacs for the changes to take effect -- or #}

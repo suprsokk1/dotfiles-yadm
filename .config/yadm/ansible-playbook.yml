@@ -2,14 +2,6 @@
 ---
 - hosts: localhost
   connection: local
-  gather_facts: 0
-  tasks:
-
-  - raw: ansible-galaxy install -r ansible-galaxy-requirements.yml
-    ignore_errors: 0
-
-- hosts: localhost
-  connection: local
   gather_facts: 1
 
   environment:

@@ -6,17 +6,21 @@
 (defun -config-el-eol-hook ())
 (defun -config-el-timer-hook ())
 
-{# (run-with-timer 0 (* 30 60) '-config-el-timer-hook) #}
-(run-with-timer 0 60 '-config-el-timer-hook)
+(advice-add '+lookup/definition
+            :around
+            #'wrapper/+lookup/definition)
 
-(defun my/-config-el-timer-hook ()
-  (string-match (rx ?* "Org Agenda" ?*)
-   (mapconcat (lambda (BUFFER) (buffer-name BUFFER))
-              (-all-buffers) " "))
-  (org-agenda nil "t"))
+{#- (run-with-timer 0 (* 30 60) '-config-el-timer-hook) -#}
+{#- (run-with-timer 0 60 '-config-el-timer-hook) -#}
 
-(add-hook (quote -config-el-timer-hook)
-          (quote my/-config-el-timer-hook))
+{#- (defun my/-config-el-timer-hook () -#}
+{#-   (string-match (rx ?* "Org Agenda" ?*) -#}
+{#-    (mapconcat (lambda (BUFFER) (buffer-name BUFFER)) -#}
+{#-               (-all-buffers) " ")) -#}
+{#-   (org-agenda nil "t")) -#}
+
+{#- (add-hook (quote -config-el-timer-hook) -#}
+{#-           (quote my/-config-el-timer-hook)) -#}
 
 (when (getenv "XDG_RUNTIME_DIR")
   (desktop-save (expand-file-name (getenv "XDG_RUNTIME_DIR"))))
@@ -656,55 +660,7 @@
         (buffer-substring (match-beginning 0)
                           (match-end 0))))))
 
-(use-package! -functions
-  :no-require t
-  :config
-  (defun -refresh (&rest _)
-    "TODO add `-refresh' as hook to `display-buffer'"
-    (interactive)
-    (ignore-errors (doom/reload-font))
-    (recentf-cleanup)
-
-    (if (region-active-p)
-        (yas-new-snippet)
-      (let ((window-count (length (window-list)))) ;
-        (let ((one-window (eq window-count 1))
-              (xdg-dir (getenv "XDG_RUNTIME_DIR"))
-              (writeroom (featurep 'writeroom-room))
-              (org (eq major-mode 'org-mode))
-              (python (eq major-mode 'python-mode))
-              (py (eq major-mode 'python-mode))
-              (elisp (eq major-mode 'emacs-lisp-mode))
-              (el (eq major-mode 'emacs-lisp-mode))
-              (indirect-buffer (quote TODO)))
-          (quote (when xdg-dir           ;FIXME
-                  (let ((desktop-dir (expand-file-name "desktop" xdg-dir))
-                        (PARENTS t))
-                    (mkdir desktop-dir PARENTS)
-                    (if one-window
-                        (desktop-change-dir desktop-dir) ;; FIXME
-                      (desktop-save desktop-dir))))))))
-
-    (widen)
-    (whitespace-cleanup)
-    (bookmark-save)
-    ;; (sh!! "git rev-parse --show-toplevel")
-    (balance-windows)
-
-    (cond (python
-           (progn (python-shell-restart))))
-
-    (cond (org
-           (org-babel-tangle))
-          (t (save-window-excursion (org-babel-detangle)))))
-  ;; (defun)
-
-  (defun wrapper/+lookup/definition (%orig-defun-name &rest args)
-    (let ((results (apply %orig-defun-name args)))
-      (message ">>>>>>>>> %S <<<<<<<<<" results)
-      results))
-
-  (advice-add '+lookup/definition :around #'wrapper/+lookup/definition)
+  (wrapper/+lookup/definition "foo" "bar")
 
   (defun -clone-line-down (&rest args)
     (interactive "*p")

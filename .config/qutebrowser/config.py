@@ -159,3 +159,5 @@ config.set('content.javascript.enabled', True, 'qute://*/*')
 config.set('content.headers.user_agent', 'Mozilla/5.0 ({os_info}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99 Safari/537.36', 'https://*.slack.com/*')
 
 config.set('content.javascript.enabled', False, 'https://linuxize.com/*')
+
+# config.set('content.javascript.disabled', False, 'https://realpython.com/*')

@@ -1,10 +1,21 @@
 ;;; $DOOMDIR/config.el -*- mode: emacs-lisp; lexical-binding: t; -*-
-;;; TODO sway-mode
-;;; TODO magit + yadm: list todos, but limit to files git
-;;; TODO change alpha when loosing frame focus ()
 
 (defun -config-el-eol-hook ())
+(defun -config-el-timer-hook ())
 
+(run-with-timer 0 60 '-config-el-timer-hook)
+
+(defun my/-config-el-timer-hook ()
+  (string-match (rx ?* "Org Agenda" ?*)
+   (mapconcat (lambda (BUFFER) (buffer-name BUFFER))
+              (-all-buffers) " "))
+  (org-agenda nil "t"))
+
+(add-hook (quote -config-el-timer-hook)
+          (quote my/-config-el-timer-hook))
+
+(when (getenv "XDG_RUNTIME_DIR")
+  (desktop-save (expand-file-name (getenv "XDG_RUNTIME_DIR"))))
 (add-hook! (quote (-config-el-eol-hook))
   (require '-functions nil t)
   (progn
@@ -25,12 +36,12 @@
 (setq-hook! (quote (org-mode-hook))
   display-line-numbers-mode -1)
 
-(quote
- (setq
-  doom-font                (font-spec :family "Input Mono Narrow" :size 12 :weight 'semi-light)
-  doom-variable-pitch-font (font-spec :family "Fira Sans") ; inherits `doom-font''s :size
-  doom-unicode-font        (font-spec :family "Input Mono Narrow" :size 12)
-  doom-big-font            (font-spec :family "Fira Mono" :size 19)))
+
+
+
+
+
+
 
 (setq doom-font
       (font-spec :family "Iosevka Nerd Font" :size 16  :weight 'light))
@@ -41,11 +52,11 @@
 (use-package! conf-mode
   :mode (rx "sway"))
 
-(setq-hook! (quote (fundamental-mode-hook prog-mode-hook text-mode-hook))
+(setq-hook!
+    (quote (fundamental-mode-hook prog-mode-hook text-mode-hook))
   header-line-format
   (quote ("%e"
-          (:eval
-           (doom-modeline--buffer-mode-icon)))))
+          (:eval))))
 
 (set (quote +snippets-dir)
      (or (expand-file-name "snippets" (file-truename doom-user-dir))
@@ -251,6 +262,7 @@
                (:mkdirp . "yes")
                (:cache . "no")
                (:tangle-mode . 384)     ; (identity #o0600)
+               (:results . "raw replace drawer")
                (:results . "replace")
                (:comments . "link")
                (:hlines . "no")
@@ -549,10 +561,6 @@
   :prefix ","
   "," #'dired-unmark-all-marks)
 
- ;; ("." nil
- ;;  :prefix "."
- ;;  "." #'dired-up-directory)
-
  ("/" nil
   :prefix "/"
   "/" #'dired-mark-files-regexp
@@ -659,6 +667,7 @@
         (let ((one-window (eq window-count 1))
               (xdg-dir (getenv "XDG_RUNTIME_DIR"))
               (writeroom (featurep 'writeroom-room))
+              (org (eq major-mode 'org-mode))
               (python (eq major-mode 'python-mode))
               (py (eq major-mode 'python-mode))
               (elisp (eq major-mode 'emacs-lisp-mode))
@@ -677,11 +686,11 @@
     (bookmark-save)
     ;; (sh!! "git rev-parse --show-toplevel")
     (balance-windows)
-    (cond ((eq major-mode 'python-mode)
-           (unless (window--process-window-list)
-             (progn
-               (python-shell-restart)))))
-    (cond ((eq major-mode 'org-mode)
+
+    (cond (python
+           (progn (python-shell-restart))))
+
+    (cond (org
            (org-babel-tangle))
           (t (save-window-excursion (org-babel-detangle)))))
 
@@ -742,7 +751,14 @@
      (-cmd-on-buffer
       (completing-read
        "Apply script on buffer:"
-       (-fd "-tf -tx --max-depth=${_FD_MAX_DEPTH:-3} . $HOME/"))))))
+       (-fd "-tf -tx --max-depth=${_FD_MAX_DEPTH:-3} . $HOME/")))))
+
+  (defun -buffer-match (MATCH)
+    (string-match (eval `(rx (? ?*) ,MATCH (? ?*)))
+                  (mapconcat (lambda (BUFFER) (buffer-name BUFFER))
+                             (-all-buffers) " ")))
+
+  )
 
 (after! ob-async
   (setq ob-async-no-async-languages-alist '("ipython" "python")))

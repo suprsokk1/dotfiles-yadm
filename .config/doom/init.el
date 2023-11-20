@@ -42,6 +42,7 @@
        editorconfig
        lookup
        tmux
+       debugger
        (eval +overlay)
        (docker +lsp)
        (lsp +eglot +peek)

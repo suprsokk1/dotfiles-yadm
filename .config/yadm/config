@@ -4,37 +4,4 @@
 [class]
 	local = unstable
 [yadm]
-	auto-alt = 1
-[zsh]
-	plugins = gh
-	plugins = doctl
-	plugins = az
-	plugins = zsh-autosuggestions
-	plugins = direnv
-	plugins = fzf
-[regex]
-	ansi = \\x1b\\[[0-9;]*m
-	url = ^(((ht|f)tp(s?))://)?(www.|[a-zA-Z].)[a-zA-Z0-9-.]+.(com|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk)(:[0-9]+)*(/($|[a-zA-Z0-9.,;?\\+&%$\#=~_-]+))*$
-# [env]
-# 	SHELL = /bin/zsh
-# 	PATH = $HOME/.pyenv/bin
-# 	PATH = $HOME/bin
-# 	PATH = /usr/bin
-# 	PATH = /usr/local/bin
-# 	PATH = $HOME/.cargo/bin
-# 	PATH = $HOME/.local/bin
-# 	PATH = $HOME/go/bin
-# 	PATH = $HOME/opt/doom-emacsdir/bin
-# 	TERM = screen-256
-[zsh "env"]
-	PATH = $HOME/.pyenv/bin
-	PATH = $HOME/bin
-	PATH = /usr/bin
-	PATH = /usr/local/bin
-	PATH = $HOME/.cargo/bin
-	PATH = $HOME/.local/bin
-	PATH = $HOME/go/bin
-	PATH = $HOME/opt/doom-emacsdir/bin
-	TERM = screen-256
-[yadm "custom"]
-	auto-commit = 1
+	auto-alt = 0

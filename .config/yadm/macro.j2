@@ -48,7 +48,7 @@
 {%- if head -%}{{ head }}{%- endif -%}
 {%- if data.__class__.__name__ == 'dict' -%}
 {%- for name, value in data.items() -%}
-{{- kwargs.get('prefix', '') -}}
+{{- kwargs.get('prefix','') -}}
 {{- name -}}
 {{- kwargs.get('separator', '=') -}}
 {{- wrap -}}
@@ -88,4 +88,14 @@
 {%- endif -%}
 {% endfor %}
 {% endfor %}
+{%- endmacro -%}
+
+{%- macro systemd_section(name, data) -%}
+{# {%- set data = data if not data.__class__.__name__ == 'dict' else [(*_) for _ in data.items()] -%} #}
+{# {% for section, value in data.items() %} #}
+{# [{{ name }}] #}
+{# {%- for k, v in value.items() %} #}
+{# {{ k }} = {{ i }} #}
+{# {%- endfor %} #}
+{# {% endfor %} #}
 {%- endmacro -%}
