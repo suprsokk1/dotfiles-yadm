@@ -3,15 +3,7 @@
 # shellcheck disable=2092,2096
 shopt -s extglob
 
-declare -x tmp
 
-tmp="$(mktemp)"
-
-trap 'TRAPEXIT' EXIT
-
-TRAPEXIT() {
-    rm -v "$tmp"
-}
 
 # TODO FILE in `yadm ls` ? yadm add FILE : cat /dev/null
 # TODO ','s
@@ -19,36 +11,143 @@ TRAPEXIT() {
 export PATH=${PATH:-${HOME}/bin:${PATH}}
 export DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/${EUID}/bus}
 export WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-1}
+
+declare -x tmp
 declare -a -x args
 
 args=("$@")
+tmp="$(mktemp)"
 script="$(which "$0"|xargs realpath)"
 realname=$(readlink "$name")
 parent=$(readlink /proc/$PPID/exe)
 functions=( "$(compgen -A function)" )
 notify_send_msg_title='comma'
 notify_send_msg_timeout=3000
-read -r yadm_auto_alt < <(yadm config yadm.auto-alt | sed s,0,false,\;s,1,true,)
+
+# auto-alt enabled
+read -r yadm_auto_alt < <(yadm config yadm.auto-alt |
+                              sed s,0,false,\;s,1,true,)
 
 test -s ~/.functions && source ~/.functions
+
+trap 'TRAPEXIT' EXIT
+# trap 'TRAPERR' ERR
 
 function __start__ {
     __main__
 }
 
-function _after_template_render_hook {
-    [[ $@ ]] || return 1
-    template="$1"
-    output="$2"
-    output_ext="${output##*.}"
-    template_ext="${template##*.}"
-    case $output_ext in
-        j2)
-            ;;
-        *)
-    esac
+TRAPEXIT() {
+    cleanup
 }
 
+TRAPERR() { # TODO
+    exit 1
+}
+
+cleanup() {
+    rm -v "$tmp"
+}
+
+function msg {
+    command env notify-send --expire-time "${notify_send_msg_timeout:-5000}" "${notify_send_msg_title}" "${BASH_FUNCNAME[*]:-${FUNCNAME[*]}}:$*"
+}
+
+function __main__ {
+
+    cat /proc/$$/cmdline
+
+    # ',' script is symlinked
+    if [[ $(realpath "$0" | sed 's|.*/||') != ${0##*/} ]]; then
+        __${0##*/}
+    fi
+
+    # filter files
+    mapfile files < <(filterFiles)
+
+    for file
+    do _file_handler "$file"
+    done
+}
+
+function _get_args {
+    printf '%s ' "$@"
+}
+
+function ___test_args {
+    printf '%s ' "$@"
+}
+
+function _yadm_helper {
+    :
+}
+
+function parent {
+    readlink /proc/$PPID/exe
+}
+
+function filterFiles {
+    for arg
+    do test -s "$arg" || continue
+       echo -en "$arg"
+    done
+}
+
+_yadm_alias_handler() {
+    # [[ $* =~  ]] || exit 1
+    msg "$@"
+    command yadm add --force "$*"
+}
+
+
+_install_fonts() {
+    command install --compare --verbose -D -- ~/.local/share/fonts "$@"
+}
+
+
+function isGit {
+    git rev-parse --show-toplevel &>/dev/null
+}
+
+
+function runPlay {
+    # export ANSIBLE_HOME=$HOME/ansible
+    export ANSIBLE_STDOUT_CALLBACK=yaml
+    export ANSIBLE_FORCE_COLOR=1
+    export ANSIBLE_DEBUG=0
+    export ANSIBLE_VERBOSITY=0
+    # export ANSIBLE_
+    # export ANSIBLE_INVENTORY=inventory/
+    # export ANSIBLE_INVENTORY_PLUGIN_SCRIPT_STDERR=true
+    # export ANSIBLE_CONFIG=ffs.cfg
+
+    gitdir="${1%/*}"
+    pushd "$gitdir"
+
+    if pushd "$(git rev-parse --show-toplevel)"; then
+        if test 1 -eq  "$(yq '..|select(has(\"become\")).become' "$1")"; then
+            pass _ansible/become | tee fifo > /dev/null &
+            export ANSIBLE_PASSWORD_FILE=fifo
+        fi
+        ansible-playbook $(realpath --relative-base="$_" "$1")
+        return
+        # echo pwd: $PWD
+    else
+        ansible-playbook "$1"
+    fi
+}
+
+
+yadmHandler() {
+    :<<__YADM_HELP__
+    YADM_HOOK_COMMAND      # The command which triggered the hook
+    YADM_HOOK_EXIT         # The exit status of the yadm command
+    YADM_HOOK_FULL_COMMAND # The yadm command with all command line arguments
+    YADM_HOOK_REPO         # The path to the yadm repository
+    YADM_HOOK_WORK         # The path to the work-tree
+__YADM_HELP__
+
+}
 
 function _file_handler {
     set -x
@@ -75,7 +174,7 @@ function _file_handler {
         *)
     esac
 
-    
+
     case "$file" in
         *\#\#*template*j2*)
             template="$file"
@@ -144,218 +243,21 @@ function _file_handler {
     fi
 }
 
-function __main__ {
-    set - ${args[@]}
-    mapfile files < <(for arg ; do test -s "$arg" || continue ; echo -en "$arg" ; done)
-
-    for file ; do _file_handler "$file"; done
-    # find $@ \
-    # \( -type f -name '*.zip' -and -exec   \)  \
-    # -or \( -type f -name '*.tar' -and -exec  \)  \
-    #     2>/dev/null
-    return
-
-    case $name in
-        SUDO_ASKPASS|sudo-askpass)
-            command pass local
-            return
-            ;;
-        ,)
-            # if parent application call on ','
-            case $parent in
-                *alacritty*)
-                # TODO
-                ;;
-                *ansible*)
-                    echo "$@"
-                    ;;
-                *zsh*)
-                    case $ext in
-                        otf|ttf)
-                            find "$*" -type f -exec realpath {} \;
-                            ;;
-                        *)
-
-                    esac
-                    case $@ in
-                        fswatch)
-                            shift
-                            fswatch -o "$1" `# Watchdir` \
-                                --event Created \
-                                --event Updated \
-                                --event Removed \
-                                --event Renamed \
-                                --event OwnerModified \
-                                --event AttributeModified \
-                                --event MovedFrom \
-                                --event MovedTo \
-                                --exclude ".git" |
-                                xargs --max-args --replace IGNORE ,
-                            ;;
-                        *)
-                    esac
-                    ;;
-
-                *cron*)   ;;&
-                *incron*) ;;
-                *cronie*) ;;
-                *fzf*)
-                    # FIXME
-                    case $# in
-                        1)
-                            # pcre_compile -m "$(yadm config --get regex.ansi)"
-                            # pcre_match -b -- "$@"
-
-                            if test -f "$1" || test -L "$1"
-                            then
-                                highlight -O ansi --force < "$1"
-
-                            elif test -d "$1"
-                            then
-                                :
-
-                            fi
-                            ;;
-                        *)
-                    esac
-                    ;;
-
-                *fswatch*) `# TODO` ;;
-
-                *emacs*)
-                    case $shebang in
-                        *python)
-                            python "$@"
-                            ;;
-                        *)
-                    esac
-
-                    if isGit; then
-                        echo "$GIT_DIR"
-                    fi
-
-                    case $@ in
-                        *sway*)
-                            sway -C && sway reload
-                            echo RC:$?
-                            ;;
-                        *)
-                    esac
-
-                    case $ext in
-                        js)         node "$1" ;;
-                        org)        emacsclient --eval '(org-babel-execute-maybe)' ;;
-                        sh)         eval "$1"; exit ;;
-                        yml|yaml)   if grep -- '---' "$1" && grep -- '^- hosts:' "$_"; then
-                                        runPlay "$1"
-                                    fi
-                            ;;
-
-                        py) command emacsclient --eval '(run-python)'
-                            command emacsclient --eval '(python-shell-send-file "'"$1"'")'
-                            command emacsclient --eval '(+popup/toggle)'
-                            ;;
-
-                        nim)
-                            nim c -r --verbosity:0 "$1"
-                            ;;
-
-                        rs)
-                            PS4='${0}:${LINENO}: '
-                            set -o errexit -o xtrace
-                            pushd "$(mktemp -d)"
-                            rustc "$1" -o out
-                            ./out
-                            ;;
-
-                        *)
-                    esac
-                    ;;
-                *)  test -x "$1" && grep -q -w -- 'bash' "$1" && eval "$1" && exit 0
-                    case $ext in
-                        sqlite) sqlite3 -line "$1" '.tables' ;;
-                        *)
-                    esac
-
-            esac
+function _after_template_render_hook {
+    [[ $@ ]] || return 1
+    template="$1"
+    output="$2"
+    output_ext="${output##*.}"
+    template_ext="${template##*.}"
+    case $output_ext in
+        j2)
             ;;
         *)
     esac
-
-    case $# in
-        [0-1])
-
-        ;;
-        *)
-            exit
-    esac
-
 }
-
-
-_yadm_alias_handler() {
-    # [[ $* =~  ]] || exit 1
-    msg "$@"
-    command yadm add --force "$*"
-}
-
-
-_install_fonts() {
-    command install --compare --verbose -D -- ~/.local/share/fonts "$@"
-}
-
-
-function isGit {
-    git rev-parse --show-toplevel &>/dev/null
-}
-
-
-function runPlay {
-    # export ANSIBLE_HOME=$HOME/ansible
-    export ANSIBLE_STDOUT_CALLBACK=yaml
-    export ANSIBLE_FORCE_COLOR=1
-    export ANSIBLE_DEBUG=0
-    export ANSIBLE_VERBOSITY=0
-    # export ANSIBLE_
-    # export ANSIBLE_INVENTORY=inventory/
-    # export ANSIBLE_INVENTORY_PLUGIN_SCRIPT_STDERR=true
-    # export ANSIBLE_CONFIG=ffs.cfg
-
-    gitdir="${1%/*}"
-    pushd "$gitdir"
-
-    if pushd "$(git rev-parse --show-toplevel)"; then
-        if test 1 -eq  "$(yq '..|select(has(\"become\")).become' "$1")"; then
-            pass _ansible/become | tee fifo > /dev/null &
-            export ANSIBLE_PASSWORD_FILE=fifo
-        fi
-        ansible-playbook $(realpath --relative-base="$_" "$1")
-        return
-        # echo pwd: $PWD
-    else
-        ansible-playbook "$1"
-    fi
-}
-
-
-yadmHandler() {
-    :<<__YADM_HELP__
-    YADM_HOOK_COMMAND      # The command which triggered the hook
-    YADM_HOOK_EXIT         # The exit status of the yadm command
-    YADM_HOOK_FULL_COMMAND # The yadm command with all command line arguments
-    YADM_HOOK_REPO         # The path to the yadm repository
-    YADM_HOOK_WORK         # The path to the work-tree
-__YADM_HELP__
-
-}
-
-
-function msg {
-    command env notify-send --expire-time "${notify_send_msg_timeout:-5000}" "${notify_send_msg_title}" "${BASH_FUNCNAME[*]:-${FUNCNAME[*]}}:$*"
-}
-
 
 __start__
+
 # if [[ $DEBUG ]]; then
 #     command notify-send --expire-time $notify_send_msg_timeout ${@:-,}
 # fi

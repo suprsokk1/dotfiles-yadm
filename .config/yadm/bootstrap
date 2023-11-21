@@ -21,4 +21,14 @@ for pip in "${HOME:-~}"/.pyenv/bin/pip; do
     fi
 done
 
-command yadm alt
+trap '${TMPDIR:+rm -rvf $TMPDIR}' EXIT
+PREFIX=${HOME:-~}
+TMPDIR="$(mktemp -d /run/user/$(id -u)/XXXXX.tmp)"
+mkdir --parents ${PREFIX:-/tmp}/.config/waybar/
+pushd $TMPDIR  || exit 1
+git clone --depth 1 https://github.com/catppuccin/waybar
+pushd waybar
+cp --recursive themes/ assets/ ${PREFIX:-/tmp}/.config/waybar/
+ls "$TMPDIR"
+
+# command yadm alt
