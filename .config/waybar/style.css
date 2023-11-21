@@ -1,0 +1,151 @@
+@import "themes/macchiato.css";
+
+/* @keyframes charging { */
+/*     to { */
+/*         background: linear-gradient( */
+/*             90deg, */
+/*             rgba(0,0,0,0.0) 0%, */
+/*             rgba(0,0,0,0.0) 100% */
+/*         ); */
+/*     } */
+/* } */
+
+@keyframes alphabet {
+  0% {
+    color: red;
+  }
+
+
+  25% {
+    color: yellow;
+  }
+
+
+  50% {
+    color: blue;
+  }
+
+
+  100% {
+    color: green;
+  }
+}
+
+
+@keyframes blink {
+    to {
+        background-color: #ffffff;
+        color: #000000;
+    }
+}
+
+
+@keyframes fade {
+    to {
+        color: rgba(0,0,0,0.2);
+    }
+}
+
+
+window#waybar {
+  background-color: shade(@base, 0.9);
+  border: 2px solid alpha(@crust, 0.3);
+}
+
+
+* {
+  font-family: San Francisco Display;
+  font-weight: 400;
+  color: @text;
+  padding: 0;
+  border: 0;
+}
+
+
+#tray {
+    padding: 0;
+}
+
+
+.modules-right * * , .modules-left * * {
+  padding: 0 4mm 0 0;
+  margin:  0 1mm 0 0;
+  min-width: 12mm;
+
+}
+
+
+.modules-left * *  {
+  color: @subtext0;
+}
+
+
+#battery {
+  color: @blue;
+  animation-name: charging;
+  animation-duration: 1.0s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+
+#battery.charging {
+  color: @yellow;
+  animation-name: fade;
+  animation-duration: 1.0s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+
+#battery.full {
+  color: @blue;
+  animation-duration: 0;
+}
+
+
+.focused {
+  color: @blue;
+}
+
+
+network {
+  color: @surface0;
+}
+
+
+.bad {
+  color: @red;
+}
+
+
+.good {
+  color: @green;
+}
+
+
+#focused {
+  font-weight: bold;
+}
+
+.good {
+  color: @green;
+}
+
+.linked .modules-right * *, .linked .modules-left * * {
+  color: @red;
+}
+
+#network.linked {
+  color: @blue;
+}
+
+/* STYLE */
+/*        •   #network */
+/*        •   #network.disconnected */
+/*        •   #network.disabled */
+/*        •   #network.linked */
+/*        •   #network.ethernet */
+/*        •   #network.wifi */
