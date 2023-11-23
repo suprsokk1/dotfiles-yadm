@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Set default layout
+Name=default
+GenericName=Set layout
+Exec=swaymsg layout default
+Icon=org.gnome.Terminal
+Type=Application
+Terminal=false
+StartupWMClass=Sway

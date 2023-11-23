@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=WiFi off
+GenericName=rfkill
+Exec=rfkill
+Icon=gnome-terminal
+Type=Application
+Terminal=true
+StartupWMClass=tmux

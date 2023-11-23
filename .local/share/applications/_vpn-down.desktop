@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Down
+GenericName=VPN
+Exec=piactl disconnect
+Icon=piavpn
+Type=Application
+Terminal=false
+StartupWMClass=Sway

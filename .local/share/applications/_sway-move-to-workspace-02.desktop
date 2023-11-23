@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Move container to workspace 2
+GenericName=Sway WM
+Icon=sway
+Terminal=false
+Type=Application
+StartupNotify=true
+Exec=/usr/bin/env swaymsg move to workspace 2

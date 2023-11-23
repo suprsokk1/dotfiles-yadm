@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Toggle
+GenericName=
+Exec=swaymsg layout toggle
+Icon=org.gnome.Terminal
+Type=Application
+Terminal=false
+StartupWMClass=Sway

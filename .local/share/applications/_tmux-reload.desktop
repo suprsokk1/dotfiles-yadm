@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Reload config
+GenericName=tmux
+Exec=tmux source-file ~/.tmux.conf
+Icon=org.gnome.Terminal
+Type=Application
+Terminal=true
+StartupWMClass=tmux
