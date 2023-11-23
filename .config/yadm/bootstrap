@@ -39,6 +39,15 @@ for VENV in "$HOME"/.local/share/pyvenv/default; do
     "$VENV"/bin/pip install -r "$dir"/requirements.txt
 done
 
+crontab - <<CRONTAB
+START_HOURS_RANGE=0-23
+PATH=${PATH}
+RANDOM_DELAY=2
+
+*/10 * * * * yadm push
+*/10 * * * * pass git push
+CRONTAB
+
 exit
 
 for pip in "${HOME:-~}"/.pyvenv/bin/pip; do
@@ -59,5 +68,3 @@ git clone --depth 1 https://github.com/catppuccin/waybar
 pushd waybar
 cp --recursive themes/ assets/ ${PREFIX:-/tmp}/.config/waybar/
 ls "$TMPDIR"
-
-# command yadm alt
