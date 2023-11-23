@@ -19,7 +19,6 @@ args=("$@")
 tmp="$(mktemp)"
 script="$(which "$0"|xargs realpath)"
 realname=$(readlink "$name")
-parent=$(readlink /proc/$PPID/exe)
 functions=( "$(compgen -A function)" )
 notify_send_msg_title='comma'
 notify_send_msg_timeout=3000
@@ -31,6 +30,7 @@ read -r yadm_auto_alt < <(yadm config yadm.auto-alt |
 test -s ~/.functions && source ~/.functions
 
 trap 'TRAPEXIT' EXIT
+
 # trap 'TRAPERR' ERR
 
 function __start__ {
@@ -54,8 +54,9 @@ function msg {
 }
 
 function __main__ {
-
-    cat /proc/$$/cmdline
+    set -x
+    set - $(command xargs -0ra /proc/$$/cmdline)
+    shift 1
 
     # ',' script is symlinked
     if [[ $(realpath "$0" | sed 's|.*/||') != ${0##*/} ]]; then
