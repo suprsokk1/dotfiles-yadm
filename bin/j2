@@ -1,8 +1,9 @@
-#!/usr/bin/env python3.11
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
-TODO act like wrapper for j2
+TODO PYTHONSTARTUP in global environment
+TODO act like wrapper for j2 when not called by yadm
 ~/.sway/config##template.j2,class.unstable
 -o
 ~/.sway/config.343865.28874
@@ -11,19 +12,22 @@ TODO act like wrapper for j2
 import os
 import re
 import sys
-
-fd = open(os.environ.get('PYTHONSTARTUP', '{HOME}/.pythonrc'.format(**os.environ)), 'r'); exec(fd.read()); fd.close()
-
+from subprocess import run, Popen, PIPE, DEVNULL
+from pathlib import Path
 from jinja2 import Environment, Template, ChoiceLoader, DictLoader, FileSystemLoader
 from jinja2.exceptions import UndefinedError
 from collections import defaultdict
 
-# TODO PYTHONSTARTUP in global environment
+pythonrc_fallback = '{}/.pythonrc'.format(os.environ['HOME'])
+with open(os.environ.get('PYTHONSTARTUP', pythonrc_fallback), 'r') as fd: exec(fd.read())
 
+import importlib.util
 
-from subprocess import run, Popen, PIPE, DEVNULL
-from pathlib import Path
-from loguru import logger
+module_path = "{HOME}/git/sandbox/python/packages/betterdict/src/betterdict_suprsokk1/betterdict.py".format(**os.environ)
+spec = importlib.util.spec_from_file_location("betterdict.BetterDict", module_path)
+_mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(_mod)
+
 from box import Box
 
 try:
@@ -32,14 +36,13 @@ except Exception:
     pass
 
 def main():
-    _, template_path, _, template_output_path = sys.argv if sys.argv[1:] else None, '~/.zshrc##template.j2', None, '/tmp/config.XXXXX.YYYYY'
+    (_, template_path, _, template_output_path) = sys.argv if sys.argv[1:] else None, '~/.zshrc##template.j2', None, '/tmp/config.XXXXX.YYYYY'
 
     try:
         yadm(template_path, template_output_path, testing=False if sys.argv[1:] else True)
     except Exception as e:
         logger.error(e)
         sys.exit(1)
-
 
 @logger.catch
 def yadm(template_path, template_output_path, **kwargs):
@@ -84,7 +87,7 @@ def yadm(template_path, template_output_path, **kwargs):
 
 ######################################
 # ################################## #
-# # !!! PROBLEMS LOADING DATA  !!! # #
+# # !!! PROBLEM LOADING DATA  !!!  # #
 # ################################## #
 ######################################
 
@@ -131,11 +134,9 @@ def load():
     data = boxdots.from_json(res)
 
     try:
-        # logger.debug(data.meta.rootvar)
-        pass
+        logger.debug(data.meta.rootvar)
     except Exception as e:
         logger.error(e)
-
 
     # # TODO put vars at root level
     # if False:
@@ -152,7 +153,6 @@ def load():
     data.update(Vars.__dict__)
 
     return data
-
 
 class Vars(object):
     COMMA = ','
@@ -185,7 +185,6 @@ class Vars(object):
     prompt_command = ['~/.functions', '~/.aliases']
     shellcheck_disable = ['1091', '2034']
     DUBLE_QUOTE = '''"'''
-
 
 if __name__ == '__main__':
     main()
