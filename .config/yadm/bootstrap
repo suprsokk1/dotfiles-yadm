@@ -1,18 +1,47 @@
 #!/bin/bash
+set -o errexit
+set -o nounset
+
 dir="$(dirname "$0")"
 . /etc/os-release
 distro=ID
 release=VERSION_ID
-cd "$dir" || exit 1
+pushd "$dir" || exit 1
 
-if ((EUID == 0))
-then if [ -s /etc/redhat-release ]
-     then command dnf install --assumeyes python-virtualenv python-pip gcc-go golang-bin cargo
-     fi
-     . "$dir"/bootstrap.d/${!distro}/${!release}
+
+
+if [[ ${SUDO_USER:-$'\0'} ]]; then
+    # . "$dir"/bootstrap.d/${!distro}/${!release}
+    if [ -s /etc/redhat-release ]
+    then command dnf install --assumeyes make python-virtualenv python-pip gcc-go golang-bin cargo readline-devel
+    fi
+    exit 0
+else
+
+    command env SUDO_ASKPASS=~/bin/askpass sudo "$(realpath $0)"
 fi
 
-for pip in "${HOME:-~}"/.pyenv/bin/pip; do
+ln -sfrv ~/bin/{',',askpass}
+command make -C "$dir"/src/pyenv/
+
+. <("$HOME"/.pyenv/bin/pyenv init -)
+
+pyenv global 3.12.0
+
+# exit
+# yadm config --get-regex python.env
+# ./helpers/parse-gitconfig
+
+for VENV in "$HOME"/.local/share/pyvenv/default; do
+    [[ -d $VENV ]] && continue
+    command python -mvenv "$VENV"
+    "$VENV"/bin/pip install --upgrade pip
+    "$VENV"/bin/pip install -r "$dir"/requirements.txt
+done
+
+exit
+
+for pip in "${HOME:-~}"/.pyvenv/bin/pip; do
     if [[ -f $pip ]]
     then
         "$pip" install --upgrade pip
@@ -21,7 +50,7 @@ for pip in "${HOME:-~}"/.pyenv/bin/pip; do
     fi
 done
 
-trap '${TMPDIR:+rm -rvf $TMPDIR}' EXIT
+trap '${TMPDIR:+rm -rf${DEBUG:+v} $TMPDIR}' EXIT
 PREFIX=${HOME:-~}
 TMPDIR="$(mktemp -d /run/user/$(id -u)/XXXXX.tmp)"
 mkdir --parents ${PREFIX:-/tmp}/.config/waybar/
