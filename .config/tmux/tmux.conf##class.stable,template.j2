@@ -68,14 +68,14 @@ set -g @tmux_power_theme 'gold'
 
 {% set plugins = ['tmux-plugins/tpm', 'tmux-plugins/tmux-sensible', 'rickstaa/tmux-notify', 'jaclu/tmux-menus', 'roosta/tmux-fuzzback', 'wfxr/tmux-power', 'wfxr/tmux-fzf-url'] -%}
 
-{{ section(plugins, separator=NEWLINE, prefix="set -g @plugin", wrap=DUBLE_QUOTE) }}
+{%- for item in plugins %}
+set -g @plugin "{{ item }}"
+{% endfor -%}
 
 set -g @fzf-url-bind          'Tab'
 set -g @fzf-url-open          'qutebrowser'
 set -g @fzf-url-history-limit '2000'
 set -g @fzf-url-fzf-options   '-w 50% -h 50% --multi -0 --no-preview --no-border'
-
-{%- include HOME + "/.config/tmux/by-env/" +  XDG_SESSION_TYPE + ".conf" -%}
 
 {# run "sh -c 'test -d ~/.local/share/tpm || (mkdir -p ~/.local/share/tpm; env -C ~/.local/share/ git clone https://github.com/tmux-plugins/tpm)'" #}
 run '/bin/bash $HOME/.local/share/tpm/tpm'
