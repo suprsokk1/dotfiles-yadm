@@ -22,12 +22,6 @@ pythonrc_fallback = '{}/.pythonrc'.format(os.environ['HOME'])
 with open(os.environ.get('PYTHONSTARTUP', pythonrc_fallback), 'r') as fd: exec(fd.read())
 
 import importlib.util
-
-module_path = "{HOME}/git/sandbox/python/packages/betterdict/src/betterdict_suprsokk1/betterdict.py".format(**os.environ)
-spec = importlib.util.spec_from_file_location("betterdict.BetterDict", module_path)
-_mod = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(_mod)
-
 from box import Box
 
 try:
@@ -35,21 +29,26 @@ try:
 except Exception:
     pass
 
+
+
 def main():
-    (_, template_path, _, template_output_path) = sys.argv if sys.argv[1:] else None, '~/.zshrc##template.j2', None, '/tmp/config.XXXXX.YYYYY'
+    args = sys.argv if sys.argv[1:] else None, '~/.zshrc##template.j2', None, '/tmp/config.XXXXX.YYYYY'
+    (_, template_path, _, template_output_path) = args
 
     try:
-        yadm(template_path, template_output_path, testing=False if sys.argv[1:] else True)
+        yadm(
+            template_path,
+            template_output_path,
+            testing=False if sys.argv[1:] else True
+        )
     except Exception as e:
         logger.error(e)
         sys.exit(1)
 
-@logger.catch
+
+# @logger.catch
 def yadm(template_path, template_output_path, **kwargs):
     template_load_path = '''{HOME}/.config/yadm'''.format(**os.environ)
-    default_camelkiller_boxdots = Box(default_box=True, camel_killer_box=True, box_dots=True)
-    camelkiller_boxdots = Box(default_box=False, camel_killer_box=True, box_dots=True)
-    boxdots = Box(default_box=False, camel_killer_box=True, box_dots=False)
     choice_loader = ChoiceLoader([
         FileSystemLoader(os.environ['HOME'] + '/.config/yadm/'),
     ])
@@ -102,20 +101,48 @@ def yadm(template_path, template_output_path, **kwargs):
     jinja_template = environment.from_string(template_content_string)
     data = load()
     _vars = Vars()
-    logger.debug(_vars)
+    # logger.debug(_vars)
     data.update(_vars.__dict__)
 
-    data['LEFT_PARENTHESIS']
+    # data['LEFT_PARENTHESIS']
 
     # render template
     with open(template_output_path, 'w') as fd:
         fd.write(jinja_template.render(**data))
         # fd.write(template.render(**data))
 
-    if kwargs.get('testing', False):
-        return
+    logger.info("DONE")
 
-    exit()
+
+
+def yadm(template_path, template_output_path, **kwargs):
+    template_load_path = '''{HOME}/.config/yadm'''.format(**os.environ)
+    choice_loader = ChoiceLoader([
+        FileSystemLoader(os.environ['HOME'] + '/.config/yadm/'),
+    ])
+    environment = Environment(loader=choice_loader)
+
+    header_template = (
+        (Path(template_load_path) / 'macro.j2')
+        .read_text()
+    )
+
+    input_template = (
+        Path(template_path)
+        .expanduser()
+        .read_text()
+    )
+
+    jinja_template = environment.from_string(template_content_string)
+    data = load()
+    _vars = Vars()
+
+    # render template
+    with open(template_output_path, 'w') as fd:
+        fd.write(jinja_template.render(**data))
+        # fd.write(template.render(**data))
+
+    logger.info("DONE")
 
 
 def load():
@@ -136,7 +163,7 @@ def load():
     try:
         logger.debug(data.meta.rootvar)
     except Exception as e:
-        logger.error(e)
+        logger.warning(e)
 
     # # TODO put vars at root level
     # if False:
@@ -144,6 +171,35 @@ def load():
     #         print(var)
     #         print(eval(f"data.{var}"))
     #         print(eval(f"data.meta.{var}"))
+
+    data.update({k:v for k,v in os.environ.items()
+                 if any(tuple(map(lambda x : k.startswith(x), 'HOME SSH'.split())))
+                 or any(tuple(map(lambda x : k == x, ''.split())))})
+
+    data = data.to_dict()
+    data.update(Vars.__dict__)
+
+    return data
+
+
+def load_ng():
+    template_load_path = '''{HOME}/.config/yadm'''.format(**os.environ)
+    data_cmd = '''{HOME}/.config/yadm/helpers/parse-gitconfig'''.format(**os.environ)
+
+    # module_path = '{XDG_CONFIG_HOME}/yadm/src/site-packages/betterdict/betterdict/betterdict.py'.format(**os.environ)
+    module_path = '{HOME}/.config/yadm/src/site-packages/betterdict/betterdict/betterdict.py'.format(**os.environ)
+    spec = importlib.util.spec_from_file_location("betterdict.BetterDict", module_path)
+    _mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(_mod)
+
+    res = (
+        run(data_cmd.split(), shell=False, capture_output=True)
+        .stdout
+        .decode()
+    )
+
+    data = _mod.BetterDict()
+    data.from_command(data_cmd)
 
     data.update({k:v for k,v in os.environ.items()
                  if any(tuple(map(lambda x : k.startswith(x), 'HOME SSH'.split())))
@@ -185,6 +241,7 @@ class Vars(object):
     prompt_command = ['~/.functions', '~/.aliases']
     shellcheck_disable = ['1091', '2034']
     DUBLE_QUOTE = '''"'''
+
 
 if __name__ == '__main__':
     main()

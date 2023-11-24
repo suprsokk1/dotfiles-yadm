@@ -37,15 +37,15 @@ function __start__ {
     __main__
 }
 
-TRAPEXIT() {
+function TRAPEXIT {
     cleanup
 }
 
-TRAPERR() { # TODO
+function TRAPERR { # TODO
     exit 1
 }
 
-cleanup() {
+function cleanup {
     rm -v "$tmp"
 }
 
@@ -94,14 +94,14 @@ function filterFiles {
     done
 }
 
-_yadm_alias_handler() {
+function _yadm_alias_handler {
     # [[ $* =~  ]] || exit 1
     msg "$@"
     command yadm add --force "$*"
 }
 
 
-_install_fonts() {
+function _install_fonts {
     command install --compare --verbose -D -- ~/.local/share/fonts "$@"
 }
 
@@ -139,7 +139,7 @@ function runPlay {
 }
 
 
-yadmHandler() {
+function yadmHandler {
     :<<__YADM_HELP__
     YADM_HOOK_COMMAND      # The command which triggered the hook
     YADM_HOOK_EXIT         # The exit status of the yadm command
@@ -154,20 +154,19 @@ function _file_handler {
     set -x
     [[ $@ ]] || return 1
     file="$1"
+    [[ $file =~ (.*)# ]]
+
     # shebang=$(sed -E '1'  "$file")
     ext=${1##*.}
     name=${0##*/}
 
+    if [[ ${BASH_REMATCH[1]} ]]; then
+        template="$file"
+        dest="${BASH_REMATCH[1]}"
+        unset file
+    fi
 
-    case "$script" in
-        script)
-
-            return
-            ;;
-        *)
-    esac
-
-    case "$file" in
+    case $file in
         */Makefile)
             env -C "${file%/*}" emacsclient  --no-wait --eval '(let ((compile-command "make")) (compile compile-command))'
             return
@@ -175,19 +174,15 @@ function _file_handler {
         *)
     esac
 
-
-    case "$file" in
+    case $template in
         *\#\#*template*j2*)
-            template="$file"
-            unset file
             yadm add --force "$template"
 
             if ! $yadm_auto_alt; then
-                "${HOME}"/bin/j2 \
-                    -f json      \
-                    -o "$tmp"    \
-                    "$template"
-
+                "${HOME}"/bin/j2 -f json -o "$tmp" "$template"
+                # TODO validate "$tmp"
+                mapfile res < "$tmp"
+                [[ ${#res} ]] || exit 1
             fi
 
             return $?
@@ -200,9 +195,8 @@ function _file_handler {
             _install_fonts "$file"
             ;;
         j2)
-            template="$file"
             dest="${dest:-${template%.${ext}}}"
-            unset file
+            # unset file
 
             "${HOME}"/bin/j2 \
                 -f json      \
@@ -231,6 +225,13 @@ function _file_handler {
 
             # cat --show-all "$tmp"
             install --verbose -DT -- "$tmp" "$dest"
+            ;;
+        *)
+    esac
+
+    case $script in
+        script)
+            return
             ;;
         *)
     esac
