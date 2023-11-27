@@ -7,34 +7,75 @@ import re
 import sys
 from subprocess import run
 from pathlib import Path
-import logging
+
 import fire
 from box import Box
 import string
 
-logging.basicConfig(level=logging.DEBUG)
+# pythonrc_fallback = '{HOME}/.pythonrc'.format(**os.environ)
+# with open(os.environ.get('PYTHONSTARTUP', pythonrc_fallback), 'r') as fd: exec(fd.read())
+
+from loguru import logger
+
+logger.__format__ = '<lvl>{message}</lvl>'
+# import logging
+# logging.basicConfig(level=logging.DEBUG)
+
+import importlib.util
+
 
 
 """
 TODO detect parent
 """
 
+def wrap(override):
+    def inner(func):
+        def wrapper(*args, **kwargs):
+            ret = func(*args, **kwargs)
+            ret = override(ret) if ret else override(*args, **kwargs)
+            return ret
+        return wrapper
+    return inner
+
+
+def foo(bar):
+    return bar
+
+
+@wrap(print)
+@wrap(lambda x : json.dumps(x, indent=2))
 def main():
     argparser = argparse.ArgumentParser(
         prog='parse-gitconfig',
         description='''Config parser for 'yadm' command''',
         epilog='TODO')
 
-    config_filename = os.environ['HOME'] + "/.config/yadm/config"
-    data = parser(config_filename, handler=interpolate_path)
-    print(json.dumps(data))
-    # print(json.dumps(data, indent=1))
+    config_filename = "{HOME}/.config/yadm/config".format(**os.environ)
+    data = parser(config_filename, parser=parse, handler=dummy)
+    # data = parser(config_filename, parser=native_parse, handler=dummy)
+    return data
+    # print(json.dumps())
+
+
+def try_eval(string):
+    assert type(string) is str
+    try:
+        return exec(string)
+        return eval(string)
+    except Exception as e:
+        logger.error(e)
+        return string
 
 
 def parser(config_filename, **kwargs):
+    global parse
+
+    parse = kwargs.get('parser', parse)
     data = parse(Path(config_filename).read_bytes(), **kwargs)
     for path in data.get('include', {}).get('path', []):
-        data.update(parser(path))
+    # for path in data.include.path:
+        data.update(parser(path, **kwargs))
     return data
 
 
@@ -47,23 +88,74 @@ def parse(raw, **kwargs):
     import string
 
     for line in raw.decode().splitlines():
-        if line.lstrip().startswith('#'): continue
-        if not set(line) - set(string.whitespace): continue
 
-        if line.startswith('['):
-            key = line.strip('[]"').split(' "')
-            key = '.'.join(key)
-            data[key] = dict()
-        else:
+        if line.lstrip().startswith('#'):
+            continue
+
+        if not set(line) - set(string.whitespace):
+            continue
+
+        if line.startswith('['): # section head
+            header = line.strip('[]"').split(' "')
+            header = '.'.join(header)
+
+            if data.get(header, False):
+                pass
+            else:
+                data[header] = {}
+
+        else:                   # section key-value pairs
             k, v = line.lstrip(' \t').split(' = ')
-            data[key][k] = [*data[key].get(k,[]), _handler(v)]
 
-    data.update({k.split('.')[0]:{k.split('.')[1]:v} for k,v in data.items() if '.' in k})
+            data[header].update({
+                k:[*data[header].get(k, []), _handler(v)]
+            })
+
+    data.update({k.split('.')[0]:{k.split('.')[1]:v}
+                 for k,v in data.items()
+                 if '.' in k})
+
     for k, v in dict(data).items():
         if '.'in k:
             del data[k]
 
     return data
+
+
+module_path = '{HOME}/.config/yadm/src/site-packages/betterdict/betterdict/betterdict.py'.format(**os.environ)
+spec = importlib.util.spec_from_file_location("betterdict.BetterDict", module_path)
+_mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(_mod)
+
+
+def native_parse(raw, **kwargs):
+    data = _mod.BetterDict()
+    key = None
+    _handler = kwargs.get('handler', lambda x : x)
+    import string
+
+    for line in raw.decode().splitlines():
+
+        if line.lstrip().startswith('#'):
+            continue
+
+        if not set(line) - set(string.whitespace):
+            continue
+
+        if line.startswith('['): # section head
+            header = line.strip('[]"').split(' "')
+            header = '.'.join(header)
+
+        else:                   # section key-value pairs
+            key, value = line.lstrip(' \t').split(' = ')
+
+            if header == 'test':
+                logger.debug('header:')
+                logger.debug.logger(value)
+
+            data[key] = value
+
+    return data.to_dict()
 
 
 def interpolate_string(_string):
@@ -75,7 +167,8 @@ def interpolate_string(_string):
     def _replace(replace, _with):
         index = new_string.index(replace)
         replaced = new_string.pop(index)
-        logging.log(logging.DEBUG, replaced)
+        # logging.log(logging.DEBUG, replaced)
+        logger.debug(replaced)
         new_string.insert(index, _with)
 
     for cmd in commands:
@@ -91,10 +184,6 @@ def interpolate_string(_string):
     return ''.join(new_string)
 
 
-def interpolate_path(path):
-    return Path(interpolate_string(path)).expanduser().absolute().__str__()
-
-
 def num(func):
     def _num(*args, **kwargs):
         ret = func(*args, **kwargs)
@@ -106,6 +195,12 @@ def num(func):
         else:
             return ret
     return _num
+
+
+@wrap(lambda x : x if not x[0] in ['/','~'] else Path(x).expanduser().absolute().__str__())
+@wrap(interpolate_string)
+def dummy(item):
+    pass
 
 
 if __name__ == '__main__':

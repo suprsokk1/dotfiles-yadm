@@ -4,11 +4,11 @@ import os
 
 {%- set pip_packages = (("loguru","from loguru import logger"),("python-box","from box import Box"),("flame","import flame"),("jinja2", "from jinja2 import Template, Environment, ChoiceLoader, BaseLoader, FileSystemLoader")) -%}
 
-{%- for pkg, import in pip.packages -%}
+{%- for pkg, _import in pip.packages -%}
 try:
   {{ import }}
 except ImportError:
     run(f"{sys.executable} -mpip install {{ pkg }}", shell=True, capture_output=True)
 finally:
-    {{ import }}
+    {{ _import }}
 {%- endfor -%}

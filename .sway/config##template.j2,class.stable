@@ -10,7 +10,6 @@
     {{- prefix }}Escape mode "default"
 {%- endmacro %}
 
-
 {%- set Alt                 = "Mod1" %}
 {%- set Hyper               = "Mod3" %}
 {%- set Meta                = "Mod1" %}
@@ -37,7 +36,6 @@
 
 {%- set toggle_a_mode       = "** A **" %}
 {%- set toggle_b_mode       = "** B **" %}
-
 
 {%- if xwayland %}
 xwayland enable
@@ -71,7 +69,8 @@ hide_edge_borders none
 # modifier|titlebar [modifier|titlebar]
 # tiling_drag modifier
 
-# yes|no
+# show marks in title
+## yes|no
 show_marks yes
 
 # smart|urgent|focus|none
@@ -241,7 +240,6 @@ mode "{{ resize_mode }}" {{ LEFT_CURLYBRACKET }}
     {{ RIGHT_CURLYBRACKET }}
 {{ RIGHT_CURLYBRACKET }}
 
-
 mode "{{ kill_mode }}" {{ LEFT_CURLYBRACKET }}
 
     bindsym --to-code {{ LEFT_CURLYBRACKET }}
@@ -287,7 +285,6 @@ mode "{{ menu_mode }}" {{ LEFT_CURLYBRACKET }}
 
 bindsym {{ Super }}+t mode "{{ menu_mode }}"
 
-
 {%- macro for_window() %}
 {%- set ignore_case = kwargs.get('ignore_case', False) %}
     for_window [class="(?i)firefox"] title_format "<span foreground='red'>%title</span>"
@@ -301,3 +298,4 @@ set $lock 'swaylock -f --color "{{ color.lockscreen }}"'
 bindswitch --reload --locked lid:on exec $lock
 
 include colors
+include conf.d/*.conf

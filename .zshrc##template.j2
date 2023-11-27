@@ -1,13 +1,22 @@
 {#-*- mode: jinja2 -*-#}
 # .zshrc -*- mode: sh -*-
 
-{{ section(shellcheck_disable, prefix='SC', separator=COMMA, head='# shellcheck disable=') }}
-{{ section(zsh.env) }}
-{{ section(static_dirs, title="static dirs", prefix="hash -d ") }}
-{{ section(zsh_plugins, title="zsh plug-in's", separator=SPACE, head='plugins=' + LEFT_PARENTHESIS, tail=RIGHT_PARENTHESIS) }}
-{{ section(path, title="PATH", separator=NEWLINE, prefix=SPACE*2, head='path=' + LEFT_PARENTHESIS + NEWLINE, tail=NEWLINE + RIGHT_PARENTHESIS) }}
-{{ section(prompt_command, title="PROMPT_COMMAND", head='prompt_command=()' + NEWLINE, prefix="prompt_command+=(", suffix=RIGHT_PARENTHESIS, separator=NEWLINE) }}
+{{- section(shellcheck_disable, prefix='SC', separator=COMMA, head='# shellcheck disable=') }}
+
+{{- section(zsh_env) }}
+
+{{- section(static_dirs, title="static dirs", prefix="hash -d ") }}
+
+{{- section(zsh.plugins, title="zsh plug-in's", separator=SPACE, head='plugins=' + LEFT_PARENTHESIS, tail=RIGHT_PARENTHESIS) }}
+
+{{- section(path, title="PATH", separator=NEWLINE, prefix=SPACE*2, head='path=' + LEFT_PARENTHESIS + NEWLINE, tail=NEWLINE + RIGHT_PARENTHESIS) }}
+
+{{- section(prompt_command, title="PROMPT_COMMAND", head='prompt_command=()' + NEWLINE, prefix="prompt_command+=(", suffix=RIGHT_PARENTHESIS, separator=NEWLINE) }}
 
 {# source ~/.pyenv/bin/activate #}
-source "$ZSH"/oh-my-zsh.sh
-source "$HOME"/.functions
+{%- if env.ZSH is defined -%}
+source "{{ zsh.env.ZSH }}"/oh-my-zsh.sh
+{%- endif -%}
+
+source "{{ zsh.env.HOME }}"/.functions
+source "{{ zsh.env.HOME }}"/.aliases

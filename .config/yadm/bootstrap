@@ -8,6 +8,8 @@ distro=ID
 release=VERSION_ID
 pushd "$dir" || exit 1
 
+# disable pager
+git config --global core.pager ''
 
 
 if [[ ${SUDO_USER:-$'\0'} ]]; then

@@ -22,6 +22,9 @@
 {#- (add-hook (quote -config-el-timer-hook) -#}
 {#-           (quote my/-config-el-timer-hook)) -#}
 
+(setq compilation-scroll-output t
+      input-method              "norwegian-keyboard")
+
 (when (getenv "XDG_RUNTIME_DIR")
   (desktop-save (expand-file-name (getenv "XDG_RUNTIME_DIR"))))
 (add-hook! (quote (-config-el-eol-hook))
@@ -33,11 +36,11 @@
           input-method              "norwegian-keyboard")
     (blink-cursor-mode 1)
     (global-hide-mode-line-mode 1)
-    ;; (global-hide-mode-line-mode -1)
-    ;; (hide-mode-line-mode t)
+{#      (global-hide-mode-line-mode -1) #}
+{#      (hide-mode-line-mode t) #}
     (set-frame-parameter nil 'alpha-background 100)
-    ;; (set-frame-parameter nil 'alpha-background 90) ;uncomment to enable opacity
-    ;; (add-to-list (quote so-long-minor-modes) (quote smartparens-mode))
+{#      (set-frame-parameter nil 'alpha-background 90) ;uncomment to enable opacity #}
+{#      (add-to-list (quote so-long-minor-modes) (quote smartparens-mode)) #}
     (setq-hook! (quote conf-mode-hook js-mode-hook)
       display-line-numbers-type (quote absolute))))
 
@@ -129,43 +132,43 @@
   )
 
 (plist-put! +ligatures-extra-symbols
-            ;; org
+{#              org #}
             :name          "»"
             :src_block     "»"
             :src_block_end "«"
             :quote         "“"
             :quote_end     "”"
-            ;; ;; Functional
-            ;; :lambda        "λ"
-            ;; :def           "ƒ"
-            ;; :composition   "∘"
-            ;; :map           "↦"
-            ;; ;; Types
-            ;; :null          "∅"
-            ;; :true          "𝕋"
-            ;; :false         "𝔽"
-            ;; :int           "ℤ"
-            ;; :float         "ℝ"
-            ;; :str           "𝕊"
-            ;; :bool          "𝔹"
-            ;; :list          "𝕃"
-            ;; ;; Flow
-            ;; :not           "￢"
-            ;; :in            "∈"
-            ;; :not-in        "∉"
-            ;; :and           "∧"
-            ;; :or            "∨"
-            ;; :for           "∀"
-            ;; :some          "∃"
-            ;; :return        "⟼"
-            ;; :yield         "⟻"
-            ;; ;; Other
-            ;; :union         "⋃"
-            ;; :intersect     "∩"
-            ;; :diff          "∖"
-            ;; :tuple         "⨂"
-            ;; :pipe          "" ;; FIXME: find a non-private char
-            ;; :dot           "•"
+{#              ;; Functional #}
+{#              :lambda        "λ" #}
+{#              :def           "ƒ" #}
+{#              :composition   "∘" #}
+{#              :map           "↦" #}
+{#              ;; Types #}
+{#              :null          "∅" #}
+{#              :true          "𝕋" #}
+{#              :false         "𝔽" #}
+{#              :int           "ℤ" #}
+{#              :float         "ℝ" #}
+{#              :str           "𝕊" #}
+{#              :bool          "𝔹" #}
+{#              :list          "𝕃" #}
+{#              ;; Flow #}
+{#              :not           "￢" #}
+{#              :in            "∈" #}
+{#              :not-in        "∉" #}
+{#              :and           "∧" #}
+{#              :or            "∨" #}
+{#              :for           "∀" #}
+{#              :some          "∃" #}
+{#              :return        "⟼" #}
+{#              :yield         "⟻" #}
+{#              ;; Other #}
+{#              :union         "⋃" #}
+{#              :intersect     "∩" #}
+{#              :diff          "∖" #}
+{#              :tuple         "⨂" #}
+{#              :pipe          "" ;; FIXME: find a non-private char #}
+{#              :dot           "•" #}
             )
 
 (quote
@@ -297,9 +300,9 @@
   (set (quote org-babel-default-header-args:cat)
        (quote ()))
 
-  ;; (org-babel-shell-initialize)
+{#    (org-babel-shell-initialize) #}
 
-  ;; (add-to-list 'org-babel-shell-names "cat")
+{#    (add-to-list 'org-babel-shell-names "cat") #}
 
   (ignore-errors
     (org-babel-lob-ingest (or (format "%s/_lob.org" doom-user-dir))))
@@ -360,32 +363,32 @@
 
 (defvar -compile
   (quote
-   ;; EXPECT / TCL
+{#     EXPECT / TCL #}
    ((tcl-mode . (recompile))
 
-    ;; YAML
+{#      YAML #}
     (yaml-mode .  (progn (when nil
                            (setq-local compile-command (format "command /usr/bin/env ./%" (buffer-file-name)))
                            (recompile))
                          (recompile)))
 
-    ;; MAKEFILE
+{#      MAKEFILE #}
     (makefile-gmake-mode .  (recompile))
 
-    ;; EMACS LISP
+{#      EMACS LISP #}
     (emacs-lisp-mode .  (eval-buffer))
 
-    ;; SHELL
+{#      SHELL #}
     (sh-mode . (progn (let (($ (buffer-file-name))
                             (% (make-temp-file nil nil ".sh")))
                         (save-excursion
                           (goto-char 0)
-                          (when (looking-at (rx "bash")) (setq-local compile-command (format "cp %s %s; bash $_" $ %))) ;; FIXME
-                          (when (looking-at (rx "zsh")) (setq-local compile-command (format "cp %s %s; zsh $_" $ %)))) ;; FIXME
+{#                           (when (looking-at (rx "bash")) (setq-local compile-command (format "cp %s %s; bash $_" $ %)))  FIXME #}
+{#                           (when (looking-at (rx "zsh")) (setq-local compile-command (format "cp %s %s; zsh $_" $ %))))  FIXME #}
                         (unless (string= "-" (projectile-project-name))
                           (recompile)))))
 
-    ;; PYTHON
+{#      PYTHON #}
     (python-mode . (progn
                      (let (($ python-shell-buffer-name)
                            (% (buffer-file-name))
@@ -419,8 +422,8 @@
  "H-."             #'dired-jump
  "H-/"             #'+default/search-buffer
  "H-0"             #'balance-windows
- ;; "H-8"             #'-mark-all-like-this
- ;; "s-8"             #'(cmd! (isearch-forward-symbol-at-point)(occur))
+{#   "H-8"             #'-mark-all-like-this #}
+{#   "s-8"             #'(cmd! (isearch-forward-symbol-at-point)(occur)) #}
  "s-8"             (lambda (&rest BODY) (interactive)(isearch-forward-symbol-at-point)(apply (quote occur) BODY))
  "H-;"             #'company-yasnippet
  "H-<backspace>"   #'delete-pair
@@ -458,7 +461,7 @@
  "s-."             #'dired-jump
  "s-/"             #'+default/search-buffer
  "s-0"             #'balance-windows
- ;; "s-8"             #'-mark-all-like-this
+{#   "s-8"             #'-mark-all-like-this #}
  "s-;"             #'company-yasnippet
  "s-<backspace>"   #'delete-pair
  "s-<return>"      #'bookmark-jump
@@ -527,7 +530,7 @@
 
 (after! conf-mode
   (highlight-phrase "bindsym" 'bold)
-  ;; (highlight-phrase "")
+{#    (highlight-phrase "") #}
   )
 
 (map!
@@ -617,23 +620,23 @@
                        (tramp-remote-shell-args ("-c"))))))
 
 (use-package! ob-tmux
-  ;; Install package automatically (optional)
+{#    Install package automatically (optional) #}
   :ensure t
   :custom
   (org-babel-default-header-args:tmux
    '((:results . "silent")	;
      (:session . "default")	; The default tmux session to send code to
      (:socket  . nil)))		; The default tmux socket to communicate with
-  ;; The tmux sessions are prefixed with the following string.
-  ;; You can customize this if you like.
+{#    The tmux sessions are prefixed with the following string. #}
+{#    You can customize this if you like. #}
   (org-babel-tmux-session-prefix "ob-")
-  ;; The terminal that will be used.
-  ;; You can also customize the options passed to the terminal.
-  ;; The default terminal is "gnome-terminal" with options "--".
+{#    The terminal that will be used. #}
+{#    You can also customize the options passed to the terminal. #}
+{#    The default terminal is "gnome-terminal" with options "--". #}
   (org-babel-tmux-terminal "alacritty")
   (org-babel-tmux-terminal-opts '("-T" "ob-tmux" "-e"))
-  ;; Finally, if your tmux is not in your $PATH for whatever reason, you
-  ;; may set the path to the tmux binary as follows:
+{#    Finally, if your tmux is not in your $PATH for whatever reason, you #}
+{#    may set the path to the tmux binary as follows: #}
   (org-babel-tmux-location "/usr/bin/tmux"))
 
 (use-package! -macros
@@ -674,7 +677,7 @@
     (line! -1)
     (message "clone-line-down %s"))
 
-  ;; TODO when symbol at point is interactive defun; display bindings
+{#    TODO when symbol at point is interactive defun; display bindings #}
 
   (defun -list (&rest list)
     (interactive

@@ -1,8 +1,20 @@
-HOME ?= $(shell getent passwd ${EUID} | cut -d: -f6)
+define envVarIsSet =
+#!/bin/bash
+pgrep --oldest alacritty |
+	xargs -I PID xargs -0n1 -a /proc/PID/environ |
+	grep $1
+endef
+# $(shell yadm status --porcelain=v1)
 
-${HOME}/.local/share/src/yadm: ${HOME}/.local/share/src
-	git clone --depth 1 https://github.com/TheLocehiliosan/yadm.git
-	ln -sfrv $*/yadm/yadm ${HOME}/bin/yadm
+foo: $(seq 100)
 
-${HOME}/.local/share/src:
-	mkdir -pv "$@"
+checks: mako
+
+tmux:
+
+mako:
+	command -v $@
+	pgrep --exact $@
+	echo $$?
+
+.PHONY: tmux

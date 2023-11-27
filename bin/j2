@@ -9,20 +9,20 @@ TODO act like wrapper for j2 when not called by yadm
 ~/.sway/config.343865.28874
 """
 
-import os
-import re
-import sys
-from subprocess import run, Popen, PIPE, DEVNULL
-from pathlib import Path
+from box import Box
+from collections import defaultdict
 from jinja2 import Environment, Template, ChoiceLoader, DictLoader, FileSystemLoader
 from jinja2.exceptions import UndefinedError
-from collections import defaultdict
-
-pythonrc_fallback = '{}/.pythonrc'.format(os.environ['HOME'])
-with open(os.environ.get('PYTHONSTARTUP', pythonrc_fallback), 'r') as fd: exec(fd.read())
-
+from loguru import logger
+from pathlib import Path
+from subprocess import run, Popen, PIPE, DEVNULL
 import importlib.util
-from box import Box
+import os
+import psutil
+import sys
+import tempfile
+import ansi
+
 
 try:
     from docopt import docopt   # FIXME
@@ -30,127 +30,93 @@ except Exception:
     pass
 
 
-
 def main():
-    args = sys.argv if sys.argv[1:] else None, '~/.zshrc##template.j2', None, '/tmp/config.XXXXX.YYYYY'
-    (_, template_path, _, template_output_path) = args
+    parent = psutil.Process(os.getppid()).name()
 
-    try:
-        yadm(
-            template_path,
-            template_output_path,
-            testing=False if sys.argv[1:] else True
+    logger.debug((sys.stdin.isatty()))
+
+    if parent in ['yadm', 'emacs', 'bash']:
+        override()
+    elif 'python' in parent:
+        logger.info("Kill loop")
+    else:
+        passthrough()
+
+    exit(0)
+
+
+@logger.catch
+def passthrough():
+    """TODO."""
+    logger.info("passthrough")
+    if os.getenv('PASSTHROUGH', False):
+        return
+
+    logger.info(sys.argv)
+
+    with Popen([] + sys.argv[:1], stdin=sys.stdin, stderr=sys.stderr, stdout=sys.stdout, env=dict(PASSTHROUGH="yes")) as p:
+        res = p.communicate()
+        logger.debug(res)
+
+    # os.system(' '.join(sys.argv))
+
+
+@logger.catch
+def override():
+
+    # allow overriding data loader
+    loader = vars().get(os.getenv('LOADER', 'default_loader'), default_loader)
+
+    data = loader()
+    template_path = 1
+    template_output_path = 3
+
+    logger.info('Starting render')
+
+    with (
+        Path(sys.argv[template_output_path]).expanduser().open('w+')
+        if sys.argv[1:] else
+        tempfile.NamedTemporaryFile('w+')
+    ) as fd:
+        template = (
+            sys.argv[template_path]
+            if sys.argv[1:] else
+            '~/.zshrc##template.j2'
         )
-    except Exception as e:
-        logger.error(e)
-        sys.exit(1)
+        txt = render(template, data)
+        fd.write(txt)
+
+    logger.info('Render complete')
 
 
-# @logger.catch
-def yadm(template_path, template_output_path, **kwargs):
+@logger.catch
+def render(template_path, data):
     template_load_path = '''{HOME}/.config/yadm'''.format(**os.environ)
-    choice_loader = ChoiceLoader([
-        FileSystemLoader(os.environ['HOME'] + '/.config/yadm/'),
-    ])
-    environment = Environment(loader=choice_loader)
-    # template = environment.from_string(template_content)
-    # FIXME vvvvvv and ^^^^^^ template lookup fail on render
-
-    header_template = (
-        (Path(template_load_path) / 'macro.j2')
-        .read_text()
+    environment = Environment(
+        loader=ChoiceLoader([
+            FileSystemLoader(template_load_path)
+        ])
     )
 
-    input_template = (
-        Path(template_path)
-        .expanduser()
-        .read_text()
-    )
+    head = (Path(template_load_path) / 'macro.j2').read_text()
+    body = Path(template_path).expanduser().read_text()
+    tail = ""                   # TODO
+    template_content = head + body + tail
+    jinja_template = environment.from_string(template_content)
 
-    comment_char = '#'
-    if template_output_path.endswith('.el'):
-        comment_char = ';'
+    txt = jinja_template.render(data)
 
-    comment_length = 3
-    head = "{0} RENDRED FROM TEMPLATE {0}".format(comment_char*comment_length)
-    tail = "{0} RENDRED FROM TEMPLATE {0}".format(comment_char*comment_length)
-    head = ''
-
-    template_content_string = """\
-{_if}
-{0}
-{1}
-{3}
-{_else}
-{2}
-
-######################################
-# ################################## #
-# # !!! PROBLEM LOADING DATA  !!!  # #
-# ################################## #
-######################################
-
-{_endif}
-""".format(
-    head, header_template, input_template, tail,
-    _if="""{%- if LEFT_PARENTHESIS is defined -%}""",
-    _else="""{%- else -%}""",
-    _endif="""{%- endif -%}""",
-)
-
-    jinja_template = environment.from_string(template_content_string)
-    data = load()
-    _vars = Vars()
-    # logger.debug(_vars)
-    data.update(_vars.__dict__)
-
-    # data['LEFT_PARENTHESIS']
-
-    # render template
-    with open(template_output_path, 'w') as fd:
-        fd.write(jinja_template.render(**data))
-        # fd.write(template.render(**data))
-
-    logger.info("DONE")
+    return txt
 
 
-
-def yadm(template_path, template_output_path, **kwargs):
-    template_load_path = '''{HOME}/.config/yadm'''.format(**os.environ)
-    choice_loader = ChoiceLoader([
-        FileSystemLoader(os.environ['HOME'] + '/.config/yadm/'),
-    ])
-    environment = Environment(loader=choice_loader)
-
-    header_template = (
-        (Path(template_load_path) / 'macro.j2')
-        .read_text()
-    )
-
-    input_template = (
-        Path(template_path)
-        .expanduser()
-        .read_text()
-    )
-
-    jinja_template = environment.from_string(template_content_string)
-    data = load()
-    _vars = Vars()
-
-    # render template
-    with open(template_output_path, 'w') as fd:
-        fd.write(jinja_template.render(**data))
-        # fd.write(template.render(**data))
-
-    logger.info("DONE")
-
-
-def load():
+def default_loader():
     template_load_path = '''{HOME}/.config/yadm'''.format(**os.environ)
     data_cmd = '''{HOME}/.config/yadm/helpers/parse-gitconfig'''.format(**os.environ)
-    default_camelkiller_boxdots = Box(default_box=True, camel_killer_box=True, box_dots=True)
-    camelkiller_boxdots = Box(default_box=False, camel_killer_box=True, box_dots=True)
-    boxdots = Box(default_box=False, camel_killer_box=True, box_dots=False)
+    default_camelkiller_boxdots = dict(default_box=True, camel_killer_box=True, box_dots=True)
+    camelkiller_boxdots = dict(default_box=False, camel_killer_box=True, box_dots=True)
+    boxdots = dict(default_box=False, camel_killer_box=True, box_dots=False)
+
+    box = Box(**boxdots)
 
     res = (
         run(data_cmd.split(), shell=False, capture_output=True)
@@ -158,35 +124,22 @@ def load():
         .decode()
     )
 
-    data = boxdots.from_json(res)
+    data = box.from_json(res)
 
     try:
         logger.debug(data.meta.rootvar)
     except Exception as e:
         logger.warning(e)
 
-    # # TODO put vars at root level
-    # if False:
-    #     for var in data.meta.rootvar:
-    #         print(var)
-    #         print(eval(f"data.{var}"))
-    #         print(eval(f"data.meta.{var}"))
-
-    data.update({k:v for k,v in os.environ.items()
-                 if any(tuple(map(lambda x : k.startswith(x), 'HOME SSH'.split())))
-                 or any(tuple(map(lambda x : k == x, ''.split())))})
-
+    data.update(os.environ)
     data = data.to_dict()
     data.update(Vars.__dict__)
 
     return data
 
 
-def load_ng():
-    template_load_path = '''{HOME}/.config/yadm'''.format(**os.environ)
+def native_load():
     data_cmd = '''{HOME}/.config/yadm/helpers/parse-gitconfig'''.format(**os.environ)
-
-    # module_path = '{XDG_CONFIG_HOME}/yadm/src/site-packages/betterdict/betterdict/betterdict.py'.format(**os.environ)
     module_path = '{HOME}/.config/yadm/src/site-packages/betterdict/betterdict/betterdict.py'.format(**os.environ)
     spec = importlib.util.spec_from_file_location("betterdict.BetterDict", module_path)
     _mod = importlib.util.module_from_spec(spec)
@@ -200,15 +153,13 @@ def load_ng():
 
     data = _mod.BetterDict()
     data.from_command(data_cmd)
-
-    data.update({k:v for k,v in os.environ.items()
-                 if any(tuple(map(lambda x : k.startswith(x), 'HOME SSH'.split())))
-                 or any(tuple(map(lambda x : k == x, ''.split())))})
+    data.update(os.environ)
 
     data = data.to_dict()
     data.update(Vars.__dict__)
 
     return data
+
 
 class Vars(object):
     COMMA = ','

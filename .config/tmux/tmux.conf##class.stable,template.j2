@@ -64,11 +64,12 @@ bind -n M-\[ previous-window
 
 bind -n C-\\ split-window -c '#{pane_current_path}' \; select-layout tiled
 
-set -g @tmux_power_theme 'gold'
 
-{% set plugins = ['tmux-plugins/tpm', 'tmux-plugins/tmux-sensible', 'rickstaa/tmux-notify', 'jaclu/tmux-menus', 'roosta/tmux-fuzzback', 'wfxr/tmux-power', 'wfxr/tmux-fzf-url'] -%}
+{%- if tmux.theme is defined -%}
+set -g @tmux_power_theme '{{ tmux.theme }}'
+{%- endif -%}
 
-{%- for item in plugins %}
+{%- for item in tmux.plugins %}
 set -g @plugin "{{ item }}"
 {% endfor -%}
 

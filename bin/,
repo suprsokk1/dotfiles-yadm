@@ -4,18 +4,24 @@
 shopt -s extglob
 
 
-
 # TODO FILE in `yadm ls` ? yadm add FILE : cat /dev/null
 # TODO ','s
 
+read DEBUG < <(yadm config debug.enable)
+export DEBUG
+# read -r  <(yadm config comma.env.pythonstartup)
+
+export FIFO=${XDG_RUNTIME_DIR:-/run/user/${EUID:-$(id -u)}}/.fifo
+export PS4='$(_prompt)'
 export PATH=${PATH:-${HOME}/bin:${PATH}}
 export DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/${EUID}/bus}
 export WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-1}
 
 declare -x tmp
+declare -r -x env='command /usr/bin/env'
 declare -a -x args
 
-args=("$@")
+RC=1
 tmp="$(mktemp)"
 script="$(which "$0"|xargs realpath)"
 realname=$(readlink "$name")
@@ -23,44 +29,65 @@ functions=( "$(compgen -A function)" )
 notify_send_msg_title='comma'
 notify_send_msg_timeout=3000
 
-# auto-alt enabled
-read -r yadm_auto_alt < <(yadm config yadm.auto-alt |
-                              sed s,0,false,\;s,1,true,)
-
 test -s ~/.functions && source ~/.functions
 
 trap 'TRAPEXIT' EXIT
+trap 'TRAPERR' ERR
 
 # trap 'TRAPERR' ERR
 
-function __start__ {
-    __main__
-}
 
-function TRAPEXIT {
-    cleanup
-}
-
-function TRAPERR { # TODO
-    exit 1
-}
-
-function cleanup {
-    rm -v "$tmp"
-}
-
-function msg {
-    command env notify-send --expire-time "${notify_send_msg_timeout:-5000}" "${notify_send_msg_title}" "${BASH_FUNCNAME[*]:-${FUNCNAME[*]}}:$*"
-}
 
 function __main__ {
-    set -x
-    set - $(command xargs -0ra /proc/$$/cmdline)
+    set -o allexport
+
+    _BREAKPOINT
+
+    # get process arguments
+    # set - $(_get_cmdline)
+    set - $(_get_args)
+
+    # f.ex.: ${!name} => name=2 => 2=kill == 2
+    command=1
+    name=2
+
     shift 1
 
-    # ',' script is symlinked
+    # 1st argument
+    case ${!name} in
+        env)
+            read pid < <(pgrep ${!name})
+            grep --text --zero --null -- ${@:-.} /proc/$pid/environ
+            return 0
+        ;;
+        kill|kill-window|close|close-window|exit)
+            read -r raw_json < <($env swaymsg --raw -t get_tree | $env jq -s '..|select(.focused? == true)')
+            read pid < <($env jq -s .pid <<< $raw_json)
+
+            $env notify-send
+            return 0
+            ;;
+        *)
+    esac
+
+    # auto-alt enabled
+    read -r yadm_auto_alt < <(yadm config yadm.auto-alt |
+                                  sed s,0,false,\;s,1,true,)
+
+    # apply environment
+    . <($env PAGER= yadm config --get-regex comma |
+        cut -d'.' -f3- |
+        sed -E  '/^([^ \t]*) (.*)/{s,,\1=\2,;s,.+=,\U\0,;s|-|_|g}')
+
+    # get commandline arguments passed to script
+    # set - "$(command xargs -0ra /proc/$$/cmdline)"
+
+    # ..except command name
+    shift 1
+
+    # this script (',') is symlinked
     if [[ $(realpath "$0" | sed 's|.*/||') != ${0##*/} ]]; then
-        __${0##*/}
+        __SYMLINK_${0##*/}
     fi
 
     # filter files
@@ -69,14 +96,70 @@ function __main__ {
     for file
     do _file_handler "$file"
     done
+
+    read -r parent < <(parent |
+                         xargs basename |
+                         xargs systemd-escape |
+                         sed -E '/\\/{s##U#g;s/Ux2d[0-9].*//}' )
+
+    __PARENT_$parent || true |& logger -t "$"
+
+    RC=0
+
+}
+
+function __PARENT_emacs {
+    :
+}
+
+function __PARENT_zsh {
+    :
+}
+
+function __PARENT_wl.copy {
+    msg foo
+    msg wl-paste
+}
+
+function __PARENT_-usr-bin-qutebrowser {
+    msg qutebrowser
+    echo $QUTE_CURRENT_URL
+}
+
+function __SYMLINK_clipboard {
+    wl-paste | install -DT /dev/stdin "${tmp:-$(mktemp)}"
+    $env emacsclient "$_"
+    $env file -s "$_"
+    $env emacsclient
+}
+
+function _yadm_render {
+    yadm add --force "$template"
+
+    mapfile t  < "$template"
+
+    if ! $yadm_auto_alt; then
+        "${HOME}"/bin/j2 "$template" -o "$tmp"
+        # TODO validate "$tmp"
+
+        mapfile res < "$tmp"
+        [[ $res ]] || exit 1
+    fi
+
+    return $?
+}
+
+function __start__ {
+    __main__
+}
+
+function _get_cmdline {
+    $env xargs -0ra /proc/${$:-1}/cmdline
 }
 
 function _get_args {
-    printf '%s ' "$@"
-}
-
-function ___test_args {
-    printf '%s ' "$@"
+    read -r args < <(_get_cmdline)
+    echo -n "${args#*$0}"
 }
 
 function _yadm_helper {
@@ -100,16 +183,9 @@ function _yadm_alias_handler {
     command yadm add --force "$*"
 }
 
-
-function _install_fonts {
-    command install --compare --verbose -D -- ~/.local/share/fonts "$@"
-}
-
-
 function isGit {
     git rev-parse --show-toplevel &>/dev/null
 }
-
 
 function runPlay {
     # export ANSIBLE_HOME=$HOME/ansible
@@ -138,7 +214,6 @@ function runPlay {
     fi
 }
 
-
 function yadmHandler {
     :<<__YADM_HELP__
     YADM_HOOK_COMMAND      # The command which triggered the hook
@@ -150,25 +225,35 @@ __YADM_HELP__
 
 }
 
+function _BREAKPOINT {
+    read -r sleep < <(yadm config debug.sleep)
+
+    if ((DEBUG)); then
+        sleep ${sleep:-5}
+        set -o xtrace
+    fi
+
+}
+
 function _file_handler {
-    set -x
-    [[ $@ ]] || return 1
+    set -o nounset
+    # [[ $@ ]] || return 1
     file="$1"
-    [[ $file =~ (.*)# ]]
+    tmp="$(mktemp)"
+
+
+    _BREAKPOINT
 
     # shebang=$(sed -E '1'  "$file")
-    ext=${1##*.}
-    name=${0##*/}
-
-    if [[ ${BASH_REMATCH[1]} ]]; then
-        template="$file"
-        dest="${BASH_REMATCH[1]}"
-        unset file
-    fi
+    template="${file##/*:}"
+    dest="${template%%#*}"
+    ext=${file##*.}
 
     case $file in
         */Makefile)
-            env -C "${file%/*}" emacsclient  --no-wait --eval '(let ((compile-command "make")) (compile compile-command))'
+            env -C "${file%/*}" emacsclient \
+                --no-wait \
+                --eval '(let ((compile-command "make")) (compile compile-command))'
             return
             ;;
         *)
@@ -176,32 +261,19 @@ function _file_handler {
 
     case $template in
         *\#\#*template*j2*)
-            yadm add --force "$template"
-
-            if ! $yadm_auto_alt; then
-                "${HOME}"/bin/j2 -f json -o "$tmp" "$template"
-                # TODO validate "$tmp"
-                mapfile res < "$tmp"
-                [[ ${#res} ]] || exit 1
-            fi
-
-            return $?
+            [[ -s "$template" ]] || exit
+            _yadm_render
+            exit
             ;;
         *)
     esac
 
     case $ext in
-        otf|ttf)
-            _install_fonts "$file"
-            ;;
         j2)
             dest="${dest:-${template%.${ext}}}"
             # unset file
 
-            "${HOME}"/bin/j2 \
-                -f json      \
-                -o "$tmp"    \
-                "$template"  \
+            "${HOME}"/bin/j2 "$template" -o "$tmp"
 
             # if ! j2 -e HOME="$HOME" -o "$tmp" "$template" <(sed '/^{#[ \t]\(.*\)[ \t]#}/!d;s||\1|' "$template" || "$HOME"/.config/yadm/helpers/parse-gitconfig)
             # then
@@ -257,6 +329,38 @@ function _after_template_render_hook {
         *)
     esac
 }
+
+function cleanup {
+    rm -v "$tmp"
+}
+
+function msg {
+    :
+    # command env notify-send --expire-time "${notify_send_msg_timeout:-5000}" "${notify_send_msg_title}" "${BASH_FUNCNAME[*]:-${FUNCNAME[*]}}:$*"
+}
+
+function _prompt {
+    # printf "\b${0}:%02d:${BASH_FUNCNAME:+${BASH_FUNCNAME}():} " ${BASH_LINENO[1]:-'-'}
+    # printf "=> %02d - ${FUNCNAME[1]:+${FUNCNAME[1]}()} " ${BASH_LINENO[1]:-'-'} |
+    # printf "\b%03d:${FUNCNAME[1]:+${FUNCNAME[1]}():} " ${BASH_LINENO[1]:-'-'} |
+    printf "\b%03d:${FUNCNAME[1]:+${FUNCNAME[1]}():} " ${BASH_LINENO[2]:-'-'} |
+        cat
+        # highlight -O ansi --force
+}
+
+function TRAPEXIT {
+    cleanup
+    ((RC)) && TRAPERR
+    exit $RC
+}
+
+function TRAPERR {
+    [[ -p $FIFO ]] || mkfifo "$FIFO"
+    # cat "$FIFO"
+    exit 1
+}
+
+
 
 __start__
 
