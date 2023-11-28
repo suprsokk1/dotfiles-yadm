@@ -11,20 +11,30 @@ pushd "$dir" || exit 1
 # disable pager
 git config --global core.pager ''
 
+# askpass
+mkdir "$HOME"/bin/
+ln -sfrv "$HOME"/bin/{',',askpass}
+
+
+command make -C "$dir"/src/pyenv/
 
 if [[ ${SUDO_USER:-$'\0'} ]]; then
     # . "$dir"/bootstrap.d/${!distro}/${!release}
     if [ -s /etc/redhat-release ]
-    then command dnf install --assumeyes make python-virtualenv python-pip gcc-go golang-bin cargo readline-devel
+    then
+        python=( python-virtualenv python-pip )
+        go=( gcc-go golang-bin )
+        rust=( cargo )
+        devel=( readline-devel make cmake )
+
+        command dnf install --assumeyes "${python[@]}" "${go[@]}" "${rust[@]}" "${devel[@]}"
     fi
     exit 0
 else
 
-    command env SUDO_ASKPASS=~/bin/askpass sudo "$(realpath $0)"
+    export SUDO_ASKPASS="$HOME"/bin/askpass
+    command env sudo "$(realpath $0)"
 fi
-
-ln -sfrv ~/bin/{',',askpass}
-command make -C "$dir"/src/pyenv/
 
 . <("$HOME"/.pyenv/bin/pyenv init -)
 
@@ -41,14 +51,14 @@ for VENV in "$HOME"/.local/share/pyvenv/default; do
     "$VENV"/bin/pip install -r "$dir"/requirements.txt
 done
 
-crontab - <<CRONTAB
+{ command -v crontab && crontab - ;} <<__CRONTAB
 START_HOURS_RANGE=0-23
 PATH=${PATH}
 RANDOM_DELAY=2
 
 */10 * * * * yadm push
 */10 * * * * pass git push
-CRONTAB
+__CRONTAB
 
 exit
 
@@ -60,7 +70,6 @@ for pip in "${HOME:-~}"/.pyvenv/bin/pip; do
         break
     fi
 done
-
 trap '${TMPDIR:+rm -rf${DEBUG:+v} $TMPDIR}' EXIT
 PREFIX=${HOME:-~}
 TMPDIR="$(mktemp -d /run/user/$(id -u)/XXXXX.tmp)"

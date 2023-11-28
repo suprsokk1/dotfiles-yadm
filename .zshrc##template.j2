@@ -7,7 +7,7 @@
 
 {{- section(static_dirs, title="static dirs", prefix="hash -d ") }}
 
-{{- section(zsh.plugins, title="zsh plug-in's", separator=SPACE, head='plugins=' + LEFT_PARENTHESIS, tail=RIGHT_PARENTHESIS) }}
+{{- section(zsh_plugins, title="zsh plug-in's", separator=SPACE, head='plugins=' + LEFT_PARENTHESIS, tail=RIGHT_PARENTHESIS) }}
 
 {{- section(path, title="PATH", separator=NEWLINE, prefix=SPACE*2, head='path=' + LEFT_PARENTHESIS + NEWLINE, tail=NEWLINE + RIGHT_PARENTHESIS) }}
 
@@ -18,5 +18,7 @@
 source "{{ zsh.env.ZSH }}"/oh-my-zsh.sh
 {%- endif -%}
 
-source "{{ zsh.env.HOME }}"/.functions
-source "{{ zsh.env.HOME }}"/.aliases
+source "{{ HOME }}"/.functions
+source "{{ HOME }}"/.aliases
+
+### END ###

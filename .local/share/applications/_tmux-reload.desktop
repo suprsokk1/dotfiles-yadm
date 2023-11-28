@@ -1,8 +1,10 @@
 [Desktop Entry]
 Name=Reload config
 GenericName=tmux
-Exec=tmux source-file ~/.tmux.conf
-Icon=org.gnome.Terminal
+Exec=/usr/bin/env PATH=/usr/bin:/usr/local/bin sh -c 'tmux source-file ~/.tmux.conf'
+# Icon=tmux
+Icon=alacritty
+# Icon=org.gnome.Terminal
 Type=Application
 Terminal=true
 StartupWMClass=tmux

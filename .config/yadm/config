@@ -1,6 +1,3 @@
-[include]
-	path = ~/.local/share/yadm/config
-	path = /run/user/`id -u`/yadm/config
 [class]
 	local = unstable
 [yadm]

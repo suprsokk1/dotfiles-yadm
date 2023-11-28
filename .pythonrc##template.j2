@@ -4,7 +4,7 @@ import os
 
 {%- set pip_packages = (("loguru","from loguru import logger"),("python-box","from box import Box"),("flame","import flame"),("jinja2", "from jinja2 import Template, Environment, ChoiceLoader, BaseLoader, FileSystemLoader")) -%}
 
-{%- for pkg, _import in pip.packages -%}
+{%- for pkg, _import in pip_packages -%}
 try:
   {{ import }}
 except ImportError:
