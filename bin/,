@@ -1,369 +1,76 @@
-#!/usr/bin/env bash
-# -*- mode: sh[bash] -*-
-# shellcheck disable=2092,2096
-shopt -s extglob
+#!/usr/bin/env python
 
+"""
+TODO.
+"""
 
-# TODO FILE in `yadm ls` ? yadm add FILE : cat /dev/null
-# TODO ','s
+import asyncio
+import os
+import sys
+from subprocess import run, Popen, PIPE, DEVNULL
+from pathlib import Path
+from loguru import logger
 
-read DEBUG < <(yadm config debug.enable)
-export DEBUG
-# read -r  <(yadm config comma.env.pythonstartup)
 
-export FIFO=${XDG_RUNTIME_DIR:-/run/user/${EUID:-$(id -u)}}/.fifo
-export PS4='$(_prompt)'
-export PATH=${PATH:-${HOME}/bin:${PATH}}
-export DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/${EUID}/bus}
-export WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-1}
+d = logger.debug
+e = logger.error
+i = logger.info
 
-declare -x tmp
-declare -r -x env='command /usr/bin/env'
-declare -a -x args
 
-RC=1
-tmp="$(mktemp)"
-script="$(which "$0"|xargs realpath)"
-realname=$(readlink "$name")
-functions=( "$(compgen -A function)" )
-notify_send_msg_title='comma'
-notify_send_msg_timeout=3000
+class Print(object):
 
-test -s ~/.functions && source ~/.functions
+    def __lshift__(self, right):
+        sys.stdout.write(right)
 
-trap 'TRAPEXIT' EXIT
-trap 'TRAPERR' ERR
+    def __rshift__(self, right):
+        sys.stdout.write(right)
 
-# trap 'TRAPERR' ERR
+    # def __iter__(self):
+    #     sys.stderr.write('iter' + '\n')
+    #     return iter(self, [1,2,3])
 
+    def __or__(self, right):
+        # sys.stderr.write(right + '\n')
+        return [_ for _ in self if right]
 
+    def __gt__(self, right):
+        sys.stdout.write(right + '\n')
 
-function __main__ {
-    set -o allexport
+    def __lt__(self, right):
+        sys.stdout.write(right + '\n')
 
-    _BREAKPOINT
 
-    # get process arguments
-    # set - $(_get_cmdline)
-    set - $(_get_args)
 
-    # f.ex.: ${!name} => name=2 => 2=kill == 2
-    command=1
-    name=2
+async def main():
+    args = sys.argv[1:]
+    paths = map(Path, args)
+    files = filter(Path.exists, paths)
+    shell_script = filter(lambda x: str(x).endswith('.sh'), files)
 
-    shift 1
+    for p in shell_script:
+        ret = sh(p.__str__())
+        async for _ in ret:
+            print(_)
+        break
 
-    # 1st argument
-    case ${!name} in
-        env)
-            read pid < <(pgrep ${!name})
-            grep --text --zero --null -- ${@:-.} /proc/$pid/environ
-            return 0
-        ;;
-        kill|kill-window|close|close-window|exit)
-            read -r raw_json < <($env swaymsg --raw -t get_tree | $env jq -s '..|select(.focused? == true)')
-            read pid < <($env jq -s .pid <<< $raw_json)
 
-            $env notify-send
-            return 0
-            ;;
-        *)
-    esac
+async def sh(cmd):
+    process = await asyncio.create_subprocess_exec('/bin/bash', *cmd.split())
+    try:
+        yield process.stdout.readline()
+    except AttributeError:
+        pass
 
-    # auto-alt enabled
-    read -r yadm_auto_alt < <(yadm config yadm.auto-alt |
-                                  sed s,0,false,\;s,1,true,)
 
-    # apply environment
-    . <($env PAGER= yadm config --get-regex comma |
-        cut -d'.' -f3- |
-        sed -E  '/^([^ \t]*) (.*)/{s,,\1=\2,;s,.+=,\U\0,;s|-|_|g}')
 
-    # get commandline arguments passed to script
-    # set - "$(command xargs -0ra /proc/$$/cmdline)"
+async def override():
+    def _inner(func):
+        def _wrapper(*args, **kwargs):
+            ret = func(*args, **kwargs)
+            return ret
+        return _inner
+    return _inner
 
-    # ..except command name
-    shift 1
 
-    # this script (',') is symlinked
-    if [[ $(realpath "$0" | sed 's|.*/||') != ${0##*/} ]]; then
-        __SYMLINK_${0##*/}
-    fi
-
-    # filter files
-    mapfile files < <(filterFiles)
-
-    for file
-    do _file_handler "$file"
-    done
-
-    read -r parent < <(parent |
-                         xargs basename |
-                         xargs systemd-escape |
-                         sed -E '/\\/{s##U#g;s/Ux2d[0-9].*//}' )
-
-    __PARENT_$parent || true |& logger -t "$"
-
-    RC=0
-
-}
-
-function __PARENT_emacs {
-    :
-}
-
-function __PARENT_zsh {
-    :
-}
-
-function __PARENT_wl.copy {
-    msg foo
-    msg wl-paste
-}
-
-function __PARENT_-usr-bin-qutebrowser {
-    msg qutebrowser
-    echo $QUTE_CURRENT_URL
-}
-
-function __SYMLINK_clipboard {
-    wl-paste | install -DT /dev/stdin "${tmp:-$(mktemp)}"
-    $env emacsclient "$_"
-    $env file -s "$_"
-    $env emacsclient
-}
-
-function _yadm_render {
-    yadm add --force "$template"
-
-    mapfile t  < "$template"
-
-    if ! $yadm_auto_alt; then
-        "${HOME}"/bin/j2 "$template" -o "$tmp"
-        # TODO validate "$tmp"
-
-        mapfile res < "$tmp"
-        [[ $res ]] || exit 1
-    fi
-
-    return $?
-}
-
-function __start__ {
-    __main__
-}
-
-function _get_cmdline {
-    $env xargs -0ra /proc/${$:-1}/cmdline
-}
-
-function _get_args {
-    read -r args < <(_get_cmdline)
-    echo -n "${args#*$0}"
-}
-
-function _yadm_helper {
-    :
-}
-
-function parent {
-    readlink /proc/$PPID/exe
-}
-
-function filterFiles {
-    for arg
-    do test -s "$arg" || continue
-       echo -en "$arg"
-    done
-}
-
-function _yadm_alias_handler {
-    # [[ $* =~  ]] || exit 1
-    msg "$@"
-    command yadm add --force "$*"
-}
-
-function isGit {
-    git rev-parse --show-toplevel &>/dev/null
-}
-
-function runPlay {
-    # export ANSIBLE_HOME=$HOME/ansible
-    export ANSIBLE_STDOUT_CALLBACK=yaml
-    export ANSIBLE_FORCE_COLOR=1
-    export ANSIBLE_DEBUG=0
-    export ANSIBLE_VERBOSITY=0
-    # export ANSIBLE_
-    # export ANSIBLE_INVENTORY=inventory/
-    # export ANSIBLE_INVENTORY_PLUGIN_SCRIPT_STDERR=true
-    # export ANSIBLE_CONFIG=ffs.cfg
-
-    gitdir="${1%/*}"
-    pushd "$gitdir"
-
-    if pushd "$(git rev-parse --show-toplevel)"; then
-        if test 1 -eq  "$(yq '..|select(has(\"become\")).become' "$1")"; then
-            pass _ansible/become | tee fifo > /dev/null &
-            export ANSIBLE_PASSWORD_FILE=fifo
-        fi
-        ansible-playbook $(realpath --relative-base="$_" "$1")
-        return
-        # echo pwd: $PWD
-    else
-        ansible-playbook "$1"
-    fi
-}
-
-function yadmHandler {
-    :<<__YADM_HELP__
-    YADM_HOOK_COMMAND      # The command which triggered the hook
-    YADM_HOOK_EXIT         # The exit status of the yadm command
-    YADM_HOOK_FULL_COMMAND # The yadm command with all command line arguments
-    YADM_HOOK_REPO         # The path to the yadm repository
-    YADM_HOOK_WORK         # The path to the work-tree
-__YADM_HELP__
-
-}
-
-function _BREAKPOINT {
-    read -r sleep < <(yadm config debug.sleep)
-
-    if ((DEBUG)); then
-        sleep ${sleep:-5}
-        set -o xtrace
-    fi
-
-}
-
-function _file_handler {
-    set -o nounset
-    # [[ $@ ]] || return 1
-    file="$1"
-    tmp="$(mktemp)"
-
-
-    _BREAKPOINT
-
-    # shebang=$(sed -E '1'  "$file")
-    template="${file##/*:}"
-    dest="${template%%#*}"
-    ext=${file##*.}
-
-    case $file in
-        */Makefile)
-            env -C "${file%/*}" emacsclient \
-                --no-wait \
-                --eval '(let ((compile-command "make")) (compile compile-command))'
-            return
-            ;;
-        *)
-    esac
-
-    case $template in
-        *\#\#*template*j2*)
-            [[ -s "$template" ]] || exit
-            _yadm_render
-            exit
-            ;;
-        *)
-    esac
-
-    case $ext in
-        j2)
-            dest="${dest:-${template%.${ext}}}"
-            # unset file
-
-            "${HOME}"/bin/j2 "$template" -o "$tmp"
-
-            # if ! j2 -e HOME="$HOME" -o "$tmp" "$template" <(sed '/^{#[ \t]\(.*\)[ \t]#}/!d;s||\1|' "$template" || "$HOME"/.config/yadm/helpers/parse-gitconfig)
-            # then
-            # fi
-
-            case $dest in
-                *sway*)
-                    sway --validate --check "$tmp"
-                    return 1
-                    ;;
-                *)
-            esac
-
-            if ! grep --silent -P '\S' "$tmp"; then
-                exit $?
-            fi
-
-            printf '<<<<<<<<<< %s >>>>>>>>>>' 'START'
-            uniq "$tmp" | highlight -O ansi --force
-            printf '<<<<<<<<<< %s >>>>>>>>>>' 'END'
-
-            # cat --show-all "$tmp"
-            install --verbose -DT -- "$tmp" "$dest"
-            ;;
-        *)
-    esac
-
-    case $script in
-        script)
-            return
-            ;;
-        *)
-    esac
-
-    return
-    # FIXME
-    # yadm aliases
-    if [[ $* =~ \#{2} ]]; then
-        _yadm_alias_handler "${BASH_ARGV[@]}"
-        return
-    fi
-}
-
-function _after_template_render_hook {
-    [[ $@ ]] || return 1
-    template="$1"
-    output="$2"
-    output_ext="${output##*.}"
-    template_ext="${template##*.}"
-    case $output_ext in
-        j2)
-            ;;
-        *)
-    esac
-}
-
-function cleanup {
-    rm -v "$tmp"
-}
-
-function msg {
-    :
-    # command env notify-send --expire-time "${notify_send_msg_timeout:-5000}" "${notify_send_msg_title}" "${BASH_FUNCNAME[*]:-${FUNCNAME[*]}}:$*"
-}
-
-function _prompt {
-    # printf "\b${0}:%02d:${BASH_FUNCNAME:+${BASH_FUNCNAME}():} " ${BASH_LINENO[1]:-'-'}
-    # printf "=> %02d - ${FUNCNAME[1]:+${FUNCNAME[1]}()} " ${BASH_LINENO[1]:-'-'} |
-    # printf "\b%03d:${FUNCNAME[1]:+${FUNCNAME[1]}():} " ${BASH_LINENO[1]:-'-'} |
-    printf "\b%03d:${FUNCNAME[1]:+${FUNCNAME[1]}():} " ${BASH_LINENO[2]:-'-'} |
-        cat
-        # highlight -O ansi --force
-}
-
-function TRAPEXIT {
-    cleanup
-    ((RC)) && TRAPERR
-    exit $RC
-}
-
-function TRAPERR {
-    [[ -p $FIFO ]] || mkfifo "$FIFO"
-    # cat "$FIFO"
-    exit 1
-}
-
-
-
-__start__
-
-# if [[ $DEBUG ]]; then
-#     command notify-send --expire-time $notify_send_msg_timeout ${@:-,}
-# fi
+if __name__ == '__main__':
+    asyncio.run(main())

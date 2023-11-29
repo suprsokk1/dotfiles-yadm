@@ -299,3 +299,4 @@ bindswitch --reload --locked lid:on exec $lock
 
 include colors
 include conf.d/*.conf
+include /etc/sway/config.d/*
