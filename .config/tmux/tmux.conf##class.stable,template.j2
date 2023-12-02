@@ -21,13 +21,13 @@ set-hook -g pane-focus-out     'set-option -p pane-border-format "#{E:@inactive}
 set-hook -g pane-focus-in      'set-option -p pane-border-format "#{E:@active}"'
 
 set -g @capture 'capture-pane -C -p -S -'
-set -s command-alias cap='#{@capture}'
-set -s command-alias capp='#{E:@capture} -t"{last}"'
-set -s command-alias capl='#{E:@capture} -t"{left}"'
-set -s command-alias capr='#{E:@capture} -t"{right}"'
-
-set -s command-alias sync='set synchronize-panes'
-set -s command-alias pop='display-popup -E'
+set -s command-alias[0] cap='#{E:@capture}'
+set -s command-alias[1] capp='#{E:@capture} -t"{last}"'
+set -s command-alias[2] capl='#{E:@capture} -t"{left}"'
+set -s command-alias[3] capr='#{E:@capture} -t"{right}"'
+set -s command-alias[4] sync='set synchronize-panes'
+set -s command-alias[5] pop='display-popup -E'
+set -s command-alias[5] pop='display-popup -E'
 
 set -g @fzf 'fzf --ansi'
 
