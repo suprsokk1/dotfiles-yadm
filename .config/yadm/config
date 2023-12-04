@@ -1,11 +1,11 @@
+[include]
+	path = ~/.local/share/yadm/config
 [class]
 	local = unstable
 [yadm]
 	auto-alt = 0
 [bootstrap "env"]
 	python-version = 3.12
-[meta "bootstrap.env"]
-	parser = /home/geir/bin/,
 [meta]
 	rootvar = template.var
 [alias]
@@ -13,15 +13,11 @@
 [debug]
 	sleep = 0
 	enable = 1
-[comma "env"]
-	PYTHONSTARTUP = ${HOME}/.pythonrc
-	LOGURU-FORMAT = {message}
-	DEBUG = 0
 [env "default"]
 	PYTHONSTARTUP = ${HOME}/.pythonrc
 	LOGURU-FORMAT = {message}
 	DEBUG = 0
-[tmux]
+[template "tmux"]
 	plugins = tmux-plugins/tpm
 	plugins = tmux-plugins/tmux-sensible
 	plugins = rickstaa/tmux-notify
@@ -29,25 +25,27 @@
 	plugins = roosta/tmux-fuzzback
 	plugins = wfxr/tmux-power
 	plugins = wfxr/tmux-fzf-url
-[zsh "template"]
 	update-environment = DISPLAY WAYLAND_DISPLAY SWAYSOCK SSH_ASKPASS SSH_AUTH_SOCK
+[template "zsh.env"]
+
+[template "zsh"]
 	zsh-env = dict(ZSH='$HOME/.oh-my-zsh', ZSH_THEME='simple')
-	zsh-plugins = ['zsh-autosuggestions', 'direnv', 'fzf', 'tmux']
 	doom-emacs-packages = ['rainbow-delimiters', 'systemd-mode', 'mmm-mode', 'sway', 'ob-tmux']
 	path = ['$HOME/bin', '$HOME/.pyenv/bin', '/usr/bin', '/usr/local/bin', '/usr/local/sbin', '/usr/sbin', '$HOME/.cargo/bin', '$HOME/.local/bin', '$HOME/go/bin', '$HOME/opt/doom-emacsdir/bin']
 	prompt-command = ['~/.functions', '~/.aliases']
-	shellcheck-disable = ['1091', '2034']
+	shellcheck-disable = 2034
+	shellcheck-disable = 1091
 	static-dirs = dict(yadm='${HOME}/.config/yadm', run='${XDG_RUNTIME_DIR:-/run/user/${EUID:-$(id -u)}}', config='${XDG_CONFIG_HOME:-${HOME}/.config}', fonts='${HOME}/.local/share/fonts', autorun='${HOME}/.config/autorun', desktop='${HOME}/.local/share/applications', apps='${HOME}/.local/share/applications', zsh='$ZSH')
-[regex]
-	ansi = \\x1b\\[[0-9;]*m
-	url = ^(((ht|f)tp(s?))://)?(www.|[a-zA-Z].)[a-zA-Z0-9-.]+.(com|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk)(:[0-9]+)*(/($|[a-zA-Z0-9.,;?\\+&%$\#=~_-]+))*$
-[zsh]
 	plugins = gh
 	plugins = doctl
 	plugins = az
 	plugins = zsh-autosuggestions
 	plugins = direnv
 	plugins = fzf
+[regex]
+	ansi = \\x1b\\[[0-9;]*m
+	url = ^(((ht|f)tp(s?))://)?(www.|[a-zA-Z].)[a-zA-Z0-9-.]+.(com|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk)(:[0-9]+)*(/($|[a-zA-Z0-9.,;?\\+&%$\#=~_-]+))*$
+
 [zsh "env"]
 	PATH = $HOME/bin
 	PATH = $HOME/.pyenv/bin

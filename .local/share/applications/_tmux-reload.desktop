@@ -6,5 +6,5 @@ Exec=/usr/bin/env PATH=/usr/bin:/usr/local/bin sh -c 'tmux source-file ~/.tmux.c
 Icon=alacritty
 # Icon=org.gnome.Terminal
 Type=Application
-Terminal=true
+Terminal=false
 StartupWMClass=tmux

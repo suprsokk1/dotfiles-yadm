@@ -20,7 +20,10 @@
        :editor
        multiple-cursors
        file-templates
-       fold snippets
+       fold
+       format                           ; auto format
+       snippets
+
        ;; (evil +everywhere)
 
        :emacs
@@ -53,7 +56,7 @@
        yaml
        (org +roam2)
        ;; (python +lsp +pyenv +pyright +tree-sitter)
-       (python +lsp +pyenv +tree-sitter)
+       (python +lsp +pyenv)
        (sh +lsp)
        (go +lsp)
        (nim +lsp)

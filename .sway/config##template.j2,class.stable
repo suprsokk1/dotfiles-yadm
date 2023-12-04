@@ -297,6 +297,6 @@ set $lock 'swaylock -f --color "{{ color.lockscreen }}"'
 
 bindswitch --reload --locked lid:on exec $lock
 
-include colors
+include} colors
 include conf.d/*.conf
 include /etc/sway/config.d/*

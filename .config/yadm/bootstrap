@@ -27,6 +27,9 @@ if [[ ${SUDO_USER:-$'\0'} ]]; then
         rust=( cargo )
         devel=( readline-devel make cmake )
 
+        # required by bluetooth adapter
+        command dnf install {alsa\*,linux}-firmware\*
+
         command dnf install --assumeyes "${python[@]}" "${go[@]}" "${rust[@]}" "${devel[@]}"
     fi
     exit 0

@@ -106,19 +106,29 @@
      "Apply script on buffer:"
      (-fd "-tf -tx --max-depth=${_FD_MAX_DEPTH:-3} . $HOME/")))))
 
+
+;; (defun M-RET! (&rest BODY)
+;;   "Default M-RET action"
+;;   (interactive)
+;;   (cond
+;;    ((eq major-mode (quote python-mode))
+;;     (run-python)
+;;     (unless (string-match "*Python*" (with-output-to-string (princ (-all-window-buffers))))
+;;       (switch-to-buffer-other-window "*Python*"))
+;;     (let ((% (buffer-file-name)))
+;;       (if % (python-shell-send-file %) (python-shell-send-buffer))))
+;;    (t (let ((compile-command (format "command ~/bin/, %s" (buffer-file-name))))
+;;         (recompile)))))
+
 ;;;###autoload
 (defun M-RET! (&rest BODY)
   "Default M-RET action"
   (interactive)
-  (cond
-   ((eq major-mode (quote python-mode))
-    (run-python)
-    (unless (string-match "*Python*" (with-output-to-string (princ (-all-window-buffers))))
-      (switch-to-buffer-other-window "*Python*"))
-    (let ((% (buffer-file-name)))
-      (if % (python-shell-send-file %) (python-shell-send-buffer))))
-   (t (let ((compile-command (format "command ~/bin/, %s" (buffer-file-name))))
-        (recompile)))))
+  (let ((compile-command (format "command ~/bin/, %s" (buffer-file-name)))
+        (is-python-mode (eq major-mode (quote python-mode))))
+    (cond
+     (is-python-mode )
+     (t ))))
 
 ;;;###autoload
 (defun wrapper/+lookup/definition (%orig-defun-name &rest args)
