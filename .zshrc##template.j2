@@ -1,24 +1,37 @@
 {#-*- mode: jinja2 -*-#}
 # .zshrc -*- mode: sh -*-
+# shellcheck disable=
+{%- for item in ['1091', '2034'] -%}
+SC{{ item }}
+{%- if not loop.last -%}
+,
+{%- endif -%}
+{%- endfor %}
 
-{{- section(shellcheck_disable, prefix='SC', separator=COMMA, head='# shellcheck disable=') }}
+{%- for key, value in dict(ZSH='$HOME/.oh-my-zsh', ZSH_THEME='simple') -%}
+{{ key }}={{ value }}
+{%- endfor %}
 
-{{- section(zsh_env) }}
+{%- for key, value in dict(yadm='${HOME}/.config/yadm', run='${XDG_RUNTIME_DIR:-/run/user/${EUID:-$(id -u)}}', config='${XDG_CONFIG_HOME:-${HOME}/.config}', fonts='${HOME}/.local/share/fonts', autorun='${HOME}/.config/autorun', desktop='${HOME}/.local/share/applications', apps='${HOME}/.local/share/applications', zsh='$ZSH') -%}
+hash -d {{ key }}='{{ value }}'
+{% endfor %}
 
-{{- section(static_dirs, title="static dirs", prefix="hash -d ") }}
+plugins=(
+{%- for value in ['zsh-autosuggestions', 'direnv', 'fzf', 'tmux'] -%}
+{{ value }}
+{%- endfor -%}
+)
 
-{{- section(zsh_plugins, title="zsh plug-in's", separator=SPACE, head='plugins=' + LEFT_PARENTHESIS, tail=RIGHT_PARENTHESIS) }}
-
-{{- section(path, title="PATH", separator=NEWLINE, prefix=SPACE*2, head='path=' + LEFT_PARENTHESIS + NEWLINE, tail=NEWLINE + RIGHT_PARENTHESIS) }}
-
-{{- section(prompt_command, title="PROMPT_COMMAND", head='prompt_command=()' + NEWLINE, prefix="prompt_command+=(", suffix=RIGHT_PARENTHESIS, separator=NEWLINE) }}
+path=(
+{%- for value in ['$HOME/bin', '$HOME/.pyenv/bin', '/usr/bin', '/usr/local/bin', '/usr/local/sbin', '/usr/sbin', '$HOME/.cargo/bin', '$HOME/.local/bin', '$HOME/go/bin', '$HOME/opt/doom-emacsdir/bin'] -%}
+{{ value }}
+{%- endfor -%}
+)
 
 {# source ~/.pyenv/bin/activate #}
-{%- if env.ZSH is defined -%}
-source "{{ zsh.env.ZSH }}"/oh-my-zsh.sh
-{%- endif -%}
-
-source "{{ HOME }}"/.functions
-source "{{ HOME }}"/.aliases
+. ${ZSH:-$HOME/src/ohmyzsh}/oh-my-zsh.sh
+. ~/.functions
+. ~/.aliases
+. <(cat ~/.sh.d/*.zsh)
 
 ### END ###
