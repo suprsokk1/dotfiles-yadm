@@ -22,6 +22,8 @@ import psutil
 import sys
 import tempfile
 import ansi
+import re
+from j2cli import main as j2_main
 
 
 try:
@@ -35,7 +37,10 @@ def main():
 
     logger.debug((sys.stdin.isatty()))
 
-    if parent in ['yadm', 'emacs', 'bash']:
+    if parent in ['yadm']:
+        sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+        exit(j2_main())
+    if parent in ['emacs', 'bash']:
         override()
     elif 'python' in parent:
         logger.info("Kill loop")
