@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: subprocess
+# key: sub
+# --
+from subprocess import run, Popen, PIPE, DEVNULL

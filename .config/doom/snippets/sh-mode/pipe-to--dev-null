@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: pipe-to--dev-null
+# key: 0
+# --
+&>/dev/null

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: run command
+# key: run
+# --
+res = run("$0", shell=True, capture_output=True)

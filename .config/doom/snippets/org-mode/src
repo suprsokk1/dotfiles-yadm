@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: #+begin_src
+# uuid: 727056f1-924a-4cc8-95c3-c14cb4f55708
+# key: sh
+# --
+#+name: ${1:foo}
+#+begin_src shell
+`%`$0
+#+end_src

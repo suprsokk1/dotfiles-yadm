@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: perl
+# key: perl
+# --
+perl -pe '/$1/s##$2#g'

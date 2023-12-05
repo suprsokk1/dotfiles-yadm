@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: pipe-blocks
+# key: .
+# --
+#+name: ${1:foo}
+#+begin_src ${2:shell}
+${3:du -h --max-depth=1 ~/}
+#+end_src
+
+#+begin_src ${4:shell} :stdin $1 $0
+${4:sort -h}
+#+end_src

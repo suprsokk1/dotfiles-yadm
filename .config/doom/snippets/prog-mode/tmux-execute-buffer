@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: tmux-execute-buffer
+# type: command
+# key: tmux
+# --
+(+tmux/run)

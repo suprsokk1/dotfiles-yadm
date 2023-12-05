@@ -1,0 +1,214 @@
+;;; $DOOMDIR/config.el -*- mode: emacs-lisp; lexical-binding: t; -*-
+;;; TODO sway-mode
+;;; TODO magit + yadm: list todos, but limit to files git
+;;; TODO change alpha when loosing frame focus ()
+
+(setq
+ ;; doom-theme                      (quote doom-dracula)
+
+ ;; doom-font                       (font-spec :family "Input Mono Narrow" :size 12 :weight 'semi-light)
+ ;; doom-variable-pitch-font        (font-spec :family "Fira Sans") ; inherits `doom-font''s :size
+ ;; doom-unicode-font               (font-spec :family "Input Mono Narrow" :size 12)
+ ;; doom-big-font                   (font-spec :family "Fira Mono" :size 19)
+
+ +snippets-dir                   (or (expand-file-name "snippets" (file-truename doom-user-dir))
+                                     (expand-file-name "snippets" (expand-file-name doom-user-dir)))
+
+ doom-scratch-initial-major-mode (quote fundamental-mode)
+
+ doom-projectile-cache-blacklist (quote "/tmp")
+
+ bookmark-default-file           (expand-file-name "_bookmarks.el" doom-user-dir)
+
+ shift-select-mode               nil
+
+ custom-file                     (expand-file-name "custom.el" "~/.local/emacs")
+
+ comint-move-point-for-output    t
+
+ doom-modeline-major-mode-icon   t
+
+ header-line-format              nil ;(quote ("%e" (:eval)))
+
+ display-line-numbers-mode       t
+ display-line-numbers-type       (quote absolute)
+ display-line-numbers-width      1
+
+ hl-line-mode                    nil
+ global-hl-line-mode             nil
+
+ treemacs-load-theme "Default"
+
+ )
+
+(setq-hook! (quote (comint-mode-hook))
+  comint-buffer-maximum-size 20000 ; Increase comint buffer size.
+  comint-prompt-read-only t        ; Make the prompt read only.
+  )
+
+;; (treemacs-icon-catalogue)
+
+(custom-set-faces
+ '(rainbow-delimiters-depth-1-face ((t (:foreground "gray")))))
+
+(after! tramp
+  (add-to-list (quote tramp-methods)
+               (quote ("yadm"
+                       (tramp-login-program "yadm")
+                       (tramp-login-args (("enter")))
+                       (tramp-login-env (("SHELL") ("/bin/sh")))
+                       (tramp-remote-shell "/bin/sh")
+                       (tramp-remote-shell-args ("-c"))))))
+
+(add-hook! (quote (python-mode-hook)) (quote rainbow-delimiters-mode))
+
+(after! ob-async
+  (setq ob-async-no-async-languages-alist '("ipython" "python")))
+
+(after! rainbow-delimiters
+  (add-hook! (quote (python-mode-hook))
+    (quote rainbow-delimiters-mode))
+  (custom-set-faces
+   '(rainbow-delimiters-depth-1-face ((t (:foreground "gray")))))
+  )
+
+(defun -config-el-eol-hook ())
+(defun -config-el-timer-hook ())
+
+(defun my/-config-el-timer-hook ()
+  (string-match (rx ?* "Org Agenda" ?*)
+                (mapconcat (lambda (BUFFER) (buffer-name BUFFER))
+                           (-all-buffers) " "))
+  (org-agenda nil "t"))
+
+(global-hide-mode-line-mode 1)
+
+(mapc (lambda (x) (load-file x))
+        (file-expand-wildcards
+         (format "%s/_*.el" (expand-file-name "conf.d" doom-user-dir))))
+
+(when (getenv "XDG_RUNTIME_DIR")
+  (desktop-save (expand-file-name (getenv "XDG_RUNTIME_DIR"))))
+
+(quote (setq-hook! (quote (fundamental-mode))
+        header-line-format (quote ("%e" (:eval)))))
+
+(setq-hook! (quote (org-mode-hook))
+  display-line-numbers-mode -1)
+
+(use-package! conf-mode
+  :mode (rx "sway"))
+
+(global-set-key (kbd "H-b") 'backward-word) ; H = Hyper modifier
+
+(mkdir "~/.local/emacs" t)
+
+(after! python
+  (set (quote +python-ipython-repl-args)
+       (quote ("-i" "--simple-prompt" "--no-color-info")))
+
+  (set (quote +python-jupyter-repl-args)
+       (quote ("--simple-prompt"))))
+
+(after! conf-mode
+  (highlight-phrase "bindsym" 'bold)
+  ;; (highlight-phrase "")
+  )
+
+(use-package! dockerfile-mode
+  :init (setenv "DOCKER_BUILDKIT" "1")
+  :mode "dockerfile\(?:\.[[:word:]]+\)?\'"
+  :custom
+  (dockerfile-mode-command "docker buildx build")
+  )
+
+(use-package! modus-themes
+  :ensure t
+  :load-path "~/src/modus-themes"
+  :config
+  ;; (modus-themes-select 'modus-vivendi-tinted)
+  (modus-themes-select 'modus-vivendi)
+  :custom
+  (hl-line-mode nil)
+  (global-hl-line-mode nil)
+  (modus-themes-variable-pitch-ui nil)
+  ;; (modus-themes-variable-pitch-ui t)
+  (modus-themes-common-palette-overrides
+   '(
+     (fringe "gray6")
+     ;; (fringe unspecified)
+     ;; (fg-line-number-inactive unspecified)
+     (bg-line-number-inactive "gray6")
+     (fg-line-number-active "gray80")
+
+     (fg-line-number-active unspecified)
+     (bg-line-number-active unspecified)
+
+     (border-mode-line-active unspecified)
+     (border-mode-line-inactive unspecified)
+
+     (date-common cyan) ; default value (for timestamps and more)
+     (date-deadline red-warmer)
+     (date-event magenta-warmer)
+     (date-holiday blue) ; for M-x calendar
+     (date-now yellow-warmer)
+     (date-scheduled magenta-cooler)
+     (date-weekday cyan-cooler)
+     (date-weekend blue-faint)
+     ))
+
+
+  (modus-operandi-palette-overrides (quote
+                                     ((fg-main "#333333")
+                                      (comment red-faint)
+                                      (keyword cyan-cooler))))
+  (modus-themes-headings (quote
+                          ((1 . (variable-pitch 1.5))
+                           (2 . (1.3))
+                           (agenda-date . (1.3))
+                           (agenda-structure . (variable-pitch light 1.8))
+                           (t . (1.1)))))
+
+  (modus-themes-to-toggle (quote (modus-operandi-tinted modus-vivendi-tinted))))
+
+(with-eval-after-load 'doom-themes
+  (doom-themes-treemacs-config))
+
+(defun yadm ()
+  (interactive)
+  (magit-status "/yadm::"))
+
+(ignore-errors
+  (load-file (format "~/.%s.el" (getenv "HOSTNAME"))))
+
+
+;; (-config-el-eol-hook)
+
+;; (add-hook! (quote (-config-el-eol-hook))
+;;   (require '-functions nil t)
+;;   (progn
+;;     (setq -reloaded (boundp '-reloaded)
+;;           -toggle   (boundp '-reloaded)
+;;           compilation-scroll-output t
+;;           input-method              "norwegian-keyboard")
+;;     (blink-cursor-mode 1)
+;;     (global-hide-mode-line-mode 1)
+;;     ;; (global-hide-mode-line-mode -1)
+;;     ;; (hide-mode-line-mode t)
+;;     (set-frame-parameter nil 'alpha-background 100)
+;;     ;; (set-frame-parameter nil 'alpha-background 90) ;uncomment to enable opacity
+;;     ;; (add-to-list (quote so-long-minor-modes) (quote smartparens-mode))
+;;     (setq-hook! (quote conf-mode-hook js-mode-hook)
+;;       display-line-numbers-type (quote absolute))))
+
+;; (add-hook (quote -config-el-timer-hook)
+;;           (quote my/-config-el-timer-hook))
+
+;; (setq doom-font
+;;       (font-spec :family "Iosevka Nerd Font" :size 16  :weight 'light))
+
+;; (run-with-timer 0 (* 30 60) '-config-el-timer-hook)
+;; (run-with-timer 0 60 '-config-el-timer-hook)
+
+;; (add-hook! (quote (rainbow-mode))
+;;   (hl-line-mode -1))

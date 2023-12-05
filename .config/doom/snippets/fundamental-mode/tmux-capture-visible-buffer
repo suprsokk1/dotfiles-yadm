@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: tmux-capture-visible-buffer
+# key: tmux
+# --
+tmux capture-pipe -p -S - ${1:c}$0

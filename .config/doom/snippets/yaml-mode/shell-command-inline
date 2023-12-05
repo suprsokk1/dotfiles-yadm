@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: ansible:pipe
+# key: pipe
+# --
+{{ lookup('ansible.builtin.pipe', '$0') }}

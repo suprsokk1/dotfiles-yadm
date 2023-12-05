@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: replace-home-var
+# type: command
+# key: ~
+# condition: t
+# --
+(save-excursion
+(let
+((REPLACE t)
+(OUTPUT-BUFFER nil)
+(CMD (format "sed -E '/%s/{s##$HOME#}'" (string-replace "/" "\\/" (getenv "HOME"))
+)
+))
+(beginning-of-line)
+(kill-line)
+(shell-command-on-region
+(point-min)
+(point-max)
+CMD OUTPUT-BUFFER REPLACE)))

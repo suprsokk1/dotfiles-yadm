@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: zsh
+# key: zsh
+# --
+#+name: ${1:foo}
+#+begin_src zsh
+$0
+#+end_src

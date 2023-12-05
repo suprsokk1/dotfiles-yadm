@@ -1,0 +1,4 @@
+# key: sed
+# name: sed
+# --
+sed -E '/$1/{s##$2#}' $0

@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: :stdin
+# key: :stdin foo
+# --
+#+name: baz
+#+begin_src shell :stdin foo
+xargs
+#+end_src
+
+#+name: foo
+#+begin_src shell :results silent :cache yes
+docker ps --all --format '{{json .Names}}'
+#+end_src
