@@ -438,3 +438,6 @@
   :prefix "/"
   "/" #'dired-mark-files-regexp
   "." #'dired-mark-files-containing-regexp))
+
+(global-set-key (kbd "M-RET") #'M-RET!)
+(global-set-key (kbd "s-p") (quote projectile-find-file))
