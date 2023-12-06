@@ -87,8 +87,8 @@
         (file-expand-wildcards
          (format "%s/_*.el" (expand-file-name "conf.d" doom-user-dir))))
 
-(when (getenv "XDG_RUNTIME_DIR")
-  (desktop-save (expand-file-name (getenv "XDG_RUNTIME_DIR"))))
+;; (when (getenv "XDG_RUNTIME_DIR")
+;;   (desktop-save (expand-file-name (getenv "XDG_RUNTIME_DIR"))))
 
 (quote (setq-hook! (quote (fundamental-mode))
         header-line-format (quote ("%e" (:eval)))))
@@ -99,16 +99,7 @@
 (use-package! conf-mode
   :mode (rx "sway"))
 
-(global-set-key (kbd "H-b") 'backward-word) ; H = Hyper modifier
-
 (mkdir "~/.local/emacs" t)
-
-(after! python
-  (set (quote +python-ipython-repl-args)
-       (quote ("-i" "--simple-prompt" "--no-color-info")))
-
-  (set (quote +python-jupyter-repl-args)
-       (quote ("--simple-prompt"))))
 
 (after! conf-mode
   (highlight-phrase "bindsym" 'bold)

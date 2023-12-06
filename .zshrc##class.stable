@@ -120,6 +120,8 @@ fi
 ##
 ## DOC: https://thevaluable.dev/zsh-completion-guide-examples/
 
+
+
 function _vpn {
   reply=( on off up down 0 1 )
 }

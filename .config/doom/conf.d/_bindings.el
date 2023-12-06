@@ -9,7 +9,7 @@
  "C-<iso-lefttab>" #'flycheck-previous-error
  "C-<tab>"         #'flycheck-next-error
  "C-c SPC SPC"     #'-refresh
- "H-."             #'dired-jump
+
  "H-/"             #'+default/search-buffer
  "H-0"             #'balance-windows
  ;; "H-8"             #'-mark-all-like-this
@@ -47,7 +47,7 @@
  "M-s-k"           #'doom/kill-this-buffer-in-all-windows
  "M-s-l"           #'toggle-truncate-lines
  "M-s-n"           #'split-window-vertically
- "s-."             #'dired-jump
+
  "s-/"             #'+default/search-buffer
  "s-0"             #'balance-windows
  ;; "s-8"             #'-mark-all-like-this
@@ -70,7 +70,7 @@
  (:prefix "s-SPC"
           "m"         '+zen/toggle-fullscreen
           "SPC"       #'org-roam-node-find
-          "."         #'dired-jump
+
           "TAB"       #'(cmd! (find-file initial-buffer-choice))
           "["         #'mc/edit-beginnings-of-lines
           "]"         #'mc/edit-enda-of-lines
@@ -78,7 +78,7 @@
           "b"         #'doom-big-font-mode
           "c"         #'doom/goto-private-config-file
           "e"         #'mc/edit-enda-of-lines
-          "h"         #'(cmd! (dired "~"))
+
           "n"         #'org-capture
           "q"         #'delete-other-windows
           "r"         nil
@@ -86,10 +86,10 @@
           "s-SPC"     #'-refresh
           "s-q"       #'delete-other-frames
           "x"         #'doom/open-scratch-buffer
-          "~"         #'(cmd! (dired "~")))
+
 
  (:prefix "H-SPC"
-          "."         #'dired-jump
+
           "H-SPC"     #'-refresh
           "H-q"       #'delete-other-frames
           "TAB"       #'(cmd! (find-file initial-buffer-choice))
@@ -99,7 +99,7 @@
           "b"         #'doom-big-font-mode
           "c"         #'doom/goto-private-config-file
           "e"         #'mc/edit-enda-of-lines
-          "h"         #'(cmd! (dired "~"))
+
           "l"         #'-open-library-of-babel
           "m"         #'mc/mark-all-like-this ;FIXME
           "n"         #'org-capture
@@ -107,7 +107,7 @@
           "r"         nil
           "s"         #'org-narrow-to-subtree
           "x"         #'doom/open-scratch-buffer
-          "~"         #'(cmd! (dired "~"))
+
 
           )
  )
@@ -117,23 +117,19 @@
  "M-o w" #'highlight-phrase)
 
 (map!
- :map dired-mode-map
- "]"   #'dired-next-marked-file
- "["   #'dired-prev-marked-file
- "."  #'dired-up-directory
+
 
  ("," nil
   :prefix ","
-  "," #'dired-unmark-all-marks)
+
 
  ;; ("." nil
  ;;  :prefix "."
- ;;  "." #'dired-up-directory)
+
 
  ("/" nil
   :prefix "/"
-  "/" #'dired-mark-files-regexp
-  "." #'dired-mark-files-containing-regexp))
+
 
 (map!
 
@@ -143,7 +139,7 @@
  "C-<iso-lefttab>" #'flycheck-previous-error
  "C-<tab>"         #'flycheck-next-error
  "C-c SPC SPC"     #'-refresh
- "H-."             #'dired-jump
+
  "H-/"             #'+default/search-buffer
  "H-0"             #'balance-windows
  ;; "H-8"             #'-mark-all-like-this
@@ -181,7 +177,7 @@
  "M-s-k"           #'doom/kill-this-buffer-in-all-windows
  "M-s-l"           #'toggle-truncate-lines
  "M-s-n"           #'split-window-vertically
- "s-."             #'dired-jump
+
  "s-/"             #'+default/search-buffer
  "s-0"             #'balance-windows
  ;; "s-8"             #'-mark-all-like-this
@@ -204,7 +200,7 @@
  (:prefix "s-SPC"
           "m"         '+zen/toggle-fullscreen
           "SPC"       #'org-roam-node-find
-          "."         #'dired-jump
+
           "TAB"       #'(cmd! (find-file initial-buffer-choice))
           "["         #'mc/edit-beginnings-of-lines
           "]"         #'mc/edit-enda-of-lines
@@ -212,7 +208,7 @@
           "b"         #'doom-big-font-mode
           "c"         #'doom/goto-private-config-file
           "e"         #'mc/edit-enda-of-lines
-          "h"         #'(cmd! (dired "~"))
+
           "n"         #'org-capture
           "q"         #'delete-other-windows
           "r"         nil
@@ -220,10 +216,10 @@
           "s-SPC"     #'-refresh
           "s-q"       #'delete-other-frames
           "x"         #'doom/open-scratch-buffer
-          "~"         #'(cmd! (dired "~")))
+
 
  (:prefix "H-SPC"
-          "."         #'dired-jump
+
           "H-SPC"     #'-refresh
           "H-q"       #'delete-other-frames
           "TAB"       #'(cmd! (find-file initial-buffer-choice))
@@ -233,7 +229,7 @@
           "b"         #'doom-big-font-mode
           "c"         #'doom/goto-private-config-file
           "e"         #'mc/edit-enda-of-lines
-          "h"         #'(cmd! (dired "~"))
+
           "l"         #'-open-library-of-babel
           "m"         #'mc/mark-all-like-this ;FIXME
           "n"         #'org-capture
@@ -241,7 +237,7 @@
           "r"         nil
           "s"         #'org-narrow-to-subtree
           "x"         #'doom/open-scratch-buffer
-          "~"         #'(cmd! (dired "~"))
+
 
           )
  )
@@ -275,8 +271,6 @@
  "C-c m m" 'mc/mark-all-like-this
  )
 
-
-
 (map!
  "<f12>"           #'flycheck-list-errors
  "<f5>"            #'call-last-kbd-macro
@@ -284,7 +278,7 @@
  "C-<iso-lefttab>" #'flycheck-previous-error
  "C-<tab>"         #'flycheck-next-error
  "C-c SPC SPC"     #'-refresh
- "H-."             #'dired-jump
+
  "H-/"             #'+default/search-buffer
  "H-0"             #'balance-windows
  ;; "H-8"             #'-mark-all-like-this
@@ -323,7 +317,7 @@
  "M-s-k"           #'doom/kill-this-buffer-in-all-windows
  "M-s-l"           #'toggle-truncate-lines
  "M-s-n"           #'split-window-vertically
- "s-."             #'dired-jump
+
  "s-/"             #'+default/search-buffer
  "s-0"             #'balance-windows
  ;; "s-8"             #'-mark-all-like-this
@@ -346,7 +340,7 @@
  (:prefix "s-SPC"
           "m"         '+zen/toggle-fullscreen
           "SPC"       #'org-roam-node-find
-          "."         #'dired-jump
+
           "TAB"       #'(cmd! (find-file initial-buffer-choice))
           "["         #'mc/edit-beginnings-of-lines
           "]"         #'mc/edit-enda-of-lines
@@ -354,7 +348,7 @@
           "b"         #'doom-big-font-mode
           "c"         #'doom/goto-private-config-file
           "e"         #'mc/edit-enda-of-lines
-          "h"         #'(cmd! (dired "~"))
+
           "n"         #'org-capture
           "q"         #'delete-other-windows
           "r"         nil
@@ -362,10 +356,10 @@
           "s-SPC"     #'-refresh
           "s-q"       #'delete-other-frames
           "x"         #'doom/open-scratch-buffer
-          "~"         #'(cmd! (dired "~")))
+
 
  (:prefix "H-SPC"
-          "."         #'dired-jump
+
           "H-SPC"     #'-refresh
           "H-q"       #'delete-other-frames
           "TAB"       #'(cmd! (find-file initial-buffer-choice))
@@ -375,7 +369,7 @@
           "b"         #'doom-big-font-mode
           "c"         #'doom/goto-private-config-file
           "e"         #'mc/edit-enda-of-lines
-          "h"         #'(cmd! (dired "~"))
+
           "l"         #'-open-library-of-babel
           "m"         #'mc/mark-all-like-this ;FIXME
           "n"         #'org-capture
@@ -383,17 +377,15 @@
           "r"         nil
           "s"         #'org-narrow-to-subtree
           "x"         #'doom/open-scratch-buffer
-          "~"         #'(cmd! (dired "~"))
+
 
           )
  )
 
 (map! :map dired-mode-map
       "D" nil
-      "r" #'dired-do-rename-regexp
+
       )
-
-
 
 (map!
  "H-r" #'consult-buffer
@@ -424,20 +416,10 @@
  "C-c m m" 'mc/mark-all-like-this
  )
 
-(map!
- :map dired-mode-map
- "]"   #'dired-next-marked-file
- "["   #'dired-prev-marked-file
- "."  #'dired-up-directory
-
- ("," nil
-  :prefix ","
-  "," #'dired-unmark-all-marks)
-
- ("/" nil
-  :prefix "/"
-  "/" #'dired-mark-files-regexp
-  "." #'dired-mark-files-containing-regexp))
-
 (global-set-key (kbd "M-RET") #'M-RET!)
+
+(global-set-key (kbd "H-b") 'backward-word) ; H = Hyper modifier
+(global-set-key (kbd "s-b") 'backward-word) ; H = Hyper modifier
+
 (global-set-key (kbd "s-p") (quote projectile-find-file))
+(global-set-key (kbd "H-p") (quote projectile-find-file))
