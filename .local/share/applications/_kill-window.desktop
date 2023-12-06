@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Kill window
+GenericName=Window
+Icon=sway
+Terminal=false
+Type=Application
+StartupNotify=true
+Exec=/usr/bin/env , kill

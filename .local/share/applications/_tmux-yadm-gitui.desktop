@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=yadm + gutui
+GenericName=tmux
+Exec=/usr/bin/env tmux new-window 'yadm ui'
+# Icon=tmux
+Icon=alacritty
+# Icon=org.gnome.Terminal
+Type=Application
+Terminal=false
+StartupWMClass=tmux

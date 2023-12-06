@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Edit clipboard
+GenericName=Emacs
+Icon=emacs
+Terminal=false
+Type=Application
+StartupNotify=true
+Exec=/usr/bin/env clipboard

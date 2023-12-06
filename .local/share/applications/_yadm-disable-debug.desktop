@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Disable debug
+GenericName=yadm
+Icon=sway
+Terminal=false
+Type=Application
+StartupNotify=true
+Exec=/usr/bin/env yadm config comma.env.DEBUG 0

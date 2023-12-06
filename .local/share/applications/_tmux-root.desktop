@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=New window
+GenericName=tmux
+Exec=/usr/bin/env PATH=/usr/bin:/usr/local/bin sh -c 'tmux new-window "/usr/bin/sudo -i"'
+# Icon=tmux
+Icon=alacritty
+# Icon=org.gnome.Terminal
+Type=Application
+Terminal=false
+StartupWMClass=tmux

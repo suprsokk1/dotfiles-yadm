@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=btop
+GenericName=tmux
+Exec=tmux neww btop
+Icon=btop
+Type=Application
+Terminal=false
+StartupWMClass=tmux
