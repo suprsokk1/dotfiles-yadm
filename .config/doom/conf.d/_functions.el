@@ -26,16 +26,17 @@
             (mkdir desktop-dir PARENTS)
             (if one-window
                 (desktop-change-dir desktop-dir) ;; FIXME
-              (desktop-save desktop-dir))))))))
+              (desktop-save desktop-dir))))))
 
-  (widen)
-  (whitespace-cleanup)
-  (bookmark-save)
-  (balance-windows)
+      (widen)
+      (whitespace-cleanup)
+      (bookmark-save)
+      (balance-windows)
+      (+tmux/cd-to-here)
 
-  (cond(python (python-shell-restart))
-       (org (org-babel-tangle))
-       (t (save-window-excursion (org-babel-detangle))))
+      (cond(python (python-shell-restart))
+           (org (org-babel-tangle))
+           (t (save-window-excursion (org-babel-detangle))))))
   )
 
 
@@ -130,6 +131,7 @@
 
 ;;;###autoload
 (defun wrapper/+lookup/definition (%orig-defun-name &rest args)
+  "`TODO'"
   (when (getenv "DEBUG")
       (let ((LINE (buffer-substring (eol)(bol))))
     (message "LINE RAW:\n>>>\n%S\n<<<\nLINE RE MATCH:\n>>>\n%s\n<<<"

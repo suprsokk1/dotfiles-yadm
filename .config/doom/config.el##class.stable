@@ -102,7 +102,7 @@
 (mkdir "~/.local/emacs" t)
 
 (after! conf-mode
-  (highlight-phrase "bindsym" 'bold)
+  ;; (highlight-phrase "bindsym" 'bold)
   ;; (highlight-phrase "")
   )
 
