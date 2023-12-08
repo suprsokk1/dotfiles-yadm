@@ -44,8 +44,8 @@ read -r YADM_BRANCH < <(yadm branch | awk '/\*/{print $NF}')
 for arg; do
     yadm status --porcelain=v1 "$arg" || continue
     [ "$YADM_BRANCH" = unstable ] || continue
-    yadm add "$arg"
-    yadm commit -m "Autocommit by ','"
+    echo yadm add "$arg"
+    echo yadm commit -m "Autocommit by ','"
 done
 
 printf '%q\n' "$@" >&2
