@@ -5,6 +5,11 @@ for arg; do
     property=${BASH_REMATCH[2]:-$property} # TODO
     [[ $pid ]] || continue
     read -r ppid < <(command sed -E 's/(ppid:.(.*))?(.*)/\2/gI;/^$/d' /proc/$pid/status)
-    echo -en "$ppid "
-    readlink /proc/$ppid/exe
+    read -r path < <(readlink /proc/$ppid/exe)
+    [[ $path =~ ([^/]+)[-_]([0-9\.]+) ]]
+    version=${BASH_REMATCH[2]}
+    basename=${BASH_REMATCH[1]}
+    base=${path##*/}
+
+    echo -en $ppid ${basename:-} ${version:-} ${base:-} ${path:-}
 done
