@@ -1,3 +1,52 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash -a
+trap TRAPEXIT EXIT
+trap TRAPERR ERR                 # TODO
 
-parent $$
+function TRAPERR {
+    :
+}
+
+function TRAPEXIT {
+    trap 'echo DONE >&2 ' EXIT
+    echo EXIT
+}
+
+function lisp {
+    command emacsclient --no-wait --eval "$@"
+}
+
+function command_not_found_handle {
+    echo TODO ${FUNCNAME} "$@" >&2
+}
+
+function _parent_emacs {
+    read -r elisp <<-'EOF'
+`(,(nth 0 (buffer-list)))
+EOF
+    
+    mapfile results < <(lisp "$elisp")
+    echo "${results[@]}" >&2
+}
+
+## get parent information
+read -r PID BASENAME VERSION BASE REST < <(parent $$)
+
+## get yadm git information
+
+# controlled dotfiles
+mapfile YADM_ALL < <(yadm ls-files)
+
+# current branch
+read -r YADM_BRANCH < <(yadm branch | awk '/\*/{print $NF}')
+
+### START ###
+
+for arg; do
+    yadm status --porcelain=v1 "$arg" || continue
+    [ "$YADM_BRANCH" = unstable ] || continue
+    yadm add "$arg"
+    yadm commit -m "Autocommit by ','"
+done
+
+printf '%q\n' "$@" >&2
+_parent_${BASENAME}
