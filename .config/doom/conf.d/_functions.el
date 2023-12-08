@@ -36,8 +36,7 @@
 
       (cond(python (python-shell-restart))
            (org (org-babel-tangle))
-           (t (save-window-excursion (org-babel-detangle))))))
-  )
+           (t (save-window-excursion (org-babel-detangle)))))))
 
 
 ;;;###autoload

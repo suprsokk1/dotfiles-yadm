@@ -18,11 +18,13 @@
 
  doom-projectile-cache-blacklist (quote "/tmp")
 
- bookmark-default-file           (expand-file-name "_bookmarks.el" doom-user-dir)
+ bookmark-default-file           (expand-file-name
+                                  "_bookmarks.el" doom-user-dir)
 
  shift-select-mode               nil
 
- custom-file                     (expand-file-name "custom.el" "~/.local/emacs")
+ custom-file                     (expand-file-name
+                                  "custom.el" "~/.local/emacs")
 
  comint-move-point-for-output    t
 
@@ -34,7 +36,6 @@
  display-line-numbers-type       (quote absolute)
  display-line-numbers-width      1
 
- hl-line-mode                    nil
  global-hl-line-mode             nil
 
  treemacs-load-theme "Default"
@@ -45,6 +46,7 @@
   comint-buffer-maximum-size 20000 ; Increase comint buffer size.
   comint-prompt-read-only t        ; Make the prompt read only.
   )
+
 
 ;; (treemacs-icon-catalogue)
 
@@ -147,7 +149,6 @@
      (date-weekday cyan-cooler)
      (date-weekend blue-faint)
      ))
-
 
   (modus-operandi-palette-overrides (quote
                                      ((fg-main "#333333")
