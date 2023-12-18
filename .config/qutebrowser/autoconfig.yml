@@ -15,7 +15,7 @@ settings:
   content.blocking.method:
     global: both
   content.javascript.enabled:
-    global: false
+    global: true
   content.javascript.prompt:
     global: false
   fonts.default_family:

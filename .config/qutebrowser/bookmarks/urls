@@ -142,3 +142,52 @@ https://davidmyers.dev/blog/a-guide-to-customizing-the-zsh-shell-prompt A Guide 
 https://www.emacswiki.org/emacs/DiredOmitMode EmacsWiki: Dired Omit Mode
 https://www.cyberciti.biz/faq/unixlinux-sed-case-insensitive-search-replace-matching/ sed Case Insensitive Search Matching and Replacement - nixCraft
 https://learn.microsoft.com/en-us/microsoft-365/security/defender-endpoint/microsoft-defender-endpoint-linux?view=o365-worldwide Microsoft Defender for Endpoint on Linux | Microsoft Learn
+https://github.com/jwiegley/emacs-async GitHub - jwiegley/emacs-async: Simple library for asynchronous processing in Emacs
+https://security.microsoft.com/machines/v2/14d32c356008f5b2620e683f32e847c3f9b06994/overview?tid=29425dff-2700-40c0-91fd-b5ed93e995da Device – Microsoft 365-sikkerhet
+https://www.prisjakt.no/ Prisjakt - Alle produkter og priser på ett sted
+https://pypi.org/project/exchangelib/ exchangelib · PyPI
+https://theforeman.org/manuals/3.8/quickstart_guide.html Foreman :: Quickstart
+https://www.emacswiki.org/emacs/ModeLineConfiguration EmacsWiki: Mode Line Configuration
+https://github.com/ReimuNotMoe/ydotool GitHub - ReimuNotMoe/ydotool: Generic command-line automation tool (no X!)
+https://thevaluable.dev/tmux-config-mouseless/ Writing Your tmux Config: a Detailed Guide
+https://github.com/laktak/extrakto GitHub - laktak/extrakto: extrakto for tmux - quickly select, copy/insert/complete text without a mouse
+https://www.cyberciti.biz/faq/creating-a-bootable-ubuntu-usb-stick-on-a-debian-linux/ How to create/write bootable Ubuntu iso to usb using dd - nixCraft
+https://github.com/jnmcfly/awesome-startpage GitHub - jnmcfly/awesome-startpage: This is a carefully compiled list of remarkable projects with the focus on startpages.
+http://wiki.squid-cache.org/ConfigExamples/Reverse/MultipleWebservers Reverse Proxy with Multiple Backend Web Servers | Squid Web Cache wiki
+https://redis.com/ebook/part-1-getting-started/chapter-2-anatomy-of-a-redis-web-application/2-3-web-page-caching/ Website Caching with Redis | Redis|Website Caching with Redis | Redis
+https://unix.stackexchange.com/questions/383433/pass-an-environment-variable-from-current-shell-to-a-systemd-unit Pass an environment variable from current shell to a systemd unit - Unix & Linux Stack Exchange
+https://www.browserstack.com/guide/top-python-web-development-frameworks Top 10 Python Web Development Frameworks in 2023 | BrowserStack
+https://github.com/davatorium/rofi-scripts GitHub - davatorium/rofi-scripts: Small scripts for use with rofi
+https://www.emacswiki.org/emacs/FrameTitle EmacsWiki: Frame Title
+https://docs.gtk.org/Pango/pango_markup.html Pango – 1.0: Text Attributes and Markup
+https://vector.dev/docs/setup/installation/ Install Vector | Vector documentation
+https://dev.to/waylonwalker/floating-popups-in-tmux-67 floating popups in tmux - DEV Community
+https://stackoverflow.com/questions/21138186/how-to-show-a-tmux-environment-variable-in-the-status-bar-as-window-format bash - How to show a tmux environment variable in the status bar (as window format) - Stack Overflow
+https://www.ledger.com/blog/ssh-with-tpm Protecting SSH keys with TPM 2.0, now available on Debian | Ledger
+https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins ohmyzsh/plugins at master · ohmyzsh/ohmyzsh · GitHub
+https://github.com/karlicoss/orgparse GitHub - karlicoss/orgparse: Python module for reading Emacs org-mode files
+https://org-babel.readthedocs.io/en/latest/ Org Babel reference card
+https://davatorium.github.io/rofi/ Rofi Documentation
+https://www.nushell.sh/commands/ Command Reference | Nushell
+https://www.nushell.sh/ Nushell
+https://www.nushell.sh/cookbook/external_completers.html External Completers | Nushell
+https://www.tutorialspoint.com/fastapi/fastapi_using_graphql.htm FastAPI - Using GraphQL
+https://github.com/arthurhenrique/cookiecutter-fastapi GitHub - arthurhenrique/cookiecutter-fastapi: Cookiecutter template for FastAPI projects using: Machine Learning, Poetry, Github Actions and Pytests
+https://edoras.sdsu.edu/doc/sed-oneliners.html Handy one-liners for SED
+https://fastapi.tiangolo.com/how-to/graphql/ GraphQL - FastAPI
+https://man.archlinux.org/man/rofi-script.5.en rofi-script(5) — Arch manual pages
+https://www.nushell.sh/cookbook/ Cookbook | Nushell
+https://opensource.com/article/18/9/tips-productivity-zsh 5 tips to improve productivity with zsh | Opensource.com
+https://github.com/rust-unofficial/awesome-rust GitHub - rust-unofficial/awesome-rust: A curated list of Rust code and resources.
+https://github.com/nivekuil/rip GitHub - nivekuil/rip: A safe and ergonomic alternative to rm
+https://github.com/chmln/sd GitHub - chmln/sd: Intuitive find & replace CLI (sed alternative)
+https://doc.rust-lang.org/reference/tokens.html Tokens - The Rust Reference
+https://github.com/bash-lsp/bash-language-server GitHub - bash-lsp/bash-language-server: A language server for Bash
+https://git-scm.com/book/en/v2/Git-Internals-Environment-Variables Git - Environment Variables
+https://sed.js.org/ GNU sed live editor
+https://github.com/chef/os_release GitHub - chef/os_release: A repo containing the /etc/os-release file from various Linux distros
+https://man7.org/linux/man-pages/man2/getpid.2.html getpid(2) - Linux manual page
+https://davidbosman.fr/tux/post/emacs-typewriter-mode/ The Emacs noob: Typewriter Mode - GNU/Linux? Why not!
+https://github.com/alacritty/alacritty#configuration GitHub - alacritty/alacritty: A cross-platform, OpenGL terminal emulator.
+https://wiki.archlinux.org/title/Alacritty Alacritty - ArchWiki
+https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6 True Color (24-bit) and italics with alacritty + tmux + vim (neovim) · GitHub

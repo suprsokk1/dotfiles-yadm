@@ -8,6 +8,7 @@
        vertico
 
        :ui
+       emoji
        ;; indent-guides
        hl-todo
        treemacs
@@ -54,12 +55,12 @@
        data
        emacs-lisp
        yaml
-       (org +roam2)
+       ;; (org +roam2)
+       (org +roam2 +pretty)
        ;; (python +lsp +pyenv +pyright +tree-sitter)
        (python +lsp +pyenv)
        (sh +lsp)
        (go +lsp)
-       (nim +lsp)
        (cc +lsp)
        (rust +lsp)
 

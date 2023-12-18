@@ -1,20 +1,15 @@
 define envVarIsSet =
 #!/bin/bash
-pgrep --oldest alacritty |
+pgrep --oldest $1 |
 	xargs -I PID xargs -0n1 -a /proc/PID/environ |
-	grep $1
+	grep $2
 endef
-# $(shell yadm status --porcelain=v1)
 
-foo: $(seq 100)
+makefiles = $(wildcard src/*/Makefile)
 
-checks: mako
+all: ${MAKECMDGOALS}
 
-tmux:
+${makefiles:/Makefile=}:
+	echo
 
-mako:
-	command -v $@
-	pgrep --exact $@
-	echo $$?
-
-.PHONY: tmux
+.PHONY: ${MAKECMDGOALS}

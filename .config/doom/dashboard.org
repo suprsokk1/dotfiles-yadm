@@ -1,10 +1,11 @@
 :PROPERTIES:
-:HEADER-ARGS: :var LIMIT=50
+:HEADER-ARGS:        :var LIMIT=50
+:HEADER-ARGS:shell+: :results replace drawer
+:HEADER-ARGS:shell+: :shebang "#/usr/bin/env bash"
 :END:
 #+title: Dashboard
 
-
-#+begin_src shell :shebang "#/usr/bin/env zsh" :results replace drawer
+#+begin_src shell
 exec 2>&1
 export LIMIT=20
 ~/bin/yadm status --porcelain |
@@ -16,23 +17,30 @@ export LIMIT=20
 
 #+RESULTS:
 :results:
-find: ‘.config/doom/packages.el##template.j2cli,class.unstable’: No such file or directory
-find: ‘.config/doom/packages.el##template.j2cli,class.unstable’: No such file or directory
-[[file:.config/alacritty/alacritty.yml][.config/alacritty/alacritty.yml]]
-[[file:.config/doom/.gitignore][.config/doom/.gitignore]]
-[[file:.config/doom/config.el##template.j2cli,class.stable][.config/doom/config.el##template.j2cli,class.stable]]
-[[file:.config/doom/config.el##template.j2cli,class.unstable][.config/doom/config.el##template.j2cli,class.unstable]]
-[[file:.config/doom/dashboard.org][.config/doom/dashboard.org]]
+find: ‘.config/doom/conf.d/_dired.el’: No such file or directory
+find: ‘.config/doom/conf.d/_dired.el’: No such file or directory
+[[file:.config/doom/_lob.org][.config/doom/_lob.org]]
+[[file:.config/doom/agenda.lst][.config/doom/agenda.lst]]
+[[file:.config/doom/conf.d/_bindings.el][.config/doom/conf.d/_bindings.el]]
+[[file:.config/doom/conf.d/_functions.el][.config/doom/conf.d/_functions.el]]
+[[file:.config/doom/conf.d/_ligatures.el][.config/doom/conf.d/_ligatures.el]]
+[[file:.config/doom/conf.d/_org.el][.config/doom/conf.d/_org.el]]
+[[file:.config/doom/config.el##class.stable][.config/doom/config.el##class.stable]]
+[[file:.config/doom/init.el][.config/doom/init.el]]
+[[file:.config/doom/packages.el##template.j2][.config/doom/packages.el##template.j2]]
+[[file:.config/doom/snippets/fundamental-mode/shell-command-on-buffer][.config/doom/snippets/fundamental-mode/shell-command-on-buffer]]
 [[file:.config/qutebrowser/autoconfig.yml][.config/qutebrowser/autoconfig.yml]]
 [[file:.config/qutebrowser/bookmarks/urls][.config/qutebrowser/bookmarks/urls]]
-[[file:.config/yadm/Makefile][.config/yadm/Makefile]]
-[[file:.config/yadm/ansible-playbook.yml][.config/yadm/ansible-playbook.yml]]
-[[file:.config/yadm/macro.j2][.config/yadm/macro.j2]]
-[[file:.tmux.conf##class.stable][.tmux.conf##class.stable]]
-[[file:bin/,][bin/,]]
+[[file:.config/qutebrowser/config.py][.config/qutebrowser/config.py]]
+[[file:.config/tmux/tmux.conf][.config/tmux/tmux.conf]]
+[[file:.config/yadm/TODO/README.org][.config/yadm/TODO/README.org]]
+[[file:.config/yadm/bootstrap][.config/yadm/bootstrap]]
+[[file:.local/bin/_emacs_pipe_in][.local/bin/_emacs_pipe_in]]
+[[file:.local/bin/_helper_rofi][.local/bin/_helper_rofi]]
+[[file:.sh.d/80-completion.zsh][.sh.d/80-completion.zsh]]
 :end:
 
-#+begin_src shell :shebang "#/usr/bin/env zsh"
+#+begin_src shell
 stdbuf -oL env -C $HOME -  fd -a  -tf -0 |
     sed -nE '/[\]]/d;p' |
     xargs -0 printf '[[file:%s][%s]]\n' |

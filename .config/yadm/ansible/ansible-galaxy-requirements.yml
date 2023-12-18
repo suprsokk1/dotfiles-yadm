@@ -1,6 +1,0 @@
-collections:
-- name: community.general
-# - name: geerlingguy.pip
-- name: theforeman.foreman
-- name: containers.podman
-- name: community.libvirt

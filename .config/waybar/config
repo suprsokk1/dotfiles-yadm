@@ -9,49 +9,100 @@
 
     "id": "bar-0",
     "ipc": true,
-    // "modules-right": [
-    //     "idle_inhibitor",
-    //     "clock",
-    //     "pulseaudio",
-    //     "temperature",
-    //     "network",
-    //     "cpu",
-    //     "memory",
-    //     "backlight",
-    //     "keyboard-state",
-    //     "sway/language",
-    //     "battery",
-    //     "battery#bat2",
-    //     "clock",
-    //     "tray"
-    // ],
 
-    "modules-left": [
-        "sway/workspaces",
-        "sway/scratchpad",
-        "custom/media",
-        "sway/window"
-    ],
-
-    "modules-center": [
-        "clock",
-        "custom/testing"
-    ],
-
+    // "keyboard-state",
     "modules-right": [
-        "custom/foo",
-        "custom/bar",
         "sway/mode",
-        // "keyboard-state",
+        "custom/shell-json",
         "backlight",
         "network#vpn",
         "network",
-        "battery"
+        "battery",
+        "sway/language",
+        "clock"
+
         // "pulseaudio"
         // "temperature",
         // "cpu",
         // "memory"
+
     ],
+
+    "modules-left": [
+        "sway/workspaces"
+    ],
+
+
+    "modules-center": [
+        "custom/debug"
+    ],
+
+    "custom/debug": {
+        "format": "debug: {}",
+        "return-type": "text",
+        "max-length": 40,
+        "interval": 2,
+        "exec": ", info",
+        "on-click": "pkill -SIGRTMIN+8 --exact waybar",
+        "signal": 8,
+    },
+
+    "custom/shell-text": {
+        "format": "{} {icon}",
+        "format-good": "",
+        "return-type": "text",
+        "max-length": 40,
+        "format-icons": {
+            "good": "",
+            "bad": "⚠",
+            "default": ""
+        },
+        "escape": true,
+        "exec": ", waybar text"
+
+    },
+
+    "custom/shell-json": {
+        "format": "{} {icon}",
+        "return-type": "json",
+        "max-length": 40,
+        "format-icons": {
+            "foo": "",
+            "good": "",
+            "bad": "⚠",
+            "default": ""
+        },
+        "escape": true,
+        "exec": ", waybar json"
+
+    },
+
+
+    // "custom/bar": {
+    //     "format": "",
+    //     "return-type": "json",
+    //     "max-length": 40,
+    //     "escape": true,
+    //     "exec-if": "sh -c 'true'",
+    //     "exec": "wc -l"
+    // },
+
+
+    "custom/foo": {
+        "format": "{icon}",
+        "format-foo": "{icon}",
+        "return-type": "json",
+        "max-length": 40,
+        "format-icons": {
+            "foo": "",
+            "good": "",
+            "bad": "⚠",
+            "default": "⚠"
+        },
+        "escape": true,
+        "exec-if": "test -L /sys/class/net/wgpia0",
+        "exec": ""
+    },
 
     // Modules configuration
     "sway/workspaces": {
@@ -60,28 +111,17 @@
         "warp-on-scroll": false,
         // "format": "{name}: {icon}",
         "format": "{icon}",
-        // "format": "",
-        // "format": "<span style=\"bold\">{name}:{icon}</span>",
+
         "format-icons": {
-            "1": "",
-            "2": "",
-            "3": "",
-            "4": "",
-            "5": "",
+            "1": " ",
+            "2": " ",
+            "3": " ",
+            "4": " ",
+            "5": " ",
             "urgent": "",
-            "focused": "",
+            // "focused": "",
             "default": ""
-        },
-        // "format-icons": {
-        //     "1": " ",
-        //     "2": " ",
-        //     "3": " ",
-        //     "4": " ",
-        //     "5": " ",
-        //     "urgent": "",
-        //     "focused": "",
-        //     "default": ""
-        // }
+        }
     },
 
     "keyboard-state": {
@@ -94,10 +134,12 @@
         }
     },
 
+
     "sway/mode": {
-        // "format": "<span style=\"italic\">{}</span>"
-        "format": "{}"
+        "format": "<span style=\"italic\">{}</span>"
+        // "format": "{}"
     },
+
 
     "sway/scratchpad": {
         "format": "{icon} {count}",
@@ -107,6 +149,7 @@
         "tooltip-format": "{app}: {title}"
     },
 
+
     "idle_inhibitor": {
         "format": "{icon}",
         "format-icons": {
@@ -115,10 +158,12 @@
         }
     },
 
+
     "tray": {
         // "icon-size": 21,
         "spacing": 20
     },
+
 
     "clock": {
         // "timezone": "America/New_York",
@@ -126,14 +171,17 @@
         "format-alt": "{:%Y-%m-%d}"
     },
 
+
     "cpu": {
         "format": "{usage}% ",
         "tooltip": false
     },
 
+
     "memory": {
         "format": "{}% "
     },
+
 
     "temperature": {
         // "thermal-zone": 2,
@@ -144,6 +192,7 @@
         "format-icons": ["", "", ""]
     },
 
+
     "backlight": {
         "on-click": "brightnessctl set 8",
         // "device": "acpi_video1",
@@ -151,6 +200,7 @@
         "format": "{icon}",
         "format-icons": ["", "", "", "", "", "", "", "", ""]
     },
+
 
     "battery": {
         "states": {
@@ -169,8 +219,8 @@
         "format-plugged":  "{icon}",
         "format-full": "",
         "format-icons": ["", "", "", "", ""]
-
     },
+
 
     "battery#bat2": {
         "bat": "BAT2"
@@ -187,6 +237,7 @@
         "format-alt": "{ifname}: {ipaddr}/{cidr}"
     },
 
+
     "network#vpn": {
         "interface": "wgpia*",
         "on-click": ", pia on-click",
@@ -198,6 +249,7 @@
         "format-linked": "{ifname} (No IP) ",
         "format-disconnected": "⚠"
     },
+
 
     "pulseaudio": {
         // "scroll-step": 1, // %, can be a float
@@ -221,90 +273,31 @@
         "on-click": "pavucontrol"
     },
 
-    "custom/bar": {
-        "format": "",
-        "return-type": "json",
-        "max-length": 40,
-        "escape": true,
-        "exec-if": "sh -c 'true'",
-        "exec": "wc -l"
-
-        // Script in resources folder
-        // "exec": "$HOME/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
-    },
-
-    "custom/testing": {
-        "format": "{icon}",
-        "return-type": "json",
-        "max-length": 40,
-        "format-icons": {
-            "default": "..."
-        },
-        "escape": true,
-        // "exec-if": "",
-        "exec": "ls /home/geir"
-    },
-
-    "custom/foo": {
-        "format": "{icon}",
-        "return-type": "json",
-        "max-length": 40,
-        "format-icons": {
-            "good": "",
-            "bad": "⚠",
-            "default": ","
-        },
-        "escape": true,
-        "exec-if": "test -L /sys/class/net/wgpia0",
-        "exec": ""
-
-        // Script in resources folder
-        // "exec": ``"$HOME/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
-    },
-
-    "custom/media": {
-        "format": "{icon} {}",
-        "return-type": "json",
-        "max-length": 40,
-        "format-icons": {
-            "spotify": "",
-            "default": "🎜"
-        },
-        "escape": true,
-        "exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null" // Script in resources folder
-        // "exec": "$HOME/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
-    },
-
-    "mpd": {
-        // => ⚠ // displays as
-        "format": "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ⸨{songPosition}|{queueLength}⸩ {volume}% ",
-        "format-disconnected": "Disconnected ",
-        "format-stopped": "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped ",
-        "unknown-tag": "N/A",
-        "interval": 2,
-        "consume-icons": {
-            "on": " "
-        },
-
-        "random-icons": {
-            "off": "<span color=\"#f53c3c\"></span> ",
-            "on": " "
-        },
-
-        "repeat-icons": {
-            "on": " "
-        },
-
-        "single-icons": {
-            "on": "1 "
-        },
-
-        "state-icons": {
-            "paused": "",
-            "playing": ""
-        },
-
-        "tooltip-format": "MPD (connected)",
-        "tooltip-format-disconnected": "MPD (disconnected)"
-    },
 }
+
+// "modules-right": [
+//     "idle_inhibitor",
+//     "clock",
+//     "pulseaudio",
+//     "temperature",
+//     "network",
+//     "cpu",
+//     "memory",
+//     "backlight",
+//     "keyboard-state",
+//     "sway/language",
+//     "battery",
+//     "battery#bat2",
+//     "clock",
+//     "tray"
+// ],
+
+// "format": "",
+// "format": "<span style=\"bold\">{name}:{icon}</span>",
+// "format-icons": {
+//     "1": "",        //     "4": "",
+//     "5": "",
+//     "urgent": "",
+//     "focused": "",
+//     "default": ""
+// },

@@ -1,7 +1,7 @@
 [include]
 	path = ~/.local/share/yadm/config
 [class]
-	local = unstable
+	local = factory
 [yadm]
 	auto-alt = 0
 [bootstrap "env"]
@@ -12,7 +12,7 @@
 	pipfreeze = !pip freeze
 [debug]
 	sleep = 0
-	enable = 1
+	enable = 0
 [env "default"]
 	PYTHONSTARTUP = ${HOME}/.pythonrc
 	LOGURU-FORMAT = {message}
@@ -45,8 +45,7 @@
 [regex]
 	ansi = \\x1b\\[[0-9;]*m
 	url = ^(((ht|f)tp(s?))://)?(www.|[a-zA-Z].)[a-zA-Z0-9-.]+.(com|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk)(:[0-9]+)*(/($|[a-zA-Z0-9.,;?\\+&%$\#=~_-]+))*$
-
-[zsh "env"]
+[env "default"]
 	PATH = $HOME/bin
 	PATH = $HOME/.pyenv/bin
 	PATH = /usr/bin
@@ -56,14 +55,21 @@
 	PATH = $HOME/go/bin
 	PATH = $HOME/opt/doom-emacsdir/bin
 	TERM = screen-256
-[env]
-	SHELL = /bin/zsh
-	PATH = $HOME/.pyenv/bin
-	PATH = $HOME/bin
-	PATH = /usr/bin
-	PATH = /usr/local/bin
-	PATH = $HOME/.cargo/bin
-	PATH = $HOME/.local/bin
-	PATH = $HOME/go/bin
-	PATH = $HOME/opt/doom-emacsdir/bin
-	TERM = screen-256
+[notify-send "default"]
+	expire-time = 10000
+[rofi "default"]
+	modi = drun
+	modi = drun
+	modi = ssh
+	modi = window
+	modi = poc:%{file:rofi script}
+[type "file"]
+	fields = path
+	fields = mimetype
+	validate = stat --printf='' %s
+[file "rofi script"]
+	path = ~/.local/bin/_poc_rofi_mode_script
+[sway "mode"]
+	alt = 🤔
+[notify-send]
+	expire-time = 10000

@@ -1,0 +1,258 @@
+# -*- mode: conf -*-
+xwayland enable
+
+include colors
+include conf.d/*.conf
+include /etc/sway/config.d/*
+
+focus_follows_mouse no
+
+focus_wrapping force
+
+font San Francisco Display 0
+
+# output * bg ~/.local/wallpaper fill
+
+
+# drag and drop
+floating_modifier Mod4 normal
+
+default_border pixel smart
+
+hide_edge_borders none
+
+# modifier|titlebar [modifier|titlebar]
+# tiling_drag modifier
+
+# show marks in title
+## yes|no
+show_marks yes
+
+# smart|urgent|focus|none
+focus_on_window_activation urgent
+
+# on|off|no_gaps
+smart_borders on
+
+# workspace_layout: default|stacking|tabbed
+workspace_layout default
+
+#: left|center|right
+title_align right
+
+gaps inner 10
+
+#
+
+# terminal
+
+# bindsym
+
+bindsym --to-code Mod4+Tab focus next
+# bindsym --to-code Mod4+Tab        focus right
+bindsym --to-code Mod4+f          fullscreen toggle
+bindsym --to-code Mod1+Mod3+c    reload
+bindsym --to-code Mod1+Mod4+c    reload
+
+# bindsym --to-code Mod3+Mod1+c    reload
+# bindsym --to-code Mod3+Mod1+c    mode "restart"
+bar {
+    # strip_workspace_numbers yes|no
+    strip_workspace_numbers yes
+
+    # strip_workspace_name yes|no
+    strip_workspace_name yes
+
+    pango_markup enabled
+
+    swaybar_command waybar
+
+    position top
+
+    # mode hide
+    modifier Mod4
+
+}
+
+
+bar {
+    pango_markup enabled
+    swaybar_command waybar -c ~/.config/waybar/config_extra
+}
+
+
+bindsym --to-code {
+   Mod4+d exec --no-startup-id "rofi -show drun -modi drun,window,ssh"
+   Mod3+d exec --no-startup-id "rofi -show drun -modi drun,window,ssh"
+}
+
+
+bindsym --to-code --locked {
+  XF86AudioLowerVolume  exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+  XF86AudioMicMute      exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+  XF86AudioMute         exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+  XF86AudioRaiseVolume  exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+  XF86MonBrightnessDown exec brightnessctl set 5%-
+  XF86MonBrightnessUp   exec brightnessctl set +5%
+}
+
+
+workspace 3
+workspace 2
+workspace 1
+
+bindsym  Mod4+1 workspace 1
+bindsym  Mod4+2 workspace 2
+bindsym  Mod4+3 workspace 3
+bindsym  Mod4+4 workspace 4
+bindsym  Mod4+5 workspace 5
+
+
+# input "16700:8197:DELL_DELL_USB_Keyboard" {
+# 	xkb_layout "us,us"
+# 	xkb_variant "dvorak,"
+# 	xkb_options "grp:shifts_toggle, caps:swapescape"
+# }
+
+# /usr/include/X11/keysymdef.h
+input type:keyboard {
+  xkb_layout "us,no"
+
+  xkb_options "caps:hyper, grp:shifts_toggle"
+  # default: 250
+  repeat_delay 250
+
+  # default: 45
+  repeat_rate 20
+}
+
+mode "restart" {  
+    # Return to default modebindsym Return mode "default"bindsym Escape mode "default"
+
+}
+
+input type:touchpad {
+      dwt enabled
+      tap enabled
+      natural_scroll enabled
+      middle_emulation enabled
+
+      # disable mouse acceleration (enabled by default; to set it manually, use "adaptive" instead of "flat")
+      accel_profile "flat"
+
+      # set mouse sensitivity (between -1 and 1)
+      pointer_accel 0.5
+
+}
+
+# include /home/geir/.sway/config.d/*.conf
+# include /home/geir/.i3/config.d/*.conf
+
+for_window [class=".*"] border_pixel $border_px
+For_window [class="^Menu$"] floating enabled
+
+include /etc/sway/config.d/*.
+
+mode "[1-3]: Move window to workspace" {
+    bindsym 1 move to workspace 1; mode "default"
+    bindsym 2 move to workspace 2; mode "default"
+    bindsym 3 move to workspace 3; mode "default"
+
+    bindsym Mod4+1 move to workspace 1
+    bindsym Mod4+2 move to workspace 2
+    bindsym Mod4+3 move to workspace 3
+
+    bindsym Mod3+1 move to workspace 1
+    bindsym Mod3+2 move to workspace 2
+    bindsym Mod3+3 move to workspace 3
+
+    # Return to default mode
+    
+    # Return to default modebindsym Return mode "default"bindsym Escape mode "default"
+
+}
+
+for_window   [app_id='.*']  floating enable
+
+# for_window [class='(?i)emacs']        move to workspace 1
+for_window   [app_id='(?i)emacs']       move to workspace 1; border 3px
+
+assign [app_id='(?i)emacs']        1
+assign [app_id='(?i)qutebrowser']  2
+assign [app_id='(?i)alacritty']    3
+
+mode "25 ppt : 33 ppt : 66 ppt : 75 ppt" {
+
+     bindsym --to-code {
+
+        left    resize shrink   width   10 ppt
+        Down    resize grow     height  10 ppt
+        Up      resize shrink   height  10 ppt
+        Right   resize grow     width   10 ppt
+
+        1       set $new_size 25 ppt   ; resize set width $new_size
+        2       set $new_size 33 ppt   ; resize set width $new_size
+        3       set $new_size 66 ppt ; resize set width $new_size
+        4       set $new_size 75 ppt  ; resize set width $new_size
+
+        Tab     focus right; exec notify-send --expire-time 500 $new_size
+
+        e       layout toggle
+        0       resize set 50 ppt
+
+        Return  mode "default"
+        Escape  mode "default"
+
+    }
+}
+
+mode "Kill window?" {
+
+    bindsym --to-code {
+       q kill; mode "default"
+       Mod4+q kill; mode "default"
+       Mod3+q kill; mode "default"
+
+       # Return to default mode
+       Return mode "default"
+       Escape mode "default"
+    }
+}
+
+mode "1: Default(tiled) 2: Tabbed 3: Stacked" {
+     bindsym --to-code {
+        1 layout "default" ; exec notify-send "Layout" "default"
+        2 layout "tabbed" ; exec notify-send "Layout" "tabbed"
+        3 layout "stacked" ; exec notify-send "Layout" "stacked"
+     }
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+mode "1: Move to workspace  2: Layout 3:  q: kill window" {
+    bindsym --to-code {
+        1 mode $move_mode
+        2 mode $layout_mode
+        3 mode $layout_mode
+        r mode $resize_mode
+        q mode $kill_mode
+
+        Mod1+1 border_pixel 1
+        Mod1+2 border_pixel 2
+        Mod1+3 border_pixel 3
+
+        tab focus right
+    }
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+
+bindsym Mod4+t exec /usr/bin/bash -c '$HOME/bin/, Super t'
+
+for_window [title="SCAP"]             floating enabled
+for_window [title="GNOME Tweaks"]     floating enabled

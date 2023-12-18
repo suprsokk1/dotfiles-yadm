@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+# -*- mode: sh[zsh] -*-
 
 function precmd {
     :

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+echo TODO $0 >&2
+exit 0
+tty --silent || exit 1
+
+timeout 10 /usr/bin/mapfile stdin
+
+# gawk '/^function/,/^\}/'
+
+# mapfile elisp <<'EVAL'
+# (defun slurp-stdin ()
+#   (condition-case nil (while t (insert (read-from-minibuffer "") "\n"))
+#     (error)))
+
+# (with-temp-buffer
+#   (slurp-stdin)
+#   (princ (buffer-string)))
+# EVAL
+
+# install -DTv $(mktemp --dry-run /run/user/$(id -u))/ >&2
+# /usr/bin/env emacs --script "$_"

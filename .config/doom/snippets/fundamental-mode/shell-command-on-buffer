@@ -2,16 +2,9 @@
 # key: c
 # name: shell-command-on-buffer
 # --
-(let
-((REPLACE t)
-(OUTPUT-BUFFER nil)
-(CMD
-(buffer-substring
-(bol)
-(eol))))
-(beginning-of-line)
-(kill-line)
-(shell-command-on-region
-(point-min)
-(point-max)
-CMD OUTPUT-BUFFER REPLACE))
+(let ((REPLACE t)
+      (OUTPUT-BUFFER nil)
+      (CMD (buffer-substring (bol) (eol))))
+  (beginning-of-line)
+  (kill-line)
+  (unless (string= CMD "") (shell-command-on-region (point-min) (point-max) CMD OUTPUT-BUFFER REPLACE)))

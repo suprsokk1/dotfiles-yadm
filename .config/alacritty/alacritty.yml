@@ -2,8 +2,11 @@
 live_config_reload: true
 
 env:
+  # TERM: screen-256color
+  # GDK_DPI_SCALE: "1.3"
+  # TERM: xterm-256color
   TERM: screen-256color
-  GDK_DPI_SCALE: "1.3"
+
 
 key_bindings:
 - { key: Return,   mods: Control|Shift, action: SpawnNewInstance }
@@ -32,27 +35,32 @@ scrolling:
 font:
 
   # size: 12.0
-  size: 12.0
+  size: 10.0
   normal:
     # family: Input Mono Narrow
     # family: Fira Sans
+    family: Iosevka Nerd Font
+    # family: Fira Code
     # family: Fira Mono
     # family: Ubuntu Mono
     # family: UbuntuMono Nerd Font Mono
-    family: Iosevka Nerd Font
     # slant: normal
     # weight: light
-    weight: regular
+    weight: extralight
+    weight: light
+    # weight: regular
 
   colors:
     hints:
       alphabet: "jfkdls;ahgurieowpq"
     enabled:
 
+        # (ipfs:|ipns:|magnet:|mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)[^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+
     - regex: >-
-        (ipfs:|ipns:|magnet:|mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)[^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+
+        (?:(ipfs|ipns|magnet|mailto|gemini|gopher|https|http|news|file|git|ssh|ftp):)[^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+
       hyperlinks: true
-      command: /home/gepr/bin/,
+      command: >-
+          ,
       enabled: true
       post_processing: true
       mouse:

@@ -154,10 +154,18 @@ config.set('content.javascript.enabled', True, 'chrome://*/*')
 # Enable JavaScript.
 # Type: Bool
 config.set('content.javascript.enabled', True, 'qute://*/*')
-
-
 config.set('content.headers.user_agent', 'Mozilla/5.0 ({os_info}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99 Safari/537.36', 'https://*.slack.com/*')
 
-config.set('content.javascript.enabled', False, 'https://linuxize.com/*')
+# config.set('content.javascript.enabled', False, 'https://linuxize.com/*')
+config.set('content.javascript.enabled', False, '*://linuxize.com/*')
 
-# config.set('content.javascript.disabled', False, 'https://realpython.com/*')
+searchengines = dict(
+    DEFAULT='https://www.google.com/search?q={}',
+    g='https://www.google.com/search?q={}',
+    d='https://www.duckduckgo.com/?={}',
+
+)
+
+# https://www.google.com/search?q=foo&newwindow=1&sca_esv=589766361&sxsrf=AM9HkKkkoKT3ecI26pVfQmkZVeC1Dvi7fg%3A1702301939255&source=hp&ei=8xB3ZZ7EDNaWhbIPsr2IsA8&iflsig=AO6bgOgAAAAAZXcfAzlfZJVe27Any7sDRUSUTt0LYMZk&udm=&ved=0ahUKEwjeiYzzwIeDAxVWS0EAHbIeAvYQ4dUDCAk&uact=5&oq=foo&gs_lp=Egdnd3Mtd2l6IgNmb28yCBAAGIAEGJIDMgsQABiABBiKBRiSAzIIEAAYgAQYyQMyBRAuGIAEMgUQABiABDIFEAAYgAQyBRAAGIAEMgUQABiABDIFEAAYgAQyCxAuGIAEGMcBGNEDSNnjbFDN3GxYg99scAF4AJABAJgBhQGgAf0CqgEDMC4zuAEDyAEA-AEBqAIKwgIHECMY6gIYJ8ICCxAuGIAEGMcBGK8BwgIEECMYJw&sclient=gws-wiz
+config.set('url.searchengines', searchengines)
+# config.set('url.searchengines', 'g', 'https://www.google.com/search?q={}')

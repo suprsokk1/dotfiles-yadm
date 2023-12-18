@@ -5,4 +5,4 @@ Icon=emacs
 Terminal=false
 Type=Application
 StartupNotify=true
-Exec=/usr/bin/env PATH=/home/geir/opt/doom-emacsdir/bin:/home/geir/.pyenv/bin:/home/geir/bin:/usr/bin:/usr/local/bin:/usr/local/sbin:/usr/sbin:/home/geir/.cargo/bin:/home/geir/.local/bin:/home/geir/go/bin:/home/geir/opt/doom-emacsdir/bin EMACS=/usr/local/bin/emacs-29.1 EMACSDIR=/home/geir/opt/doom-emacsdir/ doom run
+Exec=/usr/bin/env EMACS=/usr/local/bin/emacs-29.1 EMACSDIR=/home/geir/opt/doom-emacsdir/ $HOME/opt/doom-emacs/bin/doom run

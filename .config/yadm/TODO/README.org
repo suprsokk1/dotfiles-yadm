@@ -1,0 +1,181 @@
+:PROPERTIES:
+:header-args:emacs-lisp: :eval nil
+:END:
+#+title: TODO
+#+todo: TODO(t) STRT(s) DONE(d)
+
+* Inbox
+* Progress [3%]
+:PROPERTIES:
+:COOKIE_DATA: recursive
+:END:
+** [0/2] tmux
+*** TODO C-t -> insert selected line from buffer
++ Reverse order
++ split-window or display-pane
++ split into window at bottom
+  - options
+    1. simple
+       - open popup ~display-popup~
+    2. advanced
+       - switch to new window
+       - 1/4 of window height
++ =fzf-tmux=
+*** TODO bigger popup window
+** [1/10] emacs
+*** DONE [#B] M-RET/M-<return> -> execute script named ','
+:LOGBOOK:
+CLOCK: [2023-12-10 Sun 10:09]--[2023-12-10 Sun 10:51] =>  0:42
+:END:
+*** TODO [#C] :function:
+*** TODO smarter ~transpose-lines~ function
++ when Elisp buffer
+  - keep parenthesis organized
+*** TODO advice macro
+#+begin_src emacs-lisp
+(defmacro around! ($target-function $wrapper-name &rest $body))
+"Generic wrapper"
+ `(defun ,$wrapper-name  ($F &rest $ARGS)
+  (let ((RES (apply $F $ARGS)))
+    ,$body))
+#+end_src
+*** TODO jump cursor position history
+*** TODO read mail
+*** TODO generate bookmark file from template
+*** TODO dired no group
+*** TODO extend =use-package= with ~:exclude-hooks~
+Check doc @ github.com/jwigley/use-package
+*** TODO modus-themes vivendi (dark) overrides
+** [0/17] org-mode
+*** TODO [#A] add ISSUE keyword
+*** TODO [#A] resume clock on Emacs startup
+*** TODO [#C] pretty org-mode
++ Light /San Francisco/ header font
++ Disable display-line-number gutter
++ Hide emphasis characters
++ Iosevka or similar font for code blocks
+*** TODO jump to clocked in task :hotkey:
+*** TODO clocked in task in Emacs title
+*** TODO C-c C-l -> add link to clocked in task
+*** TODO [#B] ~org-add-note~ default to drawer
++ change var ~org-log-state-notes-into-drawer~
+*** TODO [#B] org-mode emphasize symbol-at-point
+*** TODO [#B] org-alert
+*** STRT STUDY [#A] C-C n n -> ~org-capture~ to this file
+:LOGBOOK:
+CLOCK: [2023-12-18 Mon 15:15]
+:END:
+*** TODO capture templates
+*** TODO [#C] set =+= as default list bullet
+*** TODO [#C] always add priority to tasks
+*** TODO import github.com project kanban boards
+*** TODO [#A] add this file to list ~org-agenda-files~
+*** TODO [#C] replace IDEA with 💡in buffers
+*** TODO select task function
+** [0/3] script
+*** TODO [#B] pipe to Emacs
+[[file:/home/geir/.local/bin/_emacs_pipe_in]]
+*** TODO [#B] copy Emacs buffer to tmux buffer
+*** TODO [#B] copy tmux buffer to Emacs buffer
+** [0/0] event handler -- ~~/bin/,~
+** [0/2] events
+*** TODO [#C] yadm controlled files: inotify close write -> yadm add file
+*** TODO [#C] fix whitespace before saving file
+** [0/4] window manager
+*** TODO test sending commands from window manager to Emacs
+*** TODO assign applications to workspaces
++ Emacs to editor
++ Alacritty to terminal
+*** TODO assign workspaces to monitors
+** [2/40] other
+*** TODO [#C] detect away from keyboard
+*** TODO zsh completion
+- [ ] Generic
+  All commands that have help and/or man page
+- [ ] Use results from tmux buffer
+*** TODO convert ansi color to pango
+*** TODO rofi web search with live results
+*** TODO osquery custom tables
++ tmux buffers
++ emacs buffers
++ qutebrowser
+  - windows
+  - tabs
+  - current page code blocks
+*** TODO eBPF :PoC:
+*** TODO DOOM package :PoC:
+*** TODO emacs org-mode binding M-TAB -> toggle list bullet type [+|-]
+*** TODO generate incrontab for yadm controlled files
+*** TODO Slack bot :PoC:
+*** TODO pre-commit :pip:python:
+*** TODO waybar bind mouse scroll to window size
+*** TODO Hotkey cheatsheet
+*** TODO rofi as Emacs M-x like menu with hotkey attached to action
+*** TODO zsh C-k/C-u kill line backward/foreward also copy to clipboard
+*** TODO Connect script to wl-copy command
+*** TODO password-store as default ASKPASS command
+*** TODO qutebrowser adblock dependency
+*** TODO Norwegian completion in Emacs
+*** TODO Emacs normalize fonts changing inheritance
+*** TODO Cleanup Emacs bindings
+*** TODO Unread mail in statusbar
+*** TODO Handle xdg-open mimetypes
+*** TODO Change org-tag binding
+*** TODO =ntfy.sh= :PoC:
+*** TODO DOOM Emacs exclude modes
+*** TODO show current host in tmux pane header
++ ssh callback?
+*** TODO reminders of upcoming tasks
+*** TODO import calendar from office 365
+https://pypi.org/project/exchangelib/
+*** TODO org-roam capture with clipboard
+*** TODO dot-desktop for clipboard
+*** TODO gtk + qt dpi scaling
+*** TODO gtk + qt color sync
+*** TODO advice bedore elisp repl open, split window
+*** DONE ~ls --color=tty~ not supported by =exa= :issue:
+:LOGBOOK:
+CLOCK: [2023-12-17 Sun 18:03]--[2023-12-17 Sun 18:04] =>  0:01
+CLOCK: [2023-12-17 Sun 18:02]--[2023-12-17 Sun 18:03] =>  0:01
+:END:
+*** DONE fzf missing :issue:
+:LOGBOOK:
+CLOCK: [2023-12-17 Sun 18:05]--[2023-12-18 Mon 12:55] => 18:50
+:END:
+*** TODO zsh-autosuggestions missing :issue:
+*** TODO rofi mode script for charmap
++ ascii escapes => \xXX
++ unicode escapes => \uX .. \uXXXXXX
++ html escapes
+*** TODO comma script debug update doom and tmux
+*** TODO emacs render break-lines ==
+* Notes
+- Note taken on [2023-12-10 Sun 15:34] \\
+  Parse *Slack emoji syntax
+
+  *and Discord mm.?
+- Note taken on [2023-12-10 Sun 15:19] \\
+  Connect undo-fu to git? 🤔
+- Note taken on [2023-12-10 Sun 11:19] \\
+  All emacs buffers read until task org clock is active
+- Note taken on [2023-12-09 Sat 15:28] \\
+  =,= script will populate ~/.local/bin/with symlinks to self when SYMLINKS is set and contains
+- Note taken on [2023-12-09 Sat 15:12] \\
+  Fetch code blocks from browser page
+- Note taken on [2023-12-09 Sat 13:15] \\
+  Convert buffer raw font lock information to pango
+- Note taken on [2023-12-09 Sat 12:49] \\
+  ..or inherint level of parent header
+
+  from:
+  : * foo
+  : ** bar
+  : *** baz
+
+  to:
+  : ** parent
+  : *** foo
+  : **** bar
+  : ***** baz
+- Note taken on [2023-12-09 Sat 12:47] \\
+  Render content of links org-mode files in-place

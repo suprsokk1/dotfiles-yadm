@@ -1,8 +1,0 @@
----
-- git: repo=https://github.com/AppleDesignResources/SanFranciscoFont dest=~/.local/share/src/SanFranciscoFont clone=1 depth=1
-
-- file: path=~/.local/share/fonts state=directory
-
-- copy: remote_src=1 src="{{ item }}" dest="~/.local/share/fonts/{{ item|basename }}"
-  with_fileglob:
-  - ~/.local/share/src/SanFranciscoFont/*.otf

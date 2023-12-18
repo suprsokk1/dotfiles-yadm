@@ -1,9 +1,0 @@
----
-- name: OSQuery repo
-  ansible.builtin.yum_repository:
-    name: osquery-s3-rpm-repo
-    description: osquery RPM repository - $basearch
-    baseurl: https://s3.amazonaws.com/osquery-packages/rpm/$basearch/
-    gpgkey: https://pkg.osquery.io/rpm/GPG
-    gpgcheck: 1
-  register: osquery_repo

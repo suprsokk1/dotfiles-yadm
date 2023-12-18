@@ -1,0 +1,29 @@
+# -*- mode: sh[zsh] -*-
+EMACS='/usr/bin/emacs'
+export EMACS
+
+EDITOR=emasclient
+export EDITOR
+
+ALTERNATE_EDITOR=vim
+export ALTERNATE_EDITOR
+
+VISUAL=$EDITOR
+export VISUAL
+
+XDG_RUNTIME_DIR=/run/user/${UID:-$(command id -u)}
+export XDG_RUNTIME_DIR
+
+ZSH=$HOME/src/ohmyzsh
+export ZSH
+
+FZF_BASE=$HOME/src/fzf
+export FZF_BASE
+
+SUDO_ASKPASS=$HOME/bin/askpass
+export SUDO_ASKPASS
+
+# SUDO_COMMAND="--askpass"
+# SUDO_COMMAND+=" --non-interative"
+# SUDO_COMMAND+=" --command-timeout=120
+# export SUDO_COMMAND

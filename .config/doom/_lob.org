@@ -21,4 +21,6 @@ print(data)
 #+begin_src shell :shebang "#!/usr/libexec/platform-python" :var s="\n" :var d="\n" :var t=(quote (foo bar baz)) :results drawer
 return vars()
 # return str() if type(t) is str else str(d).join(t)
-#+end_src
+#+end_#+begin_src
+
+      #+end_src

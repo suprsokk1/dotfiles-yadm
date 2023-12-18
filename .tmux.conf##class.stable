@@ -4,8 +4,20 @@ set -g base-index      1
 set -g pane-base-index 1
 set -g mouse           on
 
+set-option -g default-shell /bin/zsh
+
+# truecolor (24 bit color)
+set -g default-terminal "screen-256color"
+set -sg terminal-overrides ",*:RGB"
+
+
+# set-option -g default-shell ~/.cargo/bin/nu
+
 # on|external|off
-set -s set-clipboard on
+# set -s set-clipboard off
+# set -s set-clipboard on
+# set -s set-clipboard off
+# set -s set-clipboard external
 
 # wl-copy|xsel|xclipboard|xclip
 set -s copy-command 'wl-copy'
@@ -13,13 +25,17 @@ set -s copy-command 'wl-copy'
 # set -s set-clipboard external
 # set -s set-clipboard off
 
-set-option -sa terminal-overrides  ',xterm:Tc'
+# set-option -sa terminal-overrides  ',xterm:Tc'
 
-set-option -sa terminal-features   ',rxvt-unicode-256color:clipboard:extkeys'
-
-set-option -g  update-environment  'TMPDIR DISPLAY WAYLAND_DISPLAY SWAYSOCK SSH_ASKPASS SSH_AUTH_SOCK'
+# set -g default-terminal "tmux-256color"
+# set -ag terminal-overrides ",xterm-256color:RGB"
+# set-option -sa terminal-features   ',rxvt-unicode-256color:clipboard:extkeys'
 
 source-file ~/.config/tmux/tmux.conf
 
+# source-file ~/.config/tmux/conf.d/update-environment.conf
+
 # run "sh -c 'test -d ~/.local/share/tpm || (mkdir -p ~/.local/share/tpm; env -C ~/.local/share/ git clone https://github.com/tmux-plugins/tpm)'"
-run "make -C ~/.config/yadm/src/tmux-tpm"
+# run-shell /usr/bin/env sh -c 'if ! test -d ~/src/extrakto.tmux; then tmux split git clone https://github.com/laktak/extrakto ~/src/extrakto.tmux ; fi; ~/src/extrakto.tmux'
+
+run-shell ~/.local/share/tpm/tpm
