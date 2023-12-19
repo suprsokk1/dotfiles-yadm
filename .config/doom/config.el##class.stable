@@ -37,8 +37,8 @@
 
  )
 
-(let ((ELC (file-expand-wildcards (concat (expand-file-name "conf.d" (dir!)) "/*.elc"))))
-    (mapc #'load-file ELC))
+;; (let ((ELC (file-expand-wildcards (concat (expand-file-name "conf.d" (dir!)) "/*.elc"))))
+;;     (mapc #'load-file ELC))
 
 (setq-hook! '(org-mode) display-line-numbers-type nil)
 
@@ -80,12 +80,12 @@
 
 (mkdir "~/.local/emacs" t)
 
-(with-eval-after-load 'doom-themes
-  (doom-themes-treemacs-config))
+;; (with-eval-after-load 'doom-themes
+;;   (doom-themes-treemacs-config))
 
 (defun yadm ()
   (interactive)
   (magit-status "/yadm::"))
 
-(ignore-errors
-  (load-file (format "~/.%s.el" (getenv "HOSTNAME"))))
+;; (ignore-errors
+;;   (load-file (format "~/.%s.el" (getenv "HOSTNAME"))))

@@ -1,0 +1,238 @@
+#!/usr/bin/env bash
+TRAPERR() {
+    local lineno=$1; shift
+    _notify "error:${0##*/}" <<< "erro: ${0##*/} line ${lineno:--}: $*"
+}
+
+TRAPEXIT() {
+    _notify "${0##*/}" <<< "exit: file $filename line $*"
+}
+
+n() {
+    _notify "${0##*/}" <<< "file: ${filename:--- unset --} line: ${lineno} args: ${*:--- none --}"
+}
+
+
+_eval () {
+    command env emacsclient --eval "$@"
+}
+
+set -a
+
+trap 'TRAPERR $LINENO' EXIT
+
+read -r filename < <(_eval '(make-symbol (buffer-file-name (nth 0 (buffer-list))))')
+
+git=false
+python='(progn (run-python) (unless (string-match (rx "*Python*") (with-output-to-string (princ (window-list)))) (switch-to-buffer-other-window "*Python*")) (python-shell-send-file (buffer-file-name (nth 0 (buffer-list)))))'
+shell='(compile (format "shellcheck %s" (buffer-file-name (nth 0 (buffer-list)))))'
+emacs_lisp='(eval-buffer)'
+shebang=$(sed -n 1p "$filename")
+IFS=$': \n\t' read -r _ mimetype < <(command file --mime-type "${filename:-$0}")
+
+case $mimetype in
+    text/x-script.python) eval='python'     ;;
+    text/x-shellscript)   eval='shell'      ;;
+    text/x-lisp)          eval='emacs_lisp' ;;
+    text/plain)
+
+        case $shebang in
+            *python*)     eval='python' ;;
+            *)
+        esac
+        ;;
+
+    *)
+esac
+
+_eval "${!eval}"
+
+exit
+
+
+
+# n $(sed -n 1p "$filename")
+
+# set -a
+
+main
+
+exit
+
+# echo "$filename $mimetype" >&2
+# [[ $filename =~ ^[~/]?.*/([^/]+)(\.([^/]+))$ ]]
+# _notify "$0" <<< "$filename $mimetype"
+
+## check if parent process
+## -current workdir is
+## -git controlled
+
+if git -C /proc/ppid/cwd rev-parse --show-toplevel &>/dev/null
+then git=true
+fi
+
+
+
+case $mimetype in
+    text/x-script.python)
+        eval='python'
+    ;;
+
+    text/x-shellscript)
+        eval='shell'
+
+        ;;
+
+    text/x-lisp)
+        eval='emacs_lisp'
+        ;;
+
+    text/plain)
+        case $(sed -n 1p "$filename") in
+            *python*)
+                eval='python'
+                ;;
+            *)
+
+        esac
+        ;;
+
+    *)
+esac
+
+_eval "${!eval}"
+
+exit
+
+
+# # | _notify "$0"
+# [[ $filename =~ [^\.]$ ]]
+
+# case ${BASH_REMATCH[0]} in
+#     j2) export template="$filename"
+#         unset filename
+#         ;;
+#     py) ;;
+#     el) ;;
+#     sh) ;;
+#     *)
+# esac
+
+
+# case $template in
+#     *.j2) {
+#     ~/.local/bin/j2  ~/.config/yadm/config |
+#         tee /dev/stderr |
+#         head |
+#         _notify "${0##*/}"
+# } | {
+#     mapfile -u 2 err
+#     export err
+# }
+#           ;;
+#     *)
+# esac
+
+# case $mimetype in
+#     text/x-script.python)
+#         _eval '(python-shell-send-file (buffer-file-name (nth 0 (buffer-list))))'
+#         # _eval "(python-shell-send-file \"$filename\")"
+#     ;;
+
+#     text/x-shellscript)
+#         _eval "(compile \"shellcheck $filename\")"
+#         ;;
+
+#     text/x-lisp)
+#         _eval '(eval-buffer)'
+#         ;;
+
+#     *)
+# esac
+
+# case $basename in
+#     *)
+# esac
+
+# case $buffer in
+#     *)
+# esac
+
+# exit 0
+
+# # command /usr/bin/env xargs -0 emacsclient --eval <<-EVAL
+# # (recompile)
+# # EVAL
+
+
+# # eval "${DEBUG:+echo $buffer $filename >&2}"
+# # notify-send "filename: ${filename}"
+# # notify-send "buffer: ${buffer}"
+# # emacsclient --eval '(compile "make")'
+
+# case $basename in
+#     _handle_*)
+#         # notify-send "BAR"
+#         echo "${0##} TODO handle => $basename"
+#         ;;
+#     Makefile)
+#         # PWD="${filename%/*}" _eval '(compile "make")'
+#         notify-send "make:\n${filename}\n${buffer}"
+
+#         ;;
+#     *.rs)
+#         pushd "${filename%/*}/" || exit 1
+#         # notify-send --expire-time=1000 rust "$filename"
+#         # notify-send "rust:\n${filename}\n${buffer}"
+
+#         notify-send "rust:\n${filename}\n${buffer}"
+
+#         # notify-send --expire-time=$((expire_in_sec*1000)) "${0##*/}" "rust:\n${filename}\n${buffer}"
+#         # notify-send --expire-time=$((expire_in_sec*1000)) "${0##*/}" "rust:\n${filename}\n${buffer}"
+#         # git -C "$filename"  rev-parse --show-toplevel
+
+#         envsubst <<-'ELISP' | _eval | { read -r out; notify-send "$out" ;}
+# 			(progn
+# 				(switch-to-buffer (get-buffer "${BUFFER}"))
+# 				(buffer-name)
+# 				(or (recompile) (compile)))
+# 		ELISP
+#         ;;
+#     "$HOME"/.config/doom/*)
+#         case $filename in
+#             *.el)
+#                 doom sync
+#                 _eval "(doom/reload)"
+#                 ;;
+#             *)
+#         esac
+#         ;;
+#     *tmux*)
+#         notify-send tmux
+
+#         # tmux source-file "$filename"
+#         # tmux capture-pane -p
+
+#         ;;
+
+#     *sway*.conf)
+#         sway -C -c "$filename" | {
+#             mapfile -u 2 error
+#             notify-send "sway: $error"
+#         }
+
+#         notify-send "sway $filename OK"
+#         ;;
+
+#     *)
+
+#         # notify-send --expire-time=1000 "$0"
+# esac
+
+# _eval "${!eval}"
+
+# # _eval "(message  \"${0##*/}:$filename DONE\")"
+# # _eval "(progn (switch-buffer \"$buffer\")) (insert \"foo\"))"
+# # notify-send --expire-time=1000 "${0##/*}" "${filename:+filename: $filename<} ${@:+args: '$@'}"
+# # notify-send --expire-time=$((expire_in_sec*1000)) "${0##*/}" "filename: ${filename}"
+# # notify-send --expire-time=$((expire_in_sec*1000)) "${0##*/}" "buffer: ${buffer}"
