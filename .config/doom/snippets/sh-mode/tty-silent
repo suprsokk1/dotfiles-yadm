@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: tty-silent
+# key: t
+# --
+tty --silent

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: logger-error
+# key: e
+# --
+logger.error($0${1:e})

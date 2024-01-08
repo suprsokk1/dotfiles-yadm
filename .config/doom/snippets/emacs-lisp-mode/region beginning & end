@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: region beginning and end
+# key: r
+# --
+(region-beginning)(region-end)

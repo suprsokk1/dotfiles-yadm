@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: send2err
+# key: 2
+# --
+>&2

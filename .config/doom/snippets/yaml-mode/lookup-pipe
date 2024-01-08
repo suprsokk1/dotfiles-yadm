@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: lookup-pipe
+# key: .
+# --
+{{ lookup('pipe', $0 ) }}

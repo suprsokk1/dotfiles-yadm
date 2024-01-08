@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: sed-cleanup
+# key: sed
+# --
+sed -E '/^([[:space:]]*)#[^!]/{s##\\1#}' c

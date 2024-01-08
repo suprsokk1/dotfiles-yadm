@@ -1,0 +1,4 @@
+# key: .
+# name: ansible_env
+# --
+{{ ansible_env.$0 }}

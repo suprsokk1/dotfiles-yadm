@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: err2devnull
+# key: 2
+# --
+2>/dev/null

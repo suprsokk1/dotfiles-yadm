@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: if-exe
+# key: ifc
+# --
+if command -v $1 &>/dev/null; then
+   $0
+fi
