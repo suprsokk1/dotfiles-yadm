@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+set -o nounset -o errexit
+. ${HOME:-~}/.profile
+
+jump rofi \
+    -terminal ${HOME:-~}/.local/bin/_rofi__sensible_terminal \
+    -show combi \
+    -modes combi,menu:${HOME:-~}/.local/bin/_rofi__menu \
+    -combi-modes drun,window,ssh

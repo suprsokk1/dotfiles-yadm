@@ -1,0 +1,6 @@
+#!/bin/sh --posix
+set -o nounset -o errexit
+. ${HOME:-~}/.profile
+
+command /usr/bin/env SUDO_ASKPASS=${HOME:-~}/.local/bin/askpass /usr/bin/sudo --askpass /usr/bin/xargs -I LINE -0 -n1 -a /proc/`command /usr/bin/pgrep --oldest "$1"`/environ printf '%q\n' LINE |
+    sed -E 's/'\''//;s/=/='\''/'

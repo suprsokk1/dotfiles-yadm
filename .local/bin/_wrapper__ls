@@ -1,0 +1,38 @@
+#!env _shebang
+args=( ${exa[*]} )
+exa=( --icons --group-directories-first --git )
+exa+=( $args )
+# ls=( "$*" )
+
+typeset -A translate            # TODO lookup table
+
+if [[ $(readlink /proc/$PPID/exe) =~ emacs ]]; then
+    eval "command /usr/bin/ls $*"
+    exit
+fi
+
+for arg; do
+    if  [[ $arg =~ ^-- ]]; then
+        # longopts
+        case $arg in
+            *color=tty)
+                continue
+                ;;
+            *)
+        esac
+        exa+=("$arg")
+    elif [[ $arg =~ ^-[a-zA-Z] ]]; then
+        # shortopts
+        for c in `# split short options` $(command grep --extended-regexp --only-matching -- '[[:alpha:]]' <<< "${arg//-/}"); do
+            case $c in
+                [aA]) exa+=( --all ) ;;
+                o)    `#TODO`;;
+                t)    exa+=( --time modified ) ;;
+                G|-)  `# discard` ;;
+                *)    exa+=( -"$c" )
+            esac
+        done
+    else
+        exa+=( "$arg" )
+    fi
+done
