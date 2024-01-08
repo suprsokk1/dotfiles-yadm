@@ -2,15 +2,89 @@
 :header-args:emacs-lisp: :eval nil
 :END:
 #+title: TODO
-#+todo: TODO(t) STRT(s) DONE(d)
-
+#+todo: TODO(t) STRT(s) DONE(d) HOLD(h)
+sed -E '/^\*+[[:space:]][^#][^A-D][[:space:]]*/{s|TODO|TODO #C|}' c
 * Inbox
-* Progress [3%]
+** [ ] excluding sudo rules :PoC:
+
+[[file:~/.zshrc]]
+** TODO [#C] detect away from keyboard
+** TODO [#C] zsh completion :PoC:
+- [ ] Generic
+  All commands that have help and/or man page
+- [ ] Use results from tmux buffer
+** TODO  convert ansi color to pango
+** TODO rofi web search with live results
+** TODO osquery custom tables
++ tmux buffers
++ emacs buffers
++ qutebrowser
+  - windows
+  - tabs
+  - current page code blocks
+** TODO eBPF :PoC:
+** TODO DOOM package :PoC:
+** TODO emacs org-mode binding M-TAB -> toggle list bullet type [+|-]
+** TODO generate incrontab for yadm controlled files
+** TODO Slack bot :PoC:
+** TODO pre-commit :pip:python:
+** TODO waybar bind mouse scroll to window size
+** TODO Hotkey cheatsheet
+** TODO rofi as Emacs M-x like menu with hotkey attached to action
+** TODO zsh C-k/C-u kill line backward/foreward also copy to clipboard
+** TODO Connect script to wl-copy command
+** TODO password-store as default ASKPASS command
+** TODO qutebrowser adblock dependency install
+** TODO Norwegian completion and spellcheck in Emacs
+** TODO Emacs normalize fonts changing inheritance
+** TODO Cleanup Emacs bindings
+** TODO Unread mail in statusbar
+** TODO Handle xdg-open mimetypes
+** TODO Change org-tag binding
+Interferes with ~org-capture-finalize~
+** TODO =ntfy.sh= :PoC:
+** TODO DOOM Emacs exclude modes
+** TODO show current host in tmux pane header
++ ssh callback?
+** TODO reminders of upcoming tasks
+** TODO import calendar from office 365
+https://pypi.org/project/exchangelib/
+** TODO org-roam capture with clipboard
+** TODO dot-desktop for clipboard
+** TODO gtk + qt dpi scaling
+** TODO gtk + qt color sync
+** TODO advice bedore elisp repl open, split window
+** DONE ~ls --color=tty~ not supported by =exa= :issue:
+:LOGBOOK:
+CLOCK: [2023-12-17 Sun 18:03]--[2023-12-17 Sun 18:04] =>  0:01
+CLOCK: [2023-12-17 Sun 18:02]--[2023-12-17 Sun 18:03] =>  0:01
+:END:
+** DONE fzf missing :issue:
+:LOGBOOK:
+CLOCK: [2023-12-17 Sun 18:05]--[2023-12-18 Mon 12:55] => 18:50
+:END:
+** TODO zsh-autosuggestions missing :issue:
+** TODO rofi mode script for charmap
++ ascii escapes => \xXX
++ unicode escapes => \uX .. \uXXXXXX
++ html escapes
+** TODO comma script debug update doom and tmux
+** TODO emacs batch compile conf.d in doom-userdir
+** DONE rofi multimode
+** TODO emacs render break-lines ==
+** TODO _~/.pam_environment_
+** DONE rofi script :PoC:
+:LOGBOOK:
+CLOCK: [2023-12-18 Mon 19:57]--[2023-12-18 Mon 21:05] =>  1:08
+:END:
+** TODO jump to log viewer action
+** TODO clocked in TODO in status line :org_mode:
+* Progress [0%]
 :PROPERTIES:
 :COOKIE_DATA: recursive
 :END:
 ** [0/2] tmux
-*** TODO C-t -> insert selected line from buffer
+*** TODO insert selected line from buffer
 + Reverse order
 + split-window or display-pane
 + split into window at bottom
@@ -61,7 +135,7 @@ Check doc @ github.com/jwigley/use-package
 + change var ~org-log-state-notes-into-drawer~
 *** TODO [#B] org-mode emphasize symbol-at-point
 *** TODO [#B] org-alert
-*** STRT STUDY [#A] C-C n n -> ~org-capture~ to this file
+*** STRT [#A] C-C n n -> ~org-capture~ to this file
 :LOGBOOK:
 CLOCK: [2023-12-18 Mon 15:15]
 :END:
@@ -69,7 +143,10 @@ CLOCK: [2023-12-18 Mon 15:15]
 *** TODO [#C] set =+= as default list bullet
 *** TODO [#C] always add priority to tasks
 *** TODO import github.com project kanban boards
-*** TODO [#A] add this file to list ~org-agenda-files~
+*** DONE [#A] add this file to list ~org-agenda-files~
+:LOGBOOK:
+CLOCK: [2023-12-19 Tue 14:22]--[2023-12-19 Tue 15:06] =>  0:44
+:END:
 *** TODO [#C] replace IDEA with 💡in buffers
 *** TODO select task function
 ** [0/3] script
@@ -87,68 +164,6 @@ CLOCK: [2023-12-18 Mon 15:15]
 + Emacs to editor
 + Alacritty to terminal
 *** TODO assign workspaces to monitors
-** [2/40] other
-*** TODO [#C] detect away from keyboard
-*** TODO zsh completion
-- [ ] Generic
-  All commands that have help and/or man page
-- [ ] Use results from tmux buffer
-*** TODO convert ansi color to pango
-*** TODO rofi web search with live results
-*** TODO osquery custom tables
-+ tmux buffers
-+ emacs buffers
-+ qutebrowser
-  - windows
-  - tabs
-  - current page code blocks
-*** TODO eBPF :PoC:
-*** TODO DOOM package :PoC:
-*** TODO emacs org-mode binding M-TAB -> toggle list bullet type [+|-]
-*** TODO generate incrontab for yadm controlled files
-*** TODO Slack bot :PoC:
-*** TODO pre-commit :pip:python:
-*** TODO waybar bind mouse scroll to window size
-*** TODO Hotkey cheatsheet
-*** TODO rofi as Emacs M-x like menu with hotkey attached to action
-*** TODO zsh C-k/C-u kill line backward/foreward also copy to clipboard
-*** TODO Connect script to wl-copy command
-*** TODO password-store as default ASKPASS command
-*** TODO qutebrowser adblock dependency
-*** TODO Norwegian completion in Emacs
-*** TODO Emacs normalize fonts changing inheritance
-*** TODO Cleanup Emacs bindings
-*** TODO Unread mail in statusbar
-*** TODO Handle xdg-open mimetypes
-*** TODO Change org-tag binding
-*** TODO =ntfy.sh= :PoC:
-*** TODO DOOM Emacs exclude modes
-*** TODO show current host in tmux pane header
-+ ssh callback?
-*** TODO reminders of upcoming tasks
-*** TODO import calendar from office 365
-https://pypi.org/project/exchangelib/
-*** TODO org-roam capture with clipboard
-*** TODO dot-desktop for clipboard
-*** TODO gtk + qt dpi scaling
-*** TODO gtk + qt color sync
-*** TODO advice bedore elisp repl open, split window
-*** DONE ~ls --color=tty~ not supported by =exa= :issue:
-:LOGBOOK:
-CLOCK: [2023-12-17 Sun 18:03]--[2023-12-17 Sun 18:04] =>  0:01
-CLOCK: [2023-12-17 Sun 18:02]--[2023-12-17 Sun 18:03] =>  0:01
-:END:
-*** DONE fzf missing :issue:
-:LOGBOOK:
-CLOCK: [2023-12-17 Sun 18:05]--[2023-12-18 Mon 12:55] => 18:50
-:END:
-*** TODO zsh-autosuggestions missing :issue:
-*** TODO rofi mode script for charmap
-+ ascii escapes => \xXX
-+ unicode escapes => \uX .. \uXXXXXX
-+ html escapes
-*** TODO comma script debug update doom and tmux
-*** TODO emacs render break-lines ==
 * Notes
 - Note taken on [2023-12-10 Sun 15:34] \\
   Parse *Slack emoji syntax

@@ -1,0 +1,470 @@
+#!/usr/bin/env python3
+# -*- mode: python -*-
+
+import socket
+import os
+import sys
+import re
+import box
+
+from i3ipc import Connection
+
+# import logging
+os.environ['LOGURU_FORMAT'] = "{file}:<lvl>{line}</lvl>: | <lvl>{function}()</lvl>  {message}"
+
+# os.environ['LOGURU_DEBUG_COLOR'] = "<fg #" + "ff" * 3 + ">"
+# os.environ['LOGURU_DEBUG_COLOR'] = "<dim>"
+# os.environ['LOGURU_DEBUG_COLOR'] = "<orange>"
+
+from loguru import logger
+import loguru
+from rich import print
+from pathlib import Path
+import subprocess
+from subprocess import (
+    run,
+    Popen,
+    PIPE,
+    DEVNULL,
+    TimeoutExpired,
+)
+
+
+def debug(func):
+    def _wrapper(*args, **kwargs):
+        ret = func(*args, **kwargs)
+        print(args, kwargs, ret, file=sys.stderr, sep='\n')
+        return ret
+    return _wrapper
+
+
+def post(wrap_in):
+    def _inner(func):
+        def _wrapper(*args, **kwargs):
+            ret = func(*args, **kwargs)
+            ret = wrap_in(ret)
+            return ret
+        return _wrapper
+    return _inner
+
+def pre(wrap_in):
+    def _inner(func):
+        def _wrapper(*args, **kwargs):
+            ret = wrap_in(*args, **kwargs)
+            ret = func(ret, *args, **kwargs)
+            return ret
+        return _wrapper
+    return _inner
+
+
+def catch(exception):
+    def _inner(func):
+        def _wrapper(*args, **kwargs):
+            try:
+                ret = func(*args, **kwargs)
+            except exception as e:
+                print(e)
+                ret = b''
+            return ret
+        return _wrapper
+    return _inner
+
+
+def parent_zsh():
+    print("TODO zsh", file=sys.stderr)
+
+
+@debug
+def parent_emacs():
+    client = emacsclient       # emacsclient()
+    buffer = client('(buffer-list)')
+
+
+def missing_handler():
+    msg = "no handler for {basename}".format(**res.groupdict())
+    print(msg, file=sys.stderr)
+
+
+def spawn(send):
+    # c = run(cmd, shell=False, capture_output=True, timeout=1, check=False).stdout
+    uid = os.getuid()
+    for sock in Path(f"/run/user/{uid}/").glob("sway*.sock"):
+        _env = dict(
+            SWAYSOCK=sock.absolute().__str__(),
+            # WAYLAND_DISPLAY="wayland-1",
+            DBUS_SESSION_BUS_ADDRESS=f'unix:path=/run/user/{uid}/bus',
+        )
+        cmd = f"/usr/bin/env smaymsg {send}"
+        # cmd = f"/usr/bin/env smaymsg {send}"
+        executable, *args = cmd.split()
+        c = run(args=args, executable=executable, shell=False, capture_output=True, timeout=1, check=True, env=_env)
+        # c = run(cmd, shell=False, capture_output=True, timeout=1, check=True, env=_env)
+
+
+def swaymsg(send):
+    uid = os.getuid()
+    for sock in Path(f'/run/user/{uid}').glob("sway*.sock"):
+        _env = dict(
+            SWAYSOCK=sock.absolute().__str__(),
+            DBUS_SESSION_BUS_ADDRESS=f'unix:path=/run/user/{uid}/bus',
+            **kwargs.get('env', {})
+        )
+        cmd = f"/usr/bin/env smaymsg '{send}'"
+        executable, *args = cmd.split()
+
+        return run(
+            args=args,
+            executable=executable,
+            shell=False,
+            capture_output=True,
+            timeout=1,
+            check=True,
+            env=_env,
+        )
+
+
+def emacsclient(lisp):
+    cmd = f"/usr/bin/emacsclient --no-wait --eval {lisp}"
+    c = sway_exec(cmd)
+
+    return c.stdout
+
+
+def _exec(cmd, uid=os.getuid(), **kwargs):
+    sock = None
+    for _ in Path(f'/run/user/{uid}').glob("sway*.sock"):
+        sock = _.absolute().__str__()
+
+    exe, args = cmd.split(' ', 1)
+
+    return Popen(
+        f"""swaymsg exec '{cmd}'""".split(),
+        env=dict(
+            SWAYSOCK=sock,
+            DBUS_SESSION_BUS_ADDRESS=f'unix:path=/run/user/{uid}/bus',
+            **kwargs.get('env', {}),
+        ),
+    )
+
+
+def _exec_shell(cmd, uid=os.getuid(), **kwargs):
+    sock = None
+    for _ in Path(f'/run/user/{uid}').glob("sway*.sock"):
+        sock = _.absolute().__str__()
+
+    exe, args = cmd.split(' ', 1)
+
+    return Popen(
+        f"""swaymsg exec sh -c {cmd}""".split(),
+        # f"""swaymsg exec /bin/sh -c '{cmd}'""".split(' '),
+        env=dict(
+            SWAYSOCK=sock,
+            DBUS_SESSION_BUS_ADDRESS=f'unix:path=/run/user/{uid}/bus',
+            **kwargs.get('env', {}),
+        ),
+    )
+
+
+ppid = os.getppid()
+exe = os.path.realpath(f'/proc/{ppid}/exe')
+pat = r'(?P<basename>[^/]+?)(?P<version>[0-9\.\-_]+)?$'
+res = re.search(pat, exe)
+uid = os.getuid()
+
+s = subprocess
+
+let = '''
+'''
+
+body = '''
+WINDOW
+'''
+
+lisp = f'''
+(let* ({let}) {body}))
+'''.replace('\n', '')
+
+lisp = f'''(nth 0 (window-list))'''.replace('\n', '')
+lisp = f'''(window-list)'''
+lisp = f'''(window-list)'''.replace('\n', '')
+lisp = f'''(nth 0 (window-list))'''.replace('\n', '')
+
+shell = 1
+check = 0
+
+'''
+{'outer': b'#<window 303 on _meta_return> #<window 301 on M-RET!>', 'inner': b'window 303 on _meta_return> #<window 301 on M-RET!'}
+{'outer': b'#<window 312 on _meta_return>', 'inner': b'window 312 on _meta_return'}
+'''
+# p = s.run(cmd.split() if shell == 1 else cmd, shell=shell == 1, check=check == 1, capture_output=True)
+# p = s.run(executable=cmd.split()[0], args=cmd.split()[1:] if shell == 1 else cmd, shell=shell == 1, check=check == 1, capture_output=True)
+def run(cmd):
+    executable, *args = cmd.split(' ', 3)
+    del cmd
+    p = subprocess.run(**vars())
+    return p
+
+
+def decode(func):
+    def _decorator(*args, **kwargs):
+        ret = func(*args, **kwargs)
+        return ret.stdout.decode()
+    return _decorator
+
+import io
+
+def log(func):
+    global logger
+    name = func.__name__
+    def _log(*args, **kwargs):
+        logger.info(f'Entering: {name}')
+        ret = func(*args, **kwargs)
+        _iter = (f'{k}={v}' for k,v in vars().items())
+
+        def f(data):
+            return bytes(data.encode('UTF8'))
+
+        with io.StringIO() as buf:
+            print(*_iter, file=buf, sep='\n')
+            # print(*vars().items(), file=buf, sep='\n')
+            buf.seek(0)
+            l = True
+
+            while l:
+                l = buf.readline()
+                logger.debug(l.rstrip())
+
+        logger.info(f'Leaving: {name}')
+
+        return ret
+
+    return _log
+
+
+@logger.catch
+@decode
+def emacs_client(elisp):
+    elisp = rf'''(progn (switch-to-buffer (nth 0 (buffer-list))){elisp})'''
+    executable, *args = ['emacsclient', '--no-wait', '--eval', elisp]
+    del elisp
+    p = subprocess.run(**vars(), check=True, capture_output=True)
+    # logger.debug(p)
+    return p
+
+
+
+# rex = re.compile(b'(?P<outer>#<(?P<inner>(?:[^<]+\s)?(?<name>[^>]+))>)')
+
+
+
+def info():
+    pat = '''(?P<outer>#<(?P<kind>\w+)(?:\s+)(?:(?P<id>\d+)(?: on ))?(?P<name>[^>]+)>)'''
+    rex = re.compile(pat)
+    res = emacs_client(r'''(list(buffer-list)(window-list)(frame-list)(process-list))''')
+    m = map(re.Match.groupdict, rex.finditer(res))
+    data = box.Box(default_box=True, camel_killer_box=True, box_dots=True)
+
+    for d in m:
+        c = d.copy()
+        kind = d.pop('kind')
+        name = d.pop('name')
+        d.pop('outer')
+        data[kind][name] = d
+
+        continue
+
+        if kind == 'buffer':
+            data[f'window.{name}.buffer'] = d
+        if kind == 'window':
+            data[f'buffer.{name}.window'] = d
+
+    data.meta.window.names = [_ for _ in data.copy().window]
+    data.meta.window.count = data.meta.window.count.__len__()
+    data.meta.process.names = [_ for _ in data.copy().process]
+    data.meta.process.count = data.meta.process.count.__len__()
+    data.meta.frame.names = [_ for _ in data.copy().frame]
+    data.meta.frame.count = data.meta.frame.count.__len__()
+    data.meta.buffer.names = [_ for _ in data.copy().buffer]
+    data.meta.buffer.count = data.meta.buffer.count.__len__()
+
+    return data
+
+
+def windows():
+    data = box.Box(default_box=True, camel_killer_box=True, box_dots=True)
+    res = emacs_client(r'''(window-list)''')
+    rex = re.compile(
+        '#<(?P<kind>\w+)(?:\s*zq)(?:(?P<id>\d+)(?: on ))?(?P<name>[^>]+)>'
+    )
+    _iter = map(re.Match.groupdict, rex.finditer(res))
+
+    for i, d in enumerate(_iter):
+        c = d.copy()
+        name = d.pop('name')
+        d.pop('kind')
+        data[name] = d
+
+    return data
+
+
+@post(lambda ret: ret.replace('-mode', ''))
+def major_mode():
+    return emacs_client(r'''major-mode''')
+
+# @post(lambda ret: ret.replace('-mode', ''))
+def buffer_name():
+    return emacs_client(r'''buffer-name''')
+
+@post(lambda ret: Path(ret))
+def file_name():
+    return emacs_client(r'''buffer-file-name''')
+
+# def let(_with, *do, **kwargs):
+#     orig = _with
+#     ret = _with
+#     res = None
+
+#     for _func in do:
+#         if kwargs.get('bool_filter', False):
+#             res = _func(ret)
+#             if type(res) is bool:
+
+#         else:
+#             ret = _func(ret)
+
+
+# res = let(
+#     file_name(),
+#     Path.exists,
+#     lambda x : x,
+#     lambda x : x,
+#     lambda x : x,
+#     lambda x : x,
+#     bool_filter=True,
+# )
+
+c = cli = client = emacs_client
+
+def run_python() -> None:
+    global __PYTHON_REPL_BUFFER_NAME__
+    if not __PYTHON_REPL_BUFFER_NAME__ in c('(window-list)'):
+        res = c('(run-python)')
+        print(res)
+
+def switch_to_python_buffer() -> None:
+    # global __PYTHON_REPL_BUFFER_NAME__
+    # c(f'(switch-to-buffer-other-window (get-buffer "*{__PYTHON_REPL_BUFFER_NAME__}*"))')
+    c(f'''
+    (switch-to-buffer-other-window
+            (get-buffer
+                (format "*%s*" python-shell-buffer-name)))
+    ''')
+
+
+def clean(data):
+    if type(data) is str:
+        rex = re.compile(r'["\n\t]+')
+        res = rex.split(data)
+        return ' '.join(clean(res))
+    elif hasattr(data, 'stdout'):
+        return clean(data.stdout.decode('UTF8'))
+    elif type(data) is list:
+        return list(filter(lambda var: len(var) != 0, data))
+
+# fetch settings
+__PYTHON_REPL_BUFFER_NAME__ = clean(c('python-shell-buffer-name'))
+# res = filter(cond, )
+
+# conditions
+__SELF__ = '_meta_return' == c('(buffer-name)')
+__MAJOR_MODE__ = c('major-mode').removesuffix('-mode')
+__PYTHON__ = 'python-mode' == c('major-mode')
+__RUN_PYTHON__ = f'*{__PYTHON_REPL_BUFFER_NAME__}*' in c('(window-list)')
+# __FOO__ = c('(process-list)')
+__ENV__ = list(filter(lambda x: 'PY' in x[0], os.environ.items()))
+
+# logger.info('Starting')
+# logger.debug(__PYTHON__)
+
+__BUFFER_FILE_NAME__ = clean(c('(buffer-file-name)'))
+__SELF__ = baz = __file__ == __BUFFER_FILE_NAME__
+
+# logger.debug(
+# f'''
+# == {__BUFFER_FILE_NAME__} == {__file__} => {__SELF__}'''
+# )
+
+
+# @log
+def test(x):
+    res = re.match(r'^__.+__$', x[0])
+    logger.debug(x)
+    logger.debug(res)
+
+    return res
+
+
+# map(
+#     logger.debug,
+#     filter(
+#         test,
+#         vars().copy().items(),
+#     )
+# )
+
+# if __PYTHON__ and __BUFFER_FILE_NAME__ != __file__:
+if True:
+    @post(clean)
+    def c(x):
+        return emacs_client(x)
+
+    d = data = info()
+
+    __PYTHON_REPL_BUFFER_NAME__ = c(f'''(format "*%s*" python-shell-buffer-name)''')
+    __BUFFER_FILENAME__ = c(f'''(buffer-file-name)''')
+    __BUFFER_MAJOR_MODE__ = c(f'''major-mode''')
+    __BUFFER__ = c(f'(get-buffer "{__PYTHON_REPL_BUFFER_NAME__}")')
+    __REPL_VISIBLE__ = __PYTHON_REPL_BUFFER_NAME__ in c(f'(window-list)')
+    __REPL_RUNNING__ = __PYTHON_REPL_BUFFER_NAME__ in c(f'(process-list)')
+    __ELISP__ = tmp = f'(get-buffer "{__PYTHON_REPL_BUFFER_NAME__}")'
+
+    import time
+    # res = c(f'(switch-to-buffer-other-window {tmp})')
+    if re.match(r'python-mode', __BUFFER_MAJOR_MODE__):
+        if not __REPL_RUNNING__:
+            res = c('(run-python)')
+
+        if not __REPL_VISIBLE__:
+            res = c(f'(switch-to-buffer-other-window {tmp})')
+
+        c(f'(python-shell-send-file (buffer-file-name (nth 0 (buffer-list))))')
+
+    if re.match(r'go-mode', __BUFFER_MAJOR_MODE__):
+        c(f'(let ((compile-command (concat "go run " (buffer-file-name)))) (recompile))', timeout=1)
+
+    ## BACKUP ## c(f'(python-shell-send-buffer (nth 0 (buffer-list)))')
+
+    # list(map(logger.info, list(vars().items())[-10:]))
+
+    # logger.info(data.meta.window.names)
+
+    # logger.info(res)
+    # print(f'{res}')
+    # logger.info(clean(res))
+
+#     res = emacs_client(r'''\
+# (let ((NAME )
+#   (BUFFER ))
+#   (run-python)
+#     (switch-to-buffer-other-window BUFFER)
+# )\
+# ''')
+
+    # logger.info('Success!')
+
+else:
+    # logger.warning('Foo')
+    exit(42)
+
+
+exit(0)

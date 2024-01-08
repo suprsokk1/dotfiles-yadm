@@ -6,10 +6,15 @@ set -g mouse           on
 
 set-option -g default-shell /bin/zsh
 
-# truecolor (24 bit color)
-set -g default-terminal "screen-256color"
-set -sg terminal-overrides ",*:RGB"
+set -g default-terminal     "screen-256color"
+set -sg terminal-overrides  ",*:RGB:clipboard"
 
+# WORKING! truecolor (24 bit color)
+# set -g default-terminal "screen-256color"
+
+# set -g default-terminal "tmux-256color"
+# set -ag terminal-overrides ",xterm-256color:RGB"
+# set-option -sa terminal-features   ',rxvt-unicode-256color:clipboard:extkeys'
 
 # set-option -g default-shell ~/.cargo/bin/nu
 
@@ -20,16 +25,12 @@ set -sg terminal-overrides ",*:RGB"
 # set -s set-clipboard external
 
 # wl-copy|xsel|xclipboard|xclip
-set -s copy-command 'wl-copy'
+set -s copy-command '/usr/bin/wl-copy'
 
 # set -s set-clipboard external
 # set -s set-clipboard off
 
 # set-option -sa terminal-overrides  ',xterm:Tc'
-
-# set -g default-terminal "tmux-256color"
-# set -ag terminal-overrides ",xterm-256color:RGB"
-# set-option -sa terminal-features   ',rxvt-unicode-256color:clipboard:extkeys'
 
 source-file ~/.config/tmux/tmux.conf
 

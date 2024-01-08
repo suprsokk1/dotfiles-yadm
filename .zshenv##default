@@ -1,8 +1,10 @@
 # -*- mode: sh[zsh] -*-
-EMACS='/usr/bin/emacs'
+. ~/.profile
+
+EMACS=/usr/bin/emacs-29.1
 export EMACS
 
-EDITOR=emasclient
+EDITOR=emacsclient
 export EDITOR
 
 ALTERNATE_EDITOR=vim
@@ -12,18 +14,43 @@ VISUAL=$EDITOR
 export VISUAL
 
 XDG_RUNTIME_DIR=/run/user/${UID:-$(command id -u)}
-export XDG_RUNTIME_DIR
+
+TERMINAL=screen-256color
+export TERMINAL
 
 ZSH=$HOME/src/ohmyzsh
 export ZSH
 
 FZF_BASE=$HOME/src/fzf
-export FZF_BASE
+FZF_DEFAULT_COMMAND='/usr/bin/env --ignore-environment'
+FZF_DEFAULT_COMMAND+=' fd'
+FZF_DEFAULT_COMMAND+=' --type f'
+FZF_DEFAULT_COMMAND+=' --hidden'
+FZF_DEFAULT_COMMAND+=' --exclude .git'
 
-SUDO_ASKPASS=$HOME/bin/askpass
+# shellcheck disable=SC2089,SC2090
+FZF_DEFAULT_OPTS=' --preview='\''_fzf__preview {+}'\'''
+FZF_DEFAULT_OPTS+=' --layout=reverse'
+FZF_DEFAULT_OPTS+=' --border=none'
+FZF_DEFAULT_OPTS+=' --height 10'
+FZF_DEFAULT_OPTS+=' --bind ctrl-a:select-all'
+FZF_DEFAULT_OPTS+=' --bind ctrl-t:toggle-all'
+FZF_DEFAULT_OPTS+=' --bind ctrl-v:toggle-preview'
+FZF_DEFAULT_OPTS+=' --query="'
+FZF_DEFAULT_OPTS+='"'
+FZF_DEFAULT_OPTS+=' --header="'
+FZF_DEFAULT_OPTS+='C-a: Mark all C-t: Mark/Unmark all C-v:Hide/Show preview'
+FZF_DEFAULT_OPTS+='"'
+FZF_DEFAULT_OPTS+=' --prompt="> "'
+
+export FZF_DEFAULT_OPTS
+
+# SUDO_ASKPASS=$HOME/bin/askpass
+SUDO_ASKPASS='/usr/bin/systemd-askpass'
 export SUDO_ASKPASS
 
-# SUDO_COMMAND="--askpass"
-# SUDO_COMMAND+=" --non-interative"
-# SUDO_COMMAND+=" --command-timeout=120
-# export SUDO_COMMAND
+TMPPREFIX=$XDG_RUNTIME_DIR/zsh
+export TMPPREFIX
+
+PYTHONSTARTUP=~/.pythonrc
+export PYTHONSTARTUP

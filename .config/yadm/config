@@ -1,7 +1,7 @@
 [include]
 	path = ~/.local/share/yadm/config
 [class]
-	local = factory
+	local = stable
 [yadm]
 	auto-alt = 0
 [bootstrap "env"]
@@ -73,3 +73,7 @@
 	alt = 🤔
 [notify-send]
 	expire-time = 10000
+[file "crontab"]
+	content = 
+[default "rofi"]
+	mode = combi

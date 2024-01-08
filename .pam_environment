@@ -1,1 +1,17 @@
+SHELL=/bin/zsh
+export SHELL
+
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+export XDG_CONFIG_HOME
+
+XDG_RUNTIME_DIR=/run/user/$UID
+# export XDG_RUNTIME_DIR
+
+TMPDIR=$XDG_RUNTIME_DIR/tmp
+export TMPDIR
+
+RUSTFLAGS="-C target-cpu=native"
+export RUSTFLAGS
+
+PYTHONSTARTUP=$HOME/.pythonrc
+export PYTHONSTARTUP

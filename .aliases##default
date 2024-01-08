@@ -1,63 +1,63 @@
 # -*- mode: sh -*-
 
-# TODO prefix aliases with ',' except those already prefixed with @
-# TODO systemctl verbs with completion
-# TODO 'grep' wrapper function for 'rg'
+# # TODO prefix aliases with ',' except those already prefixed with @
+# # TODO systemctl verbs with completion
+# # TODO 'grep' wrapper function for 'rg'
 
-if [[ $ZSH_VERSION ]]; then
-alias -s git='command env -C ~/src git clone --depth 1'
-if command -v highlight &>/dev/null; then
-for ext in y{,a}ml `# FIXME # json` conf{,ig} txt desktop ini toml; do
-alias -s $ext='command highlight -O ansi --force'
-done
-fi
-fi
+# if [[ $ZSH_VERSION ]]; then
+# alias -s git='command env -C ~/src git clone --depth 1'
+# if command -v highlight &>/dev/null; then
+# for ext in y{,a}ml `# FIXME # json` conf{,ig} txt desktop ini toml; do
+# alias -s $ext='command highlight -O ansi --force'
+# done
+# fi
+# fi
 
-if command -v podman &>/dev/null; then
-alias docker='command podman'
-fi
+# if command -v podman &>/dev/null; then
+# alias docker='command podman'
+# fi
 
-alias -- top='command btop'
+# alias -- top='command btop'
 
-alias -- @='/usr/bin/env xargs'
-alias -- @0='/usr/bin/env xargs --null'
-alias -- @1='/usr/bin/env xargs -n1'
-alias -- @P='/usr/bin/env xargs --max-procs=$(cpus)'
-alias -- @P1='/usr/bin/env xargs --max-procs=$(cpus) -n1'
+# alias -- @='/usr/bin/env xargs'
+# alias -- @0='/usr/bin/env xargs --null'
+# alias -- @1='/usr/bin/env xargs -n1'
+# alias -- @P='/usr/bin/env xargs --max-procs=$(cpus)'
+# alias -- @P1='/usr/bin/env xargs --max-procs=$(cpus) -n1'
 
-alias -- tar='command tar --exclude-from=${HOME}/.config/ignore --exclude-vcs-ignores'
-alias -- reload='. ~/.${BASH_VERSION:+bash}${ZSH_VERSION:+zsh}rc'
-alias -- rl='reload'
+# alias -- tar='command tar --exclude-from=${HOME}/.config/ignore --exclude-vcs-ignores'
+# alias -- reload='. ~/.${BASH_VERSION:+bash}${ZSH_VERSION:+zsh}rc'
+# alias -- rl='reload'
 
-# alias -- cat='command highlight -O ansi --force' # FIXME / TODO
-# alias -- ,man='tmux display-popup -B' # FIXME
+# # alias -- cat='command highlight -O ansi --force' # FIXME / TODO
+# # alias -- ,man='tmux display-popup -B' # FIXME
 
-alias -- --='command stdbuf -oL'
-alias -- edit='command ${EDITOR:-${VISUAL:-vi}} `test [[ $EDITOR =~ emacs ]] && echo --no-wait`'
+# alias -- --='command stdbuf -oL'
+# alias -- edit='command ${EDITOR:-${VISUAL:-vi}} `test [[ $EDITOR =~ emacs ]] && echo --no-wait`'
 
-alias -- json_="command grep -Poz '{[\s\S]+}'"
-# alias -- jq='command jq --from-file ~/.functions.jq' # FIXME jq have rc file?
+# alias -- json_="command grep -Poz '{[\s\S]+}'"
+# # alias -- jq='command jq --from-file ~/.functions.jq' # FIXME jq have rc file?
 
-alias -- md='\mkdir'
-alias -- pgrep='command pgrep --list-full'
+# alias -- md='\mkdir'
+# alias -- pgrep='command pgrep --list-full'
 
-#
-# tmux
-#
+# #
+# # tmux
+# #
 
-# pane direction
-for ITEM in up down right left; do
-eval "alias -- capp${ITEM::1}='tmux capture-pane -p -t '\''{ITEM}'\'' | cat --squeeze-blank' ; alias -- capu='capp${ITEM::1}'"
-done
+# # pane direction
+# for ITEM in up down right left; do
+# eval "alias -- capp${ITEM::1}='tmux capture-pane -p -t '\''{ITEM}'\'' | cat --squeeze-blank' ; alias -- capu='capp${ITEM::1}'"
+# done
 
-# import aliases
-if test -s ~/.config/tmux/tmux.conf; then
-. <(sed -E '/command.alias/!d;s#.*[[:space:]]+([[:print:]]*)='\''(.*)'\''#alias -- \1='\''tmux \2'\''#' ~/.config/tmux/tmux.conf)
-fi
-unalias man &>/dev/null
+# # import aliases
+# if test -s ~/.config/tmux/tmux.conf; then
+# . <(sed -E '/command.alias/!d;s#.*[[:space:]]+([[:print:]]*)='\''(.*)'\''#alias -- \1='\''tmux \2'\''#' ~/.config/tmux/tmux.conf)
+# fi
+# unalias man &>/dev/null
 
-#
-# gron
-#
+# #
+# # gron
+# #
 
-alias -- ungron='command gron --ungron'
+# alias -- ungron='command gron --ungron'

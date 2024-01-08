@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!env _shebang
 echo TODO $0 >&2
 exit 0
 tty --silent || exit 1

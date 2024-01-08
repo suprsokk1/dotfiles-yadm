@@ -191,3 +191,68 @@ https://davidbosman.fr/tux/post/emacs-typewriter-mode/ The Emacs noob: Typewrite
 https://github.com/alacritty/alacritty#configuration GitHub - alacritty/alacritty: A cross-platform, OpenGL terminal emulator.
 https://wiki.archlinux.org/title/Alacritty Alacritty - ArchWiki
 https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6 True Color (24-bit) and italics with alacritty + tmux + vim (neovim) · GitHub
+http://0pointer.de/blog/projects/watchdog.html systemd for Administrators, Part XV
+https://man7.org/linux/man-pages/man8/pam_env.8.html pam_env(8) - Linux manual page
+https://codeberg.org/captain-proton/dotfiles/src/branch/main/emacs/config.org dotfiles/emacs/config.org at main - captain-proton/dotfiles - Codeberg.org
+https://wiki.archlinux.org/title/snapper Snapper - ArchWiki
+https://www.masteringemacs.org/article/compiling-running-scripts-emacs Compiling and running scripts in Emacs - Mastering Emacs
+https://github.com/searxng/searxng GitHub - searxng/searxng: SearXNG is a free internet metasearch engine which aggregates results from various search services and databases. Users are neither tracked nor profiled.
+https://www.mankier.com/5/Containerfile Containerfile: automate the steps of creating a container image | containers File Formats | Man Pages | ManKier
+https://www.kernel.org/doc/Documentation/cgroup-v1/memory.txt https://www.kernel.org/doc/Documentation/cgroup-v1/memory.txt
+https://docs.searxng.org/dev/search_api.html Search API — SearXNG Documentation (2023.12.11+8a4104b99)
+https://www.phoronix.com/review/linux_2637_video/2 The ~200 Line Linux Kernel Patch That Does Wonders Review - Phoronix
+https://man7.org/linux/man-pages/man5/resolv.conf.5.html resolv.conf(5) - Linux manual page
+https://docs.searxng.org/admin/settings/settings.html#settings-yml settings.yml — SearXNG Documentation (2023.12.11+8a4104b99)
+https://libvirt.org/formatstorage.html libvirt: Storage pool and volume XML format
+https://github.com/yaa110/nomino GitHub - yaa110/nomino: Batch rename utility for developers
+https://github.com/holman/spark GitHub - holman/spark: ▁▂▃▅▂▇ in your shell.
+https://www.man7.org/linux/man-pages/man7/capabilities.7.html capabilities(7) - Linux manual page
+https://wiki.gentoo.org/wiki/Varnish Varnish - Gentoo wiki
+http://127.0.0.1:8080/search SearXNG
+https://wiki.gentoo.org/wiki/Gentoo_specific_directories Gentoo specific directories - Gentoo wiki
+https://porterbuddy.com/ Porterbuddy
+https://porterbuddy.com/partners Porterbuddy
+https://www.fjellsport.no/sok?q=bambus Søkeresultat | Fjellsport.no
+https://unix.stackexchange.com/questions/191205/bash-base-conversion-from-decimal-to-hex shell - BASH base conversion from decimal to hex - Unix & Linux Stack Exchange
+https://docs.ansible.com/ansible/latest/reference_appendices/special_variables.html Special Variables — Ansible Documentation
+https://github.com/tsayen/dom-to-image#usage GitHub - tsayen/dom-to-image: Generates an image from a DOM node using HTML5 canvas
+https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html#using-role-dependencies Roles — Ansible Documentation
+https://orgmode.org/manual/Template-elements.html Template elements (The Org Manual)
+https://github.com/ajeetdsouza/zoxide GitHub - ajeetdsouza/zoxide: A smarter cd command. Supports all major shells.
+https://davatorium.github.io/rofi/guides/Transparency/theme3-transparency/ Transparency - Rofi Documentation
+http://10.0.10.218/ 10.0.10.218
+https://en.wikibooks.org/wiki/Regular_Expressions/POSIX-Extended_Regular_Expressions Regular Expressions/POSIX-Extended Regular Expressions - Wikibooks, open books for an open world
+https://github.com/liamg/darktile GitHub - liamg/darktile: :waning_crescent_moon: Darktile is a GPU rendered terminal emulator designed for tiling window managers.
+https://wiki.gentoo.org/wiki/AMDGPU AMDGPU - Gentoo wiki
+https://sw.kovidgoyal.net/kitty/ kitty
+https://github.com/meilisearch/meilisearch GitHub - meilisearch/meilisearch: A lightning-fast search API that fits effortlessly into your apps, websites, and workflow
+https://inteltechniques.com/ IntelTechniques by Michael Bazzell
+https://inteltechniques.com/links.html IntelTechniques Resources
+https://fedoramagazine.org/randomize-mac-address-nm/ Randomize your MAC address using NetworkManager - Fedora Magazine
+https://github.com/junegunn/fzf/blob/master/ADVANCED.md fzf/ADVANCED.md at master · junegunn/fzf · GitHub
+https://wiki.archlinux.org/title/systemd/User systemd/User - ArchWiki
+https://www.oslo.kommune.no/skatt-og-naring/salg-servering-og-skjenking/salgstider-for-ol/ Salgstider for øl - Salg, servering og skjenking - Oslo kommune
+https://stackabuse.com/managing-python-environments-with-direnv-and-pyenv/ Managing Python Environments with direnv and pyenv
+https://github.com/idank/explainshell GitHub - idank/explainshell: match command-line arguments to their help text
+https://specifications.freedesktop.org/notification-spec/latest/ar01s09.html D-BUS Protocol
+https://github.com/upx/upx GitHub - upx/upx: UPX - the Ultimate Packer for eXecutables
+https://www.unicode.org/reports/tr44/ UAX #44: Unicode Character Database
+https://docs.python.org/3/library/codecs.html#module-codecs codecs — Codec registry and base classes — Python 3.12.1 documentation
+https://www.programiz.com/python-programming/multiple-inheritance Python Multiple Inheritance (With Examples)
+https://github.com/huggingface/transformers GitHub - huggingface/transformers: 🤗 Transformers: State-of-the-art Machine Learning for Pytorch, TensorFlow, and JAX.
+https://github.com/zsh-users/antigen GitHub - zsh-users/antigen: The plugin manager for zsh.
+https://github.com/jondot/awesome-devenv GitHub - jondot/awesome-devenv: A curated list of awesome tools, resources and workflow tips making an awesome development environment.
+https://wiki.archlinux.org/title/sway Sway - ArchWiki
+https://www.haproxy.com/blog/haproxy-traffic-mirroring-for-real-world-testing HAProxy Traffic Mirroring for Real-World Testing
+https://github.com/pyston/pyston/ GitHub - pyston/pyston: A faster and highly-compatible implementation of the Python programming language.
+https://python-reference.readthedocs.io/en/latest/docs/dunderattr/setattr.html __setattr__ — Python Reference (The Right Way) 0.1 documentation
+https://github.com/Alexays/Waybar GitHub - Alexays/Waybar: Highly customizable Wayland bar for Sway and Wlroots based compositors. :tada:
+https://www.redhat.com/sysadmin/ansible-dynamic-inventory-python How to write a Python script to create dynamic Ansible inventories | Enable Sysadmin
+https://github.com/LEW21/pydbus GitHub - LEW21/pydbus: Pythonic DBus library
+https://zsh.sourceforge.io/Guide/zshguide06.html A User's Guide to the Z-Shell
+https://www.gnu.org/software/emacs/manual/html_mono/dbus.html Using of D-Bus
+https://github.com/hlissner/.doom.d/blob/6af0a541e0b6b6ec9aee4cb9f05e5cbec0800d91/config.el .doom.d/config.el at master · hlissner/.doom.d · GitHub
+https://wiki.osdev.org/UEFI UEFI - OSDev Wiki
+https://theforeman.org/manuals/2.1/quickstart_guide.html Foreman :: Quickstart
+https://click.palletsprojects.com/en/7.x/commands/#nested-handling-and-contexts Commands and Groups — Click Documentation (7.x)
+https://click.palletsprojects.com/en/8.1.x/commands/ Commands and Groups — Click Documentation (8.1.x)

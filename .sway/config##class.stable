@@ -1,18 +1,24 @@
 # -*- mode: conf -*-
-xwayland enable
-
 include colors
+include adhoc.conf
 include conf.d/*.conf
 include /etc/sway/config.d/*
+
+xwayland enable
+
+# set $rofi "rofi -show drun -modi drun,window,ssh"
+set $rofi "rofi -show combi -modes combi -combi-modes drun,window,ssh"
+
+bindsym --to-code {
+   Mod4+d exec --no-startup-id $rofi
+   Mod3+d exec --no-startup-id $rofi
+}
 
 focus_follows_mouse no
 
 focus_wrapping force
 
 font San Francisco Display 0
-
-# output * bg ~/.local/wallpaper fill
-
 
 # drag and drop
 floating_modifier Mod4 normal
@@ -58,7 +64,7 @@ bindsym --to-code Mod1+Mod4+c    reload
 # bindsym --to-code Mod3+Mod1+c    mode "restart"
 bar {
     # strip_workspace_numbers yes|no
-    strip_workspace_numbers yes
+    strip_workspace_numbers no
 
     # strip_workspace_name yes|no
     strip_workspace_name yes
@@ -75,18 +81,14 @@ bar {
 }
 
 
-bar {
-    pango_markup enabled
-    swaybar_command waybar -c ~/.config/waybar/config_extra
-}
+# bar {
+#     pango_markup enabled
+#     swaybar_command waybar -c ~/.config/waybar/config_extra
+# }
 
+# set $rofi _wrapper__rofi
 
-bindsym --to-code {
-   Mod4+d exec --no-startup-id "rofi -show drun -modi drun,window,ssh"
-   Mod3+d exec --no-startup-id "rofi -show drun -modi drun,window,ssh"
-}
-
-
+# '--locked' run while in lock screen
 bindsym --to-code --locked {
   XF86AudioLowerVolume  exec pactl set-sink-volume @DEFAULT_SINK@ -5%
   XF86AudioMicMute      exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
@@ -167,7 +169,6 @@ mode "[1-3]: Move window to workspace" {
     bindsym Mod3+3 move to workspace 3
 
     # Return to default mode
-    
     # Return to default modebindsym Return mode "default"bindsym Escape mode "default"
 
 }
@@ -206,6 +207,7 @@ mode "25 ppt : 33 ppt : 66 ppt : 75 ppt" {
     }
 }
 
+
 mode "Kill window?" {
 
     bindsym --to-code {
@@ -219,6 +221,7 @@ mode "Kill window?" {
     }
 }
 
+
 mode "1: Default(tiled) 2: Tabbed 3: Stacked" {
      bindsym --to-code {
         1 layout "default" ; exec notify-send "Layout" "default"
@@ -230,6 +233,7 @@ mode "1: Default(tiled) 2: Tabbed 3: Stacked" {
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
+
 
 mode "1: Move to workspace  2: Layout 3:  q: kill window" {
     bindsym --to-code {
@@ -249,10 +253,18 @@ mode "1: Move to workspace  2: Layout 3:  q: kill window" {
     # Return to default mode
     bindsym Return mode "default"
     bindsym Escape mode "default"
+
 }
 
 
-bindsym Mod4+t exec /usr/bin/bash -c '$HOME/bin/, Super t'
-
+bindsym                               Mod4+t exec /usr/bin/bash -c '$HOME/bin/, Super t'
 for_window [title="SCAP"]             floating enabled
 for_window [title="GNOME Tweaks"]     floating enabled
+
+
+output HEADLESS-1 {
+       pos 1920,0
+       mode 1280x720@75Hz
+}
+
+# output * bg ~/.local/wallpaper fill

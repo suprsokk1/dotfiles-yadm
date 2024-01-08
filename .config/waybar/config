@@ -9,19 +9,19 @@
 
     "id": "bar-0",
     "ipc": true,
-
+    // TODO debug mode
+    // bug => 🐜
     // "keyboard-state",
     "modules-right": [
         "sway/mode",
         "custom/shell-json",
         "backlight",
         "network#vpn",
-        "network",
-        "battery",
         "sway/language",
+        "network",
+        "pulseaudio",
+        "battery",
         "clock"
-
-        // "pulseaudio"
         // "temperature",
         // "cpu",
         // "memory"
@@ -32,9 +32,9 @@
         "sway/workspaces"
     ],
 
-
     "modules-center": [
-        "custom/debug"
+        "custom/debug",
+        "sway/window"
     ],
 
     "custom/debug": {
@@ -42,23 +42,32 @@
         "return-type": "text",
         "max-length": 40,
         "interval": 2,
-        "exec": ", info",
-        "on-click": "pkill -SIGRTMIN+8 --exact waybar",
+        // "exec": "/usr/bin/env , info",
         "signal": 8,
     },
+
+    // "custom/debug": {
+    //     "format": "debug: {}",
+    //     "return-type": "text",
+    //     "max-length": 40,
+    //     "interval": 2,
+    //     "exec": ", info",
+    //     "on-click": "pkill -SIGRTMIN+8 --exact waybar",
+    //     "signal": 8,
+    // },
 
     "custom/shell-text": {
         "format": "{} {icon}",
         "format-good": "",
         "return-type": "text",
         "max-length": 40,
+        // "exec": "/usr/bin/env, jump text",
         "format-icons": {
             "good": "",
-            "bad": "⚠",
+            "bad": "🚫",
             "default": ""
         },
-        "escape": true,
-        "exec": ", waybar text"
+        "escape": true
 
     },
 
@@ -66,17 +75,16 @@
         "format": "{} {icon}",
         "return-type": "json",
         "max-length": 40,
+        // "exec": "/usr/bin/env , jump json",
         "format-icons": {
             "foo": "",
             "good": "",
-            "bad": "⚠",
+            "bad": "🚫",
             "default": ""
         },
-        "escape": true,
-        "exec": ", waybar json"
+        "escape": true
 
     },
-
 
     // "custom/bar": {
     //     "format": "",
@@ -88,21 +96,21 @@
     // },
 
 
-    "custom/foo": {
-        "format": "{icon}",
-        "format-foo": "{icon}",
-        "return-type": "json",
-        "max-length": 40,
-        "format-icons": {
-            "foo": "",
-            "good": "",
-            "bad": "⚠",
-            "default": "⚠"
-        },
-        "escape": true,
-        "exec-if": "test -L /sys/class/net/wgpia0",
-        "exec": ""
-    },
+    // "custom/foo": {
+    //     "format": "{icon}",
+    //     "format-foo": "{icon}",
+    //     "return-type": "json",
+    //     "max-length": 40,
+    //     "format-icons": {
+    //         "foo": "",
+    //         "good": "",
+    //         "bad": "🚫",
+    //         "default": "🚫"
+    //     },
+    //     "escape": true,
+    //     "exec-if": "test -L /sys/class/net/wgpia0",
+    //     "exec": ""
+    // },
 
     // Modules configuration
     "sway/workspaces": {
@@ -221,7 +229,6 @@
         "format-icons": ["", "", "", "", ""]
     },
 
-
     "battery#bat2": {
         "bat": "BAT2"
     },
@@ -230,10 +237,11 @@
         // "interface": "wlp2*", // (Optional) To force the use of this interface
         // "format-wifi": "{essid} ({signalStrength}%) ",
         "format-wifi": "",
-        "format-ethernet": "{ipaddr}/{cidr} ",
-        "tooltip-format": "{essid} {signalStrength}% {ifname} via {gwaddr} ",
-        "format-linked": "{ifname} (No IP) ",
-        "format-disconnected": "Disconnected ⚠",
+        "format-ethernet": "{ipaddr}/{cidr} 🖧",
+        "tooltip-format": "{essid} {signalStrength}% {ifname} via {gwaddr} 🖧",
+        "format-linked": "{ifname} (No IP) 🖧",
+        "format-disconnected": "Disconnected 🚫",
+        // "format-alt": "{ifname}: {ipaddr}/{cidr}"
         "format-alt": "{ifname}: {ipaddr}/{cidr}"
     },
 
@@ -243,11 +251,12 @@
         "on-click": ", pia on-click",
         "mouse-right": ", pia mouse-right",
         "format": "default: {icon}",
-        "format-alt": "{ifname}: {ipaddr}/{cidr}",
+        // "format-alt": "{ifname}: {ipaddr}/{cidr}",
+        "format-alt": "{ifname}",
         "format-ethernet": "{icon}",
         "format-icons":["󰌾"],
-        "format-linked": "{ifname} (No IP) ",
-        "format-disconnected": "⚠"
+        "format-linked": "{ifname} (No IP) 🖧",
+        "format-disconnected": "🚫"
     },
 
 

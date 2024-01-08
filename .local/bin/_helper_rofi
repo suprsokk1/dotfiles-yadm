@@ -1,2 +1,2 @@
-#!/usr/bin/env bash
+#!env _shebang
 # .local/bin/_helper_rofi

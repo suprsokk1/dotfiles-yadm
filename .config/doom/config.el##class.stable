@@ -5,13 +5,17 @@
 ;; TODO magit + yadm: list todos, but limit to files git
 ;; TODO change alpha when loosing frame focus ()
 
-(set-default (quote custom-file)
-             (expand-file-name "custom.el" "~/.local/emacs"))
 
 (setq-default
- header-line-format              "%b %V" ;(quote ("%e" (:eval)))
+ custom-file                     (expand-file-name "custom.el" "~/.local/emacs")
+
  frame-title-format              "%b %f"
+
+ ;; header-line-format              "%b %V" ;(quote ("%e" (:eval)))
+ header-line-format              nil ;(quote ("%e" (:eval)))
+
  shift-select-mode               nil
+
  comint-move-point-for-output    t
 
  +snippets-dir                   (or (expand-file-name "snippets" (file-truename doom-user-dir))
@@ -35,10 +39,38 @@
 
  compile-command                "~/bin/,"
 
+ org-log-state-notes-into-drawer t
+
+ vterm-shell                     "/bin/zsh"
+
+ company-minimum-prefix-length   4      ;performance
  )
 
-;; (let ((ELC (file-expand-wildcards (concat (expand-file-name "conf.d" (dir!)) "/*.elc"))))
-;;     (mapc #'load-file ELC))
+;; https://github.com/hlissner/.doom.d/blob/6af0a541e0b6b6ec9aee4cb9f05e5cbec0800d91/config.el
+(add-to-list
+ 'default-frame-alist '(inhibit-double-buffering . t))
+
+(global-set-key (kbd "M-RET")      #'M-RET!)
+
+(global-set-key (kbd "H-g")      #'magit-status)
+(global-set-key (kbd "s-g")      #'magit-status)
+
+(global-set-key (kbd "M-<return>") #'M-RET!)
+
+(let ((ELC (file-expand-wildcards (concat (expand-file-name "conf.d" (dir!)) "/*.elc"))))
+    (mapc #'load-file ELC))
+
+(defun M-RET! (&rest BODY)
+  "Default `M-RET' action"
+  (interactive)
+  (message "M-RET!:START")
+  (save-window-excursion
+    (async-shell-command (expand-file-name "~/.local/bin/_meta_return"))))
+
+(defun -byte-compile-conf.d ()
+  (interactive)
+  (let ((EL (file-expand-wildcards (concat (expand-file-name "conf.d" (dir!)) "/*.el"))))
+    (mapc #'byte-compile-file EL)))
 
 (setq-hook! '(org-mode) display-line-numbers-type nil)
 

@@ -1,0 +1,47 @@
+#!env _shebang
+# FIFO=/run/user/`id -u`/"${0##*/}".fifo
+# if ! mkfifo "$FIFO"; then :; fi &>/dev/null
+
+read -r MSG
+
+coproc logger -t "$1" <<< "$MSG"
+coproc swaymsg exec "notify-send $1 \"$MSG\""
+
+wait
+
+exit 0
+
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${UID:-$(command id -u)}/bus
+export WAYLAND_DISPLAY=wayland-1 # FIXME
+export DISPLAY=:0                # FIXME
+
+set -o nounset -o errexit
+
+if command tty --silent; then
+    header="$1"
+    shift
+    message="$*"
+else
+    header="$*"
+    mapfile message # read fron standard in
+fi
+
+if pgrep --exact --silent -- sway
+then swaymsg exec "/usr/bin/env notify-send -- \"$header\" \"${message[*]}\""
+elif pgrep --exact --silent -- sway
+then i3-msg exec "/usr/bin/env notify-send -- \"$header\" \"${message[*]}\""
+else /usr/bin/env notify-send -- "$header" "${message[*]}"
+fi
+
+
+# XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session1
+# XDG_SEAT=seat0
+# XDG_SESSION_DESKTOP=sway
+# XDG_SESSION_TYPE=wayland
+# XDG_CURRENT_DESKTOP=sway
+# XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0
+# XDG_ACTIVATION_TOKEN=3d9e72dd254f3e43e6cb9e27be29298a
+# XDG_SESSION_CLASS=user
+# XDG_VTNR=2
+# XDG_SESSION_ID=2
+# XDG_RUNTIME_DIR=/run/user/1001

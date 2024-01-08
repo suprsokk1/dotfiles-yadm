@@ -15,7 +15,7 @@
        zen
        ;; (modeline +light)
        modeline
-       (ligatures +extra +fira +iosevka)
+       ;; (ligatures +extra +fira +iosevka)
        (popup +defaults)
 
        :editor
@@ -28,7 +28,7 @@
        ;; (evil +everywhere)
 
        :emacs
-       dired
+       (dired +icons)
        undo
        vc
 
@@ -49,19 +49,31 @@
        debugger
        (eval +overlay)
        (docker +lsp)
-       (lsp +eglot +peek)
+       ;; (lsp +eglot +peek)
+       (lsp +eglot)
 
        :lang
        data
        emacs-lisp
        yaml
+       ;; rest
+       ;; rst
        ;; (org +roam2)
-       (org +roam2 +pretty)
+
+       (org +roam2 +pretty +pomodoro)
+       (org +roam2 +pretty +pomodoro +contacts)
+       ;; (org +roam2 +pretty +pomodoro +gnuplot)
+       ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc)
+       ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo)
+       ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo +present)
+       ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo +present +dragndrop)
+       ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo +present +dragndrop +jupyther)
        ;; (python +lsp +pyenv +pyright +tree-sitter)
        (python +lsp +pyenv)
        (sh +lsp)
        (go +lsp)
        (cc +lsp)
+       (ruby3 +lsp)
        (rust +lsp)
 
        :config
