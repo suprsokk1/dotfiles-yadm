@@ -72,12 +72,18 @@
   (let ((EL (file-expand-wildcards (concat (expand-file-name "conf.d" (dir!)) "/*.el"))))
     (mapc #'byte-compile-file EL)))
 
+(defun -cron-hourly (&rest rest)
+  (org-agenda nil "t")                  ;
+  )
+
 (setq-hook! '(org-mode) display-line-numbers-type nil)
 
 (global-hide-mode-line-mode 1)
 (beacon-mode -1)
-(global-hl-line-mode nil)
+(global-hl-line-mode -1)
 (blink-cursor-mode 1)
+
+(map! :map org-agenda-mode-map "RET" #'org-agenda-goto) ;original: org-agenda-switch-to
 
 (setq-hook! (quote (comint-mode-hook))
   comint-buffer-maximum-size 20000 ; Increase comint buffer size.

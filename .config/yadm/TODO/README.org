@@ -1,20 +1,67 @@
 :PROPERTIES:
 :header-args:emacs-lisp: :eval nil
 :END:
-#+title: TODO
-#+todo: TODO(t) STRT(s) DONE(d) HOLD(h)
-sed -E '/^\*+[[:space:]][^#][^A-D][[:space:]]*/{s|TODO|TODO #C|}' c
-* Inbox
-** [ ] excluding sudo rules :PoC:
+#+TITLE: TODO
+#+TODO: TODO(t) STRT(s) HOLD(h) | DONE(d)
+#+TAGS: @Automation
 
+* Inbox
+** [#B] pre-commit
+** TODO ExecPre in /etc/systemd/user/service.d/ (?!correct syntax; google it)
+** TODO rclone as docker drive plugin
+** TODO move user crontab to systemd-run
+** TODO syncthing on Android phone :@Automation:
+** TODO syncthing on Android TV :@Automation:
+** TODO create yadm list of files for autocommit
+** TODO org-mode read tags from plain text file; yadm commit and push file
+** TODO DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1001/bus => systemd-environmentd
+** TODO consider moving all application main config files away from using yadm templated path names to files being sourced/included/imported
+** TODO export orgzly and org to calendar(s) :@Automation:
+** TODO org detect dupes :@Automation:
+** TODO sync events and tasks to orgzly :@Automation:
+** TODO systemd.unit file generator option for cli.py
+** TODO cron + notify => count of failed --user tasks
+** TODO Add qutebrowser python bindings to cli.py
+** TODO org-mode document with table of time usage stats per project
+** TODO add =sponge= command functionality to cli.py
+** TODO [#B] get TODO's from source files and put them ~/Projects/<project name>.org
+** TODO [#B] org todo hooks
+ * on TODO -> STRT trigger stop existing clock then clock-in
+ * on clock-in add TODO then TODO -> STRT
+** TODO [#B] rofi ~menu:python3 cli.py~ as Default
+** TODO statusbar show notes.org:Inbox backlog
+** TODO cron reminder for starting a new task if no org clock is running
+** TODO Create reminders running on interval when org-todo task has started clock
+** TODO PROJECT org-mode todos metadata
+f.ex
+:PROPERTIES:
+:repo: ~/Project/projectname
+:END:
+** TODO Change default capture template to match orgzly's capture template
+** TODO Change C-c n n n to orgzly Inbox.org
+** TODO Emacs select org-mode task feature
+** DONE Fix rofi not launching
+:LOGBOOK:
+CLOCK: [2024-01-09 Tue 12:45]--[2024-01-09 Tue 13:21] =>  0:36
+:END:
+** STRT rclone cron job
+:LOGBOOK:
+CLOCK: [2024-01-09 Tue 14:39]
+:END:
+ * separate push and pull folders
+ * pull before push
+** TODO =C+c n n=
+** TODO org-agenda cron job
+** TODO excluding sudo rules :PoC:
 [[file:~/.zshrc]]
 ** TODO [#C] detect away from keyboard
 ** TODO [#C] zsh completion :PoC:
 - [ ] Generic
   All commands that have help and/or man page
 - [ ] Use results from tmux buffer
-** TODO  convert ansi color to pango
+** TODO convert ansi color to pango
 ** TODO rofi web search with live results
+** TODO rofi web search with live suggestions
 ** TODO osquery custom tables
 + tmux buffers
 + emacs buffers
@@ -24,7 +71,7 @@ sed -E '/^\*+[[:space:]][^#][^A-D][[:space:]]*/{s|TODO|TODO #C|}' c
   - current page code blocks
 ** TODO eBPF :PoC:
 ** TODO DOOM package :PoC:
-** TODO emacs org-mode binding M-TAB -> toggle list bullet type [+|-]
+** TODO Emacs org-mode binding M-TAB -> toggle list bullet type [+|-]
 ** TODO generate incrontab for yadm controlled files
 ** TODO Slack bot :PoC:
 ** TODO pre-commit :pip:python:
@@ -137,7 +184,7 @@ Check doc @ github.com/jwigley/use-package
 *** TODO [#B] org-alert
 *** STRT [#A] C-C n n -> ~org-capture~ to this file
 :LOGBOOK:
-CLOCK: [2023-12-18 Mon 15:15]
+CLOCK: [2023-12-18 Mon 15:15]--[2024-01-09 Tue 14:39] => 527:24
 :END:
 *** TODO capture templates
 *** TODO [#C] set =+= as default list bullet

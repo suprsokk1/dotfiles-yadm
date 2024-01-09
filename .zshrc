@@ -27,9 +27,9 @@ antigen bundle zsh-completions
 antigen bundle zsh-hooks/zsh-hooks
 
 if true; then
-antigen theme simple            # FIXME Cause zsh shell to hang
+    antigen theme simple            # FIXME Cause zsh shell to hang
 else
-antigen theme robbyrussell
+    antigen theme robbyrussell
 fi
 
 antigen apply
@@ -63,18 +63,9 @@ export FZF_DEFAULT_OPTS
 
 
 # :tmux - update tmux vars
-if [ -n "$TMUX_PANE" ]; then
-    function precmd {
-        # tmux set -g '@tmp' "$LBUFFER"
-        tmux set -g '@eval' ""
-        tmux set -g '@BUFFER' "$BUFFER"
-        tmux set -g '@LBUFFER' "$LBUFFER"
-        tmux set -g '@RBUFFER' "$RBUFFER"
-        tmux set -g '@zsh-plugins' "$plugins"
-    }
-else
-    function precmd { :; }
-fi
+function precmd {
+    . ~/.precmd.zsh
+}
 
 # :alias - open files with extension with command
 alias -s yaml='command $EDITOR'
@@ -88,10 +79,11 @@ alias -s gz='tar -C ~/src/ --auto-compress -xf'
 alias -s bz2='tar -C ~/src/ --auto-compress -xf'
 alias -s tar='tar -C ~/src/ --auto-compress -xf'
 
-# :cargo replacements
+# :rust replacements
 command -v exa &>/dev/null && alias ls='command ~/.cargo/bin/exa'
 command -v bat &>/dev/null && alias cat='command ~/.cargo/bin/bat'
 command -v nomino &>/dev/null && alias rename='command ~/.cargo/bin/nomino'
+command -v z &>/dev/null && alias cd='zshz 2>/dev/null'     # zoxide
 # command -v z &>/dev/null && alias cd='command env ~/.cargo/bin/z'
 
 # :misc
@@ -99,12 +91,8 @@ alias edit='command ${EDITOR:-vim}'
 alias sudo='command sudo --askpass'
 alias notify-send='command notify-send --expire-time=3000'
 
-# :productivity
-alias cd='zshz 2>/dev/null'     # zoxide
-
 # :ls
 alias la='ls -la'
-
 
 # :systemd - import environment
 if command -v systemctl &>/dev/null; then

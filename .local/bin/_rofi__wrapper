@@ -1,9 +1,13 @@
 #!/usr/bin/env sh
 set -o nounset -o errexit
-. ${HOME:-~}/.profile
+. ~/.profile
+systemd-run --user notify-send rofi -show drun -modi drun,window,ssh
 
-jump rofi \
+# notify-send foo
+# systemd-run --user notify-send foo
+
+jump rofi                                                    \
     -terminal ${HOME:-~}/.local/bin/_rofi__sensible_terminal \
-    -show combi \
-    -modes combi,menu:${HOME:-~}/.local/bin/_rofi__menu \
+    -show combi                                              \
+    -modes combi,menu:${HOME:-~}/.local/bin/_rofi__menu      \
     -combi-modes drun,window,ssh

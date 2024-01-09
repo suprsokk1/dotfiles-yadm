@@ -1,5 +1,9 @@
 # -*- mode: sh -*-
 
+alias run='command systemd-run --user'
+alias pgrep='command pgrep --list-full'
+alias pkill='command pkill --exact'
+
 # # TODO prefix aliases with ',' except those already prefixed with @
 # # TODO systemctl verbs with completion
 # # TODO 'grep' wrapper function for 'rg'
