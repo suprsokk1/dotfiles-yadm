@@ -12,19 +12,19 @@ fi
 
 antigen use oh-my-zsh
 
-antigen bundle command-not-found
+# antigen bundle command-not-found
 antigen bundle direnv
 antigen bundle fzf
 antigen bundle git
 antigen bundle pip
-antigen bundle pipx
+# antigen bundle pipx
 antigen bundle pyenv
-antigen bundle poetry
+# antigen bundle poetry
 antigen bundle z
 `# REVIEW Blocks zsh-autosuggestions? antigen bundle zsh-syntax-highlighting`
 antigen bundle zsh-autosuggestions
 antigen bundle zsh-completions
-antigen bundle zsh-hooks/zsh-hooks
+# antigen bundle zsh-hooks/zsh-hooks
 
 if true; then
     antigen theme simple            # FIXME Cause zsh shell to hang
@@ -92,7 +92,43 @@ alias sudo='command sudo --askpass'
 alias notify-send='command notify-send --expire-time=3000'
 
 # :ls
+ls() {
+    # TODO
+    args=( ${exa[*]} )
+    local exa
+    exa=(--icons --group-directories-first --git)
+    exa+=( $args )
+
+    for arg; do
+        if  [[ $arg =~ ^-- ]]; then
+            # longopts
+            case $arg in
+                *color=tty)
+                    ;;
+                *)
+            esac
+            exa+=("$arg")
+        elif [[ $arg =~ ^-[a-zA-Z] ]]; then
+            # shortopts
+            for c in `# split short options` $(command grep --extended-regexp --only-matching -- '[[:alpha:]]' <<< "${arg//-/}"); do
+                case $c in
+                    [aA]) exa+=( --all ) ;;
+                    o)    `#TODO`;;
+                    t)    exa+=( --time modified ) ;;
+                    G|-)  `# discard` ;;
+                    *)    exa+=( -"$c" )
+                esac
+            done
+        else
+            exa+=( "$arg" )
+        fi
+    done
+
+    eval "exa ${exa[*]}"
+}
+
 alias la='ls -la'
+
 
 # :systemd - import environment
 if command -v systemctl &>/dev/null; then
