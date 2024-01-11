@@ -1,8 +1,12 @@
 # -*- mode: sh -*-
-
+alias run='systemd-run --user --wait -p SuccessExitStatus=42 bash -c '\''exit 42'\'''
 alias run='command systemd-run --user'
 alias pgrep='command pgrep --list-full'
 alias pkill='command pkill --exact'
+# alias foo='xargs -0 -a /proc/self/environ -n1 '
+# alias foo='xargs -0 -a /proc/self/cmdline -n1 '
+
+# alias foo='command /usr/bin/env cat --show-all <<< "$BUFFER $LBUFFER $RBUFFER"; echo'
 
 # # TODO prefix aliases with ',' except those already prefixed with @
 # # TODO systemctl verbs with completion

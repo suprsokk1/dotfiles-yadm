@@ -10,7 +10,10 @@ else command curl -L git.io/antigen 2>/dev/null > ~/.antigen.zsh
 fi
 . ~/.antigen.zsh
 
-antigen use oh-my-zsh
+if [ -d $ZSH ]; then
+    antigen use oh-my-zsh
+fi
+
 
 # antigen bundle command-not-found
 antigen bundle direnv
@@ -129,9 +132,16 @@ ls() {
 
 alias la='ls -la'
 
+# :sudo
+SUDO_ASKPASS='/usr/bin/systemd-askpass'
+if command -v askpass &>/dev/null; then
+    SUDO_ASKPASS=$HOME/bin/askpass
+fi
 
-# :systemd - import environment
-if command -v systemctl &>/dev/null; then
-    command systemctl --user import-environment PATH
-    command systemctl --user set-environment PYTHONSTARTUP=~/.pythonrc
+# :tmp
+mkdir -p "$TMPPREFIX"
+
+# :qrencode
+if command -v qrencode &>/dev/null; then
+    alias qr='command qrencode -tutf8'
 fi
