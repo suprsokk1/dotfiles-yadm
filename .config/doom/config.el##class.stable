@@ -5,9 +5,8 @@
 ;; TODO magit + yadm: list todos, but limit to files git
 ;; TODO change alpha when loosing frame focus ()
 
-
 (setq-default
- custom-file                     (expand-file-name "custom.el" "~/.local/emacs")
+ custom-file                     (expand-file-name "custom.el" (dir!))
 
  frame-title-format              "%b %f"
 
@@ -43,18 +42,24 @@
 
  vterm-shell                     "/bin/zsh"
 
- company-minimum-prefix-length   4      ;performance
+ global-hl-line-mode              -1
+
+ global-display-line-numbers-mode -1
+
+ company-minimum-prefix-length     4   ;performance
+ company-idle-delay                2    ;wait n secs before rendering completion
+
  )
 
 ;; https://github.com/hlissner/.doom.d/blob/6af0a541e0b6b6ec9aee4cb9f05e5cbec0800d91/config.el
 (add-to-list
  'default-frame-alist '(inhibit-double-buffering . t))
 
-(global-set-key (kbd "M-RET")      #'M-RET!)
 
 (global-set-key (kbd "H-g")      #'magit-status)
 (global-set-key (kbd "s-g")      #'magit-status)
 
+(global-set-key (kbd "M-RET")      #'M-RET!)
 (global-set-key (kbd "M-<return>") #'M-RET!)
 
 (let ((ELC (file-expand-wildcards (concat (expand-file-name "conf.d" (dir!)) "/*.elc"))))
@@ -65,6 +70,15 @@
   (interactive)
   (message "M-RET!:START")
   (save-window-excursion
+    ;; (make-symbol (string-replace "-mode" "" (symbol-name major-mode)))
+
+    ;; ((assoc-default (make-symbol "emacs-lisp")
+    ;;    (quote ((org . (org-babel-tangle))
+    ;;            (python . (progn ))
+    ;;            (emacs-lisp . (message "foo")))
+    ;;     )
+    ;;    ))
+
     (async-shell-command (expand-file-name "~/.local/bin/_meta_return"))))
 
 (defun -byte-compile-conf.d ()
@@ -78,9 +92,9 @@
 
 (setq-hook! '(org-mode) display-line-numbers-type nil)
 
-(global-hide-mode-line-mode 1)
-(beacon-mode -1)
-(global-hl-line-mode -1)
+;; (global-hide-mode-line-mode 1)
+;; (beacon-mode -1)
+;; (global-hl-line-mode -1)
 (blink-cursor-mode 1)
 
 (map! :map org-agenda-mode-map "RET" #'org-agenda-goto) ;original: org-agenda-switch-to
