@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
-# name: args
-# key: a
+# name: kwargs
+# key: k
 # --
-*args
+**kwargs
