@@ -1,6 +1,4 @@
 ;;; init.el -*- lexical-binding: t; -*-
-;; (setq $fonts '())
-(set (quote NOERROR) t)
 (set (quote query-all-font-backends) t)
 
 (doom! :completion
