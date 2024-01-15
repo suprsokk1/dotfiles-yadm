@@ -1,0 +1,22 @@
+;;; conf.d/_99-+popup.el -*- lexical-binding: t; -*-
+
+(+popup-mode -1)
+
+;; (set-popup-rule! PREDICATE &key IGNORE ACTIONS SIDE SIZE WIDTH HEIGHT SLOT VSLOT TTL QUIT SELECT MODELINE AUTOSAVE PARAMETERS)
+(let ((PREDICATE (quote (lambda (&rest x) nil)))
+      (IGNORE)
+      (ACTIONS)
+      ;; (SIDE "left")
+      (SIDE "right")
+      (SIZE)
+      (WIDTH)
+      (HEIGHT)
+      (SLOT)
+      (VSLOT)
+      (TTL)
+      (QUIT)
+      (SELECT)
+      (MODELINE)
+      (AUTOSAVE)
+      (PARAMETERS))
+  (set-popup-rule! PREDICATE IGNORE ACTIONS SIDE SIZE WIDTH HEIGHT SLOT VSLOT TTL QUIT SELECT MODELINE AUTOSAVE PARAMETERS))
