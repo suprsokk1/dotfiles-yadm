@@ -257,3 +257,7 @@ https://theforeman.org/manuals/2.1/quickstart_guide.html Foreman :: Quickstart
 https://click.palletsprojects.com/en/7.x/commands/#nested-handling-and-contexts Commands and Groups — Click Documentation (7.x)
 https://click.palletsprojects.com/en/8.1.x/commands/ Commands and Groups — Click Documentation (8.1.x)
 https://wiki.gentoo.org/wiki/YubiKey/PAM YubiKey/PAM - Gentoo wiki
+https://docs.python.org/3/library/mimetypes.html mimetypes — Map filenames to MIME types — Python 3.12.1 documentation
+https://docs.python.org/3/library/uuid.html uuid — UUID objects according to RFC 4122 — Python 3.12.1 documentation
+https://docs.python.org/3/library/unittest.html unittest — Unit testing framework — Python 3.12.1 documentation
+https://github.com/doomemacs/doomemacs/issues/7606 got warning ":events-buffer-scrollback-size deprecated Use events-buffer-config" after doom upgrade · Issue #7606 · doomemacs/doomemacs · GitHub
