@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name={{ data.name }}
+{% if data.generic is defined %}
+  GenericName={{ data.generic }}
+{% end %}
+{% if data.icon is defined %}
+  Icon={{ data.icon }}
+{% end %}
+{% if data.terminal is defined %}
+  Terminal=true
+{% end %}
+Type=Application
+StartupNotify=true
+Exec={{ data.exec }}
