@@ -20,5 +20,5 @@ export EMACS
 export PYTHONSTARTUP
 export SUDO_ASKPASS
 export TERMINAL
-export TMPPREFIX
+export TMPPREFIX2
 export ZSH

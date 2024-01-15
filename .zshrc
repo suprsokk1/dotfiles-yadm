@@ -1,19 +1,13 @@
 # .zshrc -*- mode: sh -*-
 # shellcheck disable=SC1091,SC2034
 
-# :path
-path=(${HOME:-~}/bin ${HOME:-~}/.pyenv $path)
-
 # :antigen
-if ! [ -s ~/.antigen.zsh ]; then
-else command curl -L git.io/antigen 2>/dev/null > ~/.antigen.zsh
-fi
+[ -s ~/.antigen.zsh ] || curl -o ~/.antigen.zsh -L git.io/antigen-nightly
 . ~/.antigen.zsh
 
 if [ -d $ZSH ]; then
     antigen use oh-my-zsh
 fi
-
 
 # antigen bundle command-not-found
 antigen bundle direnv
@@ -95,9 +89,9 @@ alias sudo='command sudo --askpass'
 alias notify-send='command notify-send --expire-time=3000'
 
 # :ls
-ls() {
+function ls {
     # TODO
-    args=( ${exa[*]} )
+    args=($exa)
     local exa
     exa=(--icons --group-directories-first --git)
     exa+=( $args )
