@@ -2,7 +2,7 @@
 # name: typechecking
 # key: types
 # --
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, Callable, Self, Any
 import pydantic
 from pydantic import BaseModel

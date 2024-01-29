@@ -1,4 +1,4 @@
-# .zshrc -*- mode: sh -*-
+# ~/.zshrc -*- mode: sh -*-
 # shellcheck disable=SC1091,SC2034
 
 # :antigen
@@ -126,6 +126,9 @@ function ls {
 
 alias la='ls -la'
 
+# :ripgrep
+RIPGREPRC=$HOME/.ripgreprc
+
 # :sudo
 SUDO_ASKPASS='/usr/bin/systemd-askpass'
 if command -v askpass &>/dev/null; then
@@ -139,3 +142,6 @@ mkdir -p "$TMPPREFIX"
 if command -v qrencode &>/dev/null; then
     alias qr='command qrencode -tutf8'
 fi
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"

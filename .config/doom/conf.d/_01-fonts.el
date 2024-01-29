@@ -176,10 +176,12 @@
  )
 
 (require 'color)
+
 (after! org
   (set-face-attribute 'org-block nil :background
                       (color-lighten-name
-                       (face-attribute 'default :background) 30))
+                       (face-attribute 'default :background) 30)
+                      )
   )
 ;; (custom-set-faces
 ;;  '(default ((t (:inherit iosevka-custom-extra-light

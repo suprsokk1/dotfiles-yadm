@@ -10,6 +10,7 @@
  "H-SPC /" #'dired-jump
  "s-SPC /" #'dired-jump
  (:map dired-mode-map
+       "D"   nil
        "/"   #'dired-mark-files-regexp
        (:prefix "h"
                 "h" (cmd! (dired "~")))

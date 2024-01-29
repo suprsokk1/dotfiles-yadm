@@ -5,7 +5,9 @@
 ;; TODO magit + yadm: list todos, but limit to files git
 ;; TODO change alpha when loosing frame focus ()
 
-(setq-default
+(setq
+ query-all-font-backends         t
+
  custom-file                     (expand-file-name "custom.el" (dir!))
 
  frame-title-format              "%b %f"
@@ -32,22 +34,22 @@
  bookmark-default-file           (expand-file-name
                                   "_bookmarks.el" doom-user-dir)
 
- doom-modeline-major-mode-icon   t
+ doom-modeline-major-mode-icon      t
 
- treemacs-load-theme            "Default"
+ treemacs-load-theme               "Default"
 
- compile-command                "~/bin/,"
+ compile-command                   "~/bin/c"
 
- org-log-state-notes-into-drawer t
+ org-log-state-notes-into-drawer   t
 
- vterm-shell                     "/bin/zsh"
+ vterm-shell                       "/bin/zsh"
 
  global-hl-line-mode              -1
 
  global-display-line-numbers-mode -1
 
- company-minimum-prefix-length     4   ;performance
- company-idle-delay                2    ;wait n secs before rendering completion
+ company-minimum-prefix-length     2   ;performance
+ company-idle-delay                2   ;wait n secs before rendering completion
 
  )
 
@@ -55,15 +57,23 @@
 (add-to-list
  'default-frame-alist '(inhibit-double-buffering . t))
 
+;; (after! dired
+;;   (dired-git-info-auto-enable))
 
-(global-set-key (kbd "H-g")      #'magit-status)
-(global-set-key (kbd "s-g")      #'magit-status)
+;; (add-hook 'dired-mode-hook 'dired-git-info-mode)
+;; (add-hook 'dired-mode-hook 'dired-hide-)
+
+(remove-hook 'dired-mode-hook 'dired-git-info-mode)
+(remove-hook 'dired-mode-hook 'dired-hide-details-mode)
+
+(global-set-key (kbd "H-g") #'magit-status)
+(global-set-key (kbd "s-g") #'magit-status)
 
 (global-set-key (kbd "M-RET")      #'M-RET!)
 (global-set-key (kbd "M-<return>") #'M-RET!)
 
 (let ((ELC (file-expand-wildcards (concat (expand-file-name "conf.d" (dir!)) "/*.elc"))))
-    (mapc #'load-file ELC))
+  (mapc #'load-file ELC))
 
 (defun M-RET! (&rest BODY)
   "Default `M-RET' action"
@@ -72,14 +82,30 @@
   (save-window-excursion
     ;; (make-symbol (string-replace "-mode" "" (symbol-name major-mode)))
 
-    ;; ((assoc-default (make-symbol "emacs-lisp")
-    ;;    (quote ((org . (org-babel-tangle))
-    ;;            (python . (progn ))
-    ;;            (emacs-lisp . (message "foo")))
-    ;;     )
-    ;;    ))
+    (let ((A (quote emacs-lisp))
+          (B (make-symbol "emacs-lisp"))
+          (SYMBOL `(quote ,(make-symbol "emacs-lisp"))))
+      (mapcar
+       (lambda (x) (princ x)(princ "\n"))
+       (list A B (eq A B) (format "`%S' != `%S'" A B)))
 
-    (async-shell-command (expand-file-name "~/.local/bin/_meta_return"))))
+     (assoc-default
+      A
+      (quote
+       ((org . (org-babel-tangle))
+        (python . (progn ))
+        (emacs-lisp . (progn (quote (foo bar baz))))))
+     ))
+
+
+
+    (if t
+        nil
+        (with-temp-buffer
+          (let ((b (get-buffer (buffer-name))))
+            (async-shell-command (expand-file-name "~/bin/c callback") b b))))
+    ))
+
 
 (defun -byte-compile-conf.d ()
   (interactive)
@@ -87,21 +113,24 @@
     (mapc #'byte-compile-file EL)))
 
 (defun -cron-hourly (&rest rest)
-  (org-agenda nil "t")                  ;
-  )
+  (org-agenda nil "t"))
 
-(setq-hook! '(org-mode) display-line-numbers-type nil)
+(add-hook (quote +ansible-yaml-mode)
+           (quote ansible-doc))
+
+;; (setq-hook! '(org-mode) display-line-numbers-type nil)
 
 ;; (global-hide-mode-line-mode 1)
 ;; (beacon-mode -1)
 ;; (global-hl-line-mode -1)
+
 (blink-cursor-mode 1)
 
 (map! :map org-agenda-mode-map "RET" #'org-agenda-goto) ;original: org-agenda-switch-to
 
 (setq-hook! (quote (comint-mode-hook))
   comint-buffer-maximum-size 20000 ; Increase comint buffer size.
-  comint-prompt-read-only t        ; Make the prompt read only.
+  comint-prompt-read-only        t ; Make the prompt read only.
   )
 
 (add-hook! (quote (python-mode-hook)) (quote rainbow-delimiters-mode))
@@ -124,6 +153,10 @@
                        (tramp-remote-shell "/bin/sh")
                        (tramp-remote-shell-args ("-c"))))))
 
+(defun yadm ()
+  (interactive)
+  (magit-status "/yadm::"))
+
 (after! ob-async
   (setq ob-async-no-async-languages-alist '("ipython" "python")))
 
@@ -134,10 +167,6 @@
 
 ;; (with-eval-after-load 'doom-themes
 ;;   (doom-themes-treemacs-config))
-
-(defun yadm ()
-  (interactive)
-  (magit-status "/yadm::"))
 
 ;; (ignore-errors
 ;;   (load-file (format "~/.%s.el" (getenv "HOSTNAME"))))

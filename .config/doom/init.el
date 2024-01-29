@@ -1,5 +1,4 @@
-;;; init.el -*- lexical-binding: t; -*-
-(set (quote query-all-font-backends) t)
+;;; $DOOMDIR/init.el -*- lexical-binding: t; -*-
 
 (doom! :completion
        company
@@ -59,7 +58,7 @@
        ;; (org +roam2)
 
        (org +roam2 +pretty +pomodoro)
-       (org +roam2 +pretty +pomodoro +contacts)
+       ;; (org +roam2 +pretty +pomodoro +contacts)
        ;; (org +roam2 +pretty +pomodoro +gnuplot)
        ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc)
        ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo)
@@ -67,11 +66,11 @@
        ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo +present +dragndrop)
        ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo +present +dragndrop +jupyther)
        ;; (python +lsp +pyenv +pyright +tree-sitter)
-       (python +lsp +pyenv)
+       (python +lsp +pyenv +pyright)
        (sh +lsp)
        (go +lsp)
        (cc +lsp)
-       (ruby3 +lsp)
+       (ruby +lsp)
        (rust +lsp)
 
        :config

@@ -1,4 +1,4 @@
-;;; conf.d/_org.el -*- lexical-binding: t; -*-
+;;; $DOOMDIR/conf.d/_org.el -*- no-compile: t; lexical-binding: t; -*-
 
 (defvar -org-babel-startup-block
   "_startup")
@@ -6,18 +6,12 @@
 (defun -org-mode-hook ()
   (if (not (eq nil (buffer-file-name)))
       ;; file buffer
-    (progn
-      (when (not (buffer-narrowed-p))
-        (when (-by-buffer (get-buffer (buffer-name)))
-          (org-babel-find-named-block -org-babel-startup-block)
-          (org-babel-execute-src-block:async)
-          )
-        ))
-    ;;
-    (progn )
-    )
-  (setq-local display-line-numbers-mode -1)
-  )
+      (progn
+        (when (not (buffer-narrowed-p))
+          (when (-by-buffer (get-buffer (buffer-name)))
+            (org-babel-find-named-block -org-babel-startup-block)
+            (org-babel-execute-src-block:async)))))
+  (setq-local display-line-numbers-mode -1))
 
 (defun -org-mode-hook:around (func args)
   (message "%S" func)
@@ -32,12 +26,8 @@
 
 (map! :map org-agenda-mode-map "RET" #'org-agenda-goto) ;original: org-agenda-switch-to
 
-
-
 (map!
- "s-a" (cmd! (org-agenda nil "t")
-             )
-
+ "s-a" (cmd! (org-agenda nil "t"))
  :prefix "s-SPC"
  "s-i" #'org-clock-in          ;FIXME
  "s-o" #'org-clock-out
@@ -59,9 +49,9 @@
                                      :unnarrowed t)))
 
  org-babel-library-of-babel (quote ((foo "sh" "< /dev/null"
-                                      ((:results . "replace drawer")
-                                       (:exports . ""))
-                                      "" "foo" 122 "(ref:%s)")))
+                                     ((:results . "replace drawer")
+                                      (:exports . ""))
+                                     "" "foo" 122 "(ref:%s)")))
 
  so-long-minor-modes (quote (global-display-line-numbers-mode display-line-numbers-mode flymake-mode flyspell-mode glasses-mode goto-address-mode goto-address-prog-mode hi-lock-mode highlight-changes-mode hl-line-mode linum-mode nlinum-mode prettify-symbols-mode visual-line-mode whitespace-mode diff-hl-amend-mode diff-hl-flydiff-mode diff-hl-mode dtrt-indent-mode flycheck-mode hl-sexp-mode idle-highlight-mode rainbow-delimiters-mode smartparens-mode smartparens-strict-mode spell-fu-mode eldoc-mode highlight-numbers-mode better-jumper-local-mode ws-butler-mode auto-composition-mode undo-tree-mode highlight-indent-guides-mode hl-fill-column-mode flycheck-mode smartparens-mode smartparens-strict-mode))
 
@@ -79,6 +69,14 @@
                                 (or
                                  (getenv "XDG_CONFIG_HOME")
                                  (expand-file-name "~/.config"))))
+
+(setq org-emphasis-alist
+      '(("*" org-emphasis-bold)
+        ("/" org-emphasis-italic)
+        ("_" org-emphasis-underline)
+        ("=" org-verbatim verbatim)
+        ("~" org-code verbatim)
+        ("+" my-org-emphasis-strike-through)))
 
 
 ;; (("t" "Personal todo" entry
@@ -123,11 +121,3 @@
 ;;         ("=" org-verbatim verbatim)
 ;;         ("~" org-code verbatim)
 ;;         ("+" my-org-emphasis-strike-through)))
-
-(setq org-emphasis-alist
-      '(("*" org-emphasis-bold)
-        ("/" org-emphasis-italic)
-        ("_" org-emphasis-underline)
-        ("=" org-verbatim verbatim)
-        ("~" org-code verbatim)
-        ("+" my-org-emphasis-strike-through)))
