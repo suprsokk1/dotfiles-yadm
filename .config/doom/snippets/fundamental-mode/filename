@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: filename
+# key: .
+# type: command
+# --
+(let ((x (buffer-file-name))) (when x (insert x)))

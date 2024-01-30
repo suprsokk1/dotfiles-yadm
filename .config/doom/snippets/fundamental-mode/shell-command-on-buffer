@@ -7,4 +7,5 @@
       (CMD (buffer-substring (bol) (eol))))
   (beginning-of-line)
   (kill-line)
-  (unless (string= CMD "") (shell-command-on-region (point-min) (point-max) CMD OUTPUT-BUFFER REPLACE)))
+  (save-excursion
+  (unless (string= CMD "") (shell-command-on-region (point-min) (point-max) CMD OUTPUT-BUFFER REPLACE))))

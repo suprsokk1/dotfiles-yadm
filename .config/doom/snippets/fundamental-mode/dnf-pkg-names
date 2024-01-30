@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: dnf-pkg-names
+# key: sed
+# --
+sed -E '/x86_64|noarch/{s/(-[^-]+){2}\$//}' c

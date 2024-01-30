@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: sed-clean-org-file
+# key: sed
+# --
+sed -E '/^\\*/s/ \\[ \\] / TODO /' c
