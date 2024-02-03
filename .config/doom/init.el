@@ -1,4 +1,5 @@
 ;;; $DOOMDIR/init.el -*- lexical-binding: t; -*-
+(mkdir "~/.local/emacs" t)
 
 (doom! :completion
        company

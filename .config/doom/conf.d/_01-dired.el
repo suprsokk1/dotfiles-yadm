@@ -1,33 +1,5 @@
 ;;; conf.d/_dired.el -*- lexical-binding: t; -*-
 
-;; TODO integrated in DOOM
-;; (use-package! treemacs-icons-dired
-;;   :after dired
-;;   :hook (dired-mode . treemacs-icons-dired-enable-once))
-
-
-(map!
- "H-SPC /" #'dired-jump
- "s-SPC /" #'dired-jump
- (:map dired-mode-map
-       "D"   nil
-       "/"   #'dired-mark-files-regexp
-       (:prefix "h"
-                "h" (cmd! (dired "~")))
-
-       (:prefix ","
-                ","   #'dired-unmark-all-marks)
-
-       "."   #'dired-up-directory
-       "["   #'dired-prev-marked-file
-       "]"   #'dired-next-marked-file
-       "~"   (cmd! dired "~")
-       "r"   #'dired-do-rename-regexp
-       "s-." #'dired-jump))
-
-
-;; (setq-hook! ()
-;; )
 
 ;; TODO override
 ;; (dired-maybe-insert-subdir)

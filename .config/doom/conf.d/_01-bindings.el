@@ -104,7 +104,7 @@
 
           "n" #'org-capture
           "q" #'delete-other-windows
-          "r"         nil
+          "r" nil
           "s" #'org-narrow-to-subtree
           "s-SPC" #'-refresh
           "s-q" #'delete-other-frames
@@ -358,26 +358,37 @@
 
   )
 
- (:prefix
-  "H-SPC"
-  "H-SPC" #'-refresh
-  "H-q" #'delete-other-frames
-  "TAB" #'(cmd! (find-file initial-buffer-choice))
-  "[" #'mc/edit-beginnings-of-lines
-  "]" #'mc/edit-enda-of-lines
-  "a" #'mc/edit-beginnings-of-lines
-  "b" #'doom-big-font-mode
-  "c" #'doom/goto-private-config-file
-  "e" #'mc/edit-enda-of-lines
+ (:prefix "H-SPC"
+          "H-SPC" #'-refresh
+          "H-q" #'delete-other-frames
+          "TAB" #'(cmd! (find-file initial-buffer-choice))
+          "[" #'mc/edit-beginnings-of-lines
+          "]" #'mc/edit-enda-of-lines
+          "a" #'mc/edit-beginnings-of-lines
+          "b" #'doom-big-font-mode
+          "c" #'doom/goto-private-config-file
+          "e" #'mc/edit-enda-of-lines
 
-  "l" #'-open-library-of-babel
-  "m" #'mc/mark-all-like-this ;FIXME
-  "n" #'org-capture
-  "q" #'delete-other-windows
-  "r" nil
-  "s" #'org-narrow-to-subtree
-  "x" #'doom/open-scratch-buffer)
-  "s-." #'dired-jump
+          "l" #'-open-library-of-babel
+          "m" #'mc/mark-all-like-this ;FIXME
+          "n" #'org-capture
+          "q" #'delete-other-windows
+          "r" nil
+          "s" #'org-narrow-to-subtree
+          "x" #'doom/open-scratch-buffer)
+
+ "s-." nil
+
+ ;; "s-." #'dired-jump
+
+ (:map emacs-lisp-mode-map
+       "C-M-<right>" nil
+       "M-<right>"   nil
+       "M-<right>"   #'foreward-sexp
+       "M-<left>"    nil
+       "M-<left>"    #'backward-sexp
+
+       )
  )
 
 (global-set-key (kbd "H-SPC .") #'-occur)

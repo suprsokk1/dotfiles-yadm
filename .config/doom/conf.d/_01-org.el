@@ -1,7 +1,29 @@
-;;; $DOOMDIR/conf.d/_org.el -*- no-compile: t; lexical-binding: t; -*-
+;;; $DOOMDIR/conf.d/_org.el -*- lexical-binding: t; -*-
 
-(defvar -org-babel-startup-block
-  "_startup")
+(defvar -org-babel-startup-block "_startup")
+
+(quote
+ ((after! org
+    (remove-hook! org-mode-hook
+      'doom--setq-display-line-numbers-mode-for-org-mode-h))
+
+  (setq! org-mode-hook '(+lookup--init-org-mode-handlers-h
+                         doom-disable-show-paren-mode-h
+                         doom-disable-show-trailing-whitespace-h
+                         +org-make-last-point-visible-h
+                         org-appear-mode
+                         org-fancy-priorities-mode
+                         org-superstar-mode
+                         toc-org-enable
+                         org-babel-result-hide-spec
+                         org-babel-hide-all-hashes
+                         (cmd! (if (not (eq nil (buffer-file-name)))
+                                   (progn
+                                     (when (not (buffer-narrowed-p))
+                                       (when (-by-buffer (get-buffer (buffer-name)))
+                                         (org-babel-find-named-block -org-babel-startup-block)
+                                         (org-babel-execute-src-block:async))))))
+                         ))))
 
 (defun -org-mode-hook ()
   (if (not (eq nil (buffer-file-name)))
@@ -13,14 +35,14 @@
             (org-babel-execute-src-block:async)))))
   (setq-local display-line-numbers-mode -1))
 
-(defun -org-mode-hook:around (func args)
-  (message "%S" func)
-  (apply func args))
+;; (defun -org-mode-hook:around (func args)
+;;   (message "%S" func)
+;;   (apply func args))
 
-(advice-add '-org-mode-hook :around #'-org-mode-hook:around)
+;; (advice-add '-org-mode-hook :around #'-org-mode-hook:around)
 
-(add-hook 'org-mode-hook #'-org-mode-hook)
-;; (add-hook 'org- #'-org-mode-hook)
+;; (add-hook 'org-mode-hook #'-org-mode-hook)
+;; ;; (add-hook 'org- #'-org-mode-hook)
 
 (map! :map org-agenda-mode-map "" #'org-agenda-goto) ;original: org-agenda-switch-to
 
@@ -42,7 +64,7 @@
 
   (add-hook 'org-after-todo-statistics-hook #'org-summary-todo))
 
-(setq-default
+(setq!
  ;; original modified with `%a'
  org-roam-capture-templates (quote (("d" "default" plain "%?" :target
                                      (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+begin_src\n%a\n#+end_src\n")

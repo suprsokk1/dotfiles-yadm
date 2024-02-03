@@ -6,7 +6,6 @@
 (require 'beacon nil t)
 
 
-
 ;;;###autoload
 (defun ek/babel-ansi ()
   "TODO Apply ANSI colors on region after"
