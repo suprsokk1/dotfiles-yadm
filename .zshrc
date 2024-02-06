@@ -2,36 +2,50 @@
 # shellcheck disable=SC1091,SC2034
 rc=~/.zshrc
 
-# :antigen
-[ -s ~/.antigen.zsh ] || curl -o ~/.antigen.zsh -L git.io/antigen-nightly
-. ~/.antigen.zsh
+if false
+then
 
-if [ -d $ZSH ]; then
-    antigen use oh-my-zsh
-fi
+    ZSH_THEME="simple"
 
-# antigen bundle command-not-found
-antigen bundle direnv
-antigen bundle fzf
-antigen bundle git
-antigen bundle pip
-# antigen bundle pipx
-antigen bundle pyenv
-# antigen bundle poetry
-antigen bundle z
-`# REVIEW Blocks zsh-autosuggestions? antigen bundle zsh-syntax-highlighting`
-antigen bundle zsh-autosuggestions
-antigen bundle zsh-completions
-# antigen bundle zsh-hooks/zsh-hooks
+    # "official" plugins
+    plugins=(fzf git)
 
-if true; then
-    antigen theme simple            # FIXME Cause zsh shell to hang
+    # custom plugins
+    plugins+=(exa2ls)
+
+    source $ZSH/oh-my-zsh.sh
+
 else
-    antigen theme robbyrussell
+    # :antigen
+    [ -s ~/.antigen.zsh ] || curl -o ~/.antigen.zsh -L git.io/antigen-nightly
+    . ~/.antigen.zsh
+
+    if [ -d $ZSH ]; then
+        antigen use oh-my-zsh
+    fi
+
+    # antigen bundle command-not-found
+    antigen bundle direnv
+    antigen bundle fzf
+    antigen bundle git
+    antigen bundle pip
+    # antigen bundle pipx
+    antigen bundle pyenv
+    # antigen bundle poetry
+    antigen bundle z
+    `# REVIEW Blocks zsh-autosuggestions? antigen bundle zsh-syntax-highlighting`
+    antigen bundle zsh-autosuggestions
+    antigen bundle zsh-completions
+    # antigen bundle zsh-hooks/zsh-hooks
+
+    if true; then
+        antigen theme simple            # FIXME Cause zsh shell to hang
+    else
+        antigen theme robbyrussell
+    fi
+
+    antigen apply
 fi
-
-antigen apply
-
 
 # :fzf
 FZF_DEFAULT_COMMAND+='_fzf__default_command'
