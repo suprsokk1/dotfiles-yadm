@@ -5,66 +5,56 @@
 ;; TODO magit + yadm: list todos, but limit to files git
 ;; TODO change alpha when loosing frame focus ()
 
-(setq!
- query-all-font-backends         t
+(setq! query-all-font-backends         t
+       custom-file                     (expand-file-name "custom.el" (dir!))
 
- custom-file                     (expand-file-name "custom.el" (dir!))
+       frame-title-format              "%b %f"
 
- frame-title-format              "%b %f"
+       ;; header-line-format              "%b %V" ;(quote ("%e" (:eval)))
+       header-line-format              nil ;(quote ("%e" (:eval)))
 
- ;; header-line-format              "%b %V" ;(quote ("%e" (:eval)))
- header-line-format              nil ;(quote ("%e" (:eval)))
+       shift-select-mode               nil
 
- shift-select-mode               nil
+       comint-move-point-for-output    t
 
- comint-move-point-for-output    t
+       +snippets-dir                   (or (expand-file-name "snippets" (file-truename doom-user-dir))
+                                           (expand-file-name "snippets" (expand-file-name doom-user-dir)))
 
- +snippets-dir                   (or (expand-file-name "snippets" (file-truename doom-user-dir))
-                                     (expand-file-name "snippets" (expand-file-name doom-user-dir)))
+       async-bytecomp-package-mode      t
 
- async-bytecomp-package-mode      t
+       initial-buffer-choice            (or initial-buffer-choice
+                                            (expand-file-name "dashboard.org" doom-user-dir))
 
- initial-buffer-choice            (or initial-buffer-choice
-                                      (expand-file-name "dashboard.org" doom-user-dir))
+       doom-scratch-initial-major-mode (quote fundamental-mode)
 
- doom-scratch-initial-major-mode (quote fundamental-mode)
+       doom-projectile-cache-blacklist (quote "/tmp")
 
- doom-projectile-cache-blacklist (quote "/tmp")
+       bookmark-default-file           (expand-file-name "_bookmarks.el" doom-user-dir)
 
- bookmark-default-file           (expand-file-name "_bookmarks.el" doom-user-dir)
+       doom-modeline-major-mode-icon      t
 
- doom-modeline-major-mode-icon      t
+       compile-command                   "~/bin/c"
 
- compile-command                   "~/bin/c"
+       org-log-state-notes-into-drawer   t
 
- org-log-state-notes-into-drawer   t
+       vterm-shell                       "/bin/zsh"
 
- vterm-shell                       "/bin/zsh"
+       global-hl-line-mode              -1
 
- global-hl-line-mode              -1
+       company-minimum-prefix-length     2   ;performance
+       company-idle-delay                2   ;wait n secs before rendering completion
 
- company-minimum-prefix-length     2   ;performance
- company-idle-delay                2   ;wait n secs before rendering completion
+       doom-font                         (font-spec :family  "Iosevka Nerd Font Mono"
+                                                    :foundry "UKWN"
+                                                    :slant   'normal
+                                                    :weight  'light
+                                                    :height  98
+                                                    :width   'normal)
 
- )
-
-;; (setq-hook! '(org-mode) display-line-numbers-type nil)
-;; (global-hide-mode-line-mode 1)
-;; (beacon-mode -1)
-;; (global-hl-line-mode -1)
-
-(blink-cursor-mode 1)
 
 ;; https://github.com/hlissner/.doom.d/blob/6af0a541e0b6b6ec9aee4cb9f05e5cbec0800d91/config.el
 (add-to-list
  'default-frame-alist '(inhibit-double-buffering . t))
-
-;; (after! dired
-;;   (dired-git-info-auto-enable))
-
-;; (add-hook 'dired-mode-hook 'dired-git-info-mode)
-;; (add-hook 'dired-mode-hook 'dired-hide-)
-
 
 (quote (let ((ELC (file-expand-wildcards (concat (expand-file-name "conf.d" (dir!)) "/*.elc"))))
         (mapc #'load-file ELC)))

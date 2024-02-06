@@ -4,6 +4,8 @@ include adhoc.conf
 include conf.d/*.conf
 include /etc/sway/config.d/*
 
+font San Francisco Display 0
+
 xwayland enable
 
 # set $rofi "rofi -show drun -modi drun,window,ssh"
@@ -18,12 +20,13 @@ focus_follows_mouse no
 
 focus_wrapping force
 
-font San Francisco Display 0
+
 
 # drag and drop
 floating_modifier Mod4 normal
 
-default_border pixel smart
+# default_border pixel smart
+default_border pixel 1px
 
 hide_edge_borders none
 
@@ -255,6 +258,7 @@ mode "1: Move to workspace  2: Layout 3:  q: kill window" {
     bindsym Escape mode "default"
 
 }
+
 
 
 bindsym                               Mod4+t exec /usr/bin/bash -c '$HOME/bin/, Super t'
