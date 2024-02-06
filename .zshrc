@@ -1,5 +1,6 @@
 # ~/.zshrc -*- mode: sh -*-
 # shellcheck disable=SC1091,SC2034
+rc=~/.zshrc
 
 # :antigen
 [ -s ~/.antigen.zsh ] || curl -o ~/.antigen.zsh -L git.io/antigen-nightly
@@ -80,51 +81,12 @@ alias -s tar='tar -C ~/src/ --auto-compress -xf'
 command -v exa &>/dev/null && alias ls='command ~/.cargo/bin/exa'
 command -v bat &>/dev/null && alias cat='command ~/.cargo/bin/bat'
 command -v nomino &>/dev/null && alias rename='command ~/.cargo/bin/nomino'
-command -v z &>/dev/null && alias cd='zshz 2>/dev/null'     # zoxide
-# command -v z &>/dev/null && alias cd='command env ~/.cargo/bin/z'
+command -v z &>/dev/null && alias cd='zshz 2>/dev/null' # zoxide
 
 # :misc
 alias edit='command ${EDITOR:-vim}'
 alias sudo='command sudo --askpass'
 alias notify-send='command notify-send --expire-time=3000'
-
-# :ls
-function ls {
-    # TODO
-    args=($exa)
-    local exa
-    exa=(--icons --group-directories-first --git)
-    exa+=( $args )
-
-    for arg; do
-        if  [[ $arg =~ ^-- ]]; then
-            # longopts
-            case $arg in
-                *color=tty)
-                    ;;
-                *)
-            esac
-            exa+=("$arg")
-        elif [[ $arg =~ ^-[a-zA-Z] ]]; then
-            # shortopts
-            for c in `# split short options` $(command grep --extended-regexp --only-matching -- '[[:alpha:]]' <<< "${arg//-/}"); do
-                case $c in
-                    [aA]) exa+=( --all ) ;;
-                    o)    `#TODO`;;
-                    t)    exa+=( --time modified ) ;;
-                    G|-)  `# discard` ;;
-                    *)    exa+=( -"$c" )
-                esac
-            done
-        else
-            exa+=( "$arg" )
-        fi
-    done
-
-    eval "exa ${exa[*]}"
-}
-
-alias la='ls -la'
 
 # :ripgrep
 RIPGREPRC=$HOME/.ripgreprc
@@ -142,6 +104,7 @@ mkdir -p "$TMPPREFIX"
 if command -v qrencode &>/dev/null; then
     alias qr='command qrencode -tutf8'
 fi
+
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init --path)"
