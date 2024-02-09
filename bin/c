@@ -1,0 +1,533 @@
+#!/bin/python
+# -*- coding: utf-8 -*-
+
+import os
+import pathlib
+import re
+import sys
+from functools import lru_cache
+from os.path import exists, getmtime, join
+from pathlib import Path
+import pathlib
+from subprocess import DEVNULL, PIPE, Popen, run
+from tempfile import NamedTemporaryFile
+
+import fire
+from jinja2 import BaseLoader, Template, TemplateNotFound
+from rich import print
+
+import os
+import sys
+import psutil
+
+
+parent = PARENT = psutil.Process(os.getppid())
+
+EMACS = PARENT.name() == 'emacs'
+ROFI = PARENT.name() == 'rofi'
+DMENU = PARENT.name() == 'dmenu'
+FZF = PARENT.name() == 'fzf'
+VIM = PARENT.name() == 'vim'
+ZSH = PARENT.name() == 'zsh'
+BASH = PARENT.name() == 'bash'
+SH = PARENT.name() == 'sh'
+INCROND = PARENT.name() == 'incrond'
+CROND = PARENT.name() == 'incrond'
+TMUX = PARENT.name() == 'tmux'
+
+CRON = CROND or INCROND
+SHELL = SH or ZSH or BASH
+EDITOR = EMACS or VIM
+LAUNCHER = MENU = ROFI or DMENU or FZF
+
+HOME = os.getenv("HOME")
+USER = os.getenv("USER")
+
+TTY = sys.stdin.isatty()
+
+NEWLINE = NL = "\n"
+
+
+class MyLoader(BaseLoader):
+    def __init__(self, path):
+         self.path = path
+
+    def get_source(self, environment, template):
+        path = join(self.path, template)
+        if not exists(path):
+            raise TemplateNotFound(template)
+        mtime = getmtime(path)
+        with open(path) as f:
+            source = f.read()
+        return source, path, lambda: mtime == getmtime(path)
+
+
+@lru_cache
+def hexify(string: str, *chars):
+    if chars:
+      char, *rest = chars
+      args = (char, {'/': '-'}.get(char, hex(ord(char))))
+
+      return hexify(string.replace(*args), *rest)
+
+    else:
+
+      return string
+
+
+try:
+    from loguru import logger
+except Exception:
+    class logger:
+        def __call__(self, lvl, *msg):
+            self.__dict__.get(lvl, lambda: print('No such level'))(*msg)
+
+        @classmethod
+        def warn(self, *msg):
+            print(*msg, file=sys.stderr)
+
+        @classmethod
+        def warning(self, *msg):
+            print(*msg, file=sys.stderr)
+
+        @classmethod
+        def information(*self, msg):
+            print(*msg, file=sys.stderr)
+
+        @classmethod
+        def info(self, *msg):
+            print(*msg, file=sys.stderr)
+
+        @classmethod
+        def debug(self, *msg):
+            print(*msg, file=sys.stderr)
+
+        @classmethod
+        def error(self, *msg):
+            print(*msg, file=sys.stderr)
+
+
+dynamic_classes = f'/run/user/{os.getuid()}/site-packages'
+pathlib.Path(dynamic_classes).mkdir(exist_ok=True)
+if dynamic_classes not in sys.path:
+    sys.path.append(dynamic_classes)
+
+
+class CliBase:
+    """To use as base for cli apps based on google-fire."""
+
+    def __init__(self):
+        self.a = self.add
+        self.l = self.list
+        self.s = self.set
+        self.r = self.remove
+        self.ls = self.list
+
+    def list(self):
+        return "list"
+
+    def add(self, subcommand):
+        return f"add: {subcommand}"
+
+    def set(self, subcommand):
+        return f"set: {subcommand}"
+
+    def remove(self, subcommand):
+        return f"remove: {subcommand}"
+
+
+class CliPass(CliBase):
+    """TODO Manage password manager."""
+
+
+class CliIncron(CliBase):
+    """TODO Manage incrontab."""
+
+
+class CliCron(CliBase):
+    """TODO Manage crontab."""
+
+
+class CliDotfiles(CliBase):
+    """TODO Manage user dotfiles."""
+
+
+class CliAlias(CliBase):
+    """TODO Manage user shell alias."""
+
+
+class CliContainers(CliBase):
+    """TODO Generate dynamic menu for applications like fzf or rofi."""
+
+
+class CliOrgTodos(CliBase):
+    """TODO Generate dynamic menu for applications like fzf or rofi."""
+
+
+class CliHealthChecks(CliBase):
+    """TODO"""
+
+
+class CliMenuitem(CliBase):
+    """TODO Generate dynamic menu for applications like fzf or rofi."""
+
+
+class CliDoctor:
+    """TODO Doctor for doom ...etc."""
+
+
+class CliConfig(CliBase):
+    """TODO Doctor for doom ...etc."""
+
+
+class CliDictLoader:
+    """{"foo": "bar"}"""
+
+    def __init__(self, *args, **kwargs):
+        """"""
+
+
+def systemd_escape(self, fname, systemd=False, install=False) -> str:
+    dest = (Path.home() / 'Projects' / 'site' / 'templates')
+    home = os.getenv('HOME')
+    path = Path(fname)
+    hexed = hexify(
+        path.absolute().__str__().replace(home, '~'), *'-~/'
+    ).replace('0x', '\\x')
+    new = (dest / hexed)
+
+    if systemd and install:
+        new.write_text(path.read_text())
+        return new.absolute().__str__()
+
+    elif systemd:
+        return hexed
+
+
+def call_emacs_daemon():
+    elisp = r'(progn (switch-to-buffer (window-buffer)){})'
+
+    return
+
+def pipe_to_emacs():
+    elisp = '(progn (switch-to-buffer (window-buffer)){})'
+    cmd = elisp.format(f'(insert "{sys.stdin.read()}")')
+    call(["emacsclient" , "--eval", cmd])
+
+
+def pipe_to_emacs():
+    """TODO swich to temp buffer"""
+
+    elisp = '(progn'
+    elisp += '(switch-to-buffer (window-buffer))'
+    elisp += '(split-window-below)'
+    elisp += '(switch-to-buffer (get-buffer-create "*stdin*"))'
+    elisp += '{}'
+    elisp += '(mark-page)'
+    elisp += ')'
+
+    with NamedTemporaryFile('w+') as tmp:
+        print(sys.stdin.read(), file=tmp)
+        cmd = elisp.format(f'(insert-file "{tmp.name}")')
+        call(["emacsclient" , "--eval", cmd])
+        return tmp.name
+
+
+def pipe_to_tmux():
+    """TODO tmux"""
+
+
+class EasyPath(pathlib.Path):
+    def __rshift__(left, right):
+        """Append to file"""
+        lt = type(left)
+        rt = type(right)
+
+        with right.open('a') as fd:
+            fd.write(left.read() if lt is str else right)
+
+    def __gt__(left, right):
+        """Append to file"""
+        lt = type(left)
+        rt = type(right)
+
+        with right.open('w') as fd:
+            fd.write(left.read() if lt is str else right)
+
+
+def catch(func):
+    def _catch(*args, **kwargs):
+        ret = ""
+        try:
+            ret = func(*args, **kwargs)
+        except Exception as e:
+            print(e, file=sys.stderr)
+
+        return ret
+
+    return _catch
+
+
+def paths(func):
+    def _catch(*args, **kwargs):
+        ret = func(*args, **kwargs)
+        lines = ret.splitlines()
+
+        if ret > 1:
+            return [_ for _ in lines if Path(_).exists()]
+        elif type(ret) is str:
+            return ret
+        else:
+            return ""
+
+    return _catch
+
+
+def filters(*filters):
+    def _inner(func):
+        def _wrapper(*args, **kwargs):
+            ret = func(*args, **kwargs)
+            if 'git_status' in filters:
+                # ret = [_.split(" ", 1)[1] for _ in ret]
+                ret = [_[3:] for _ in ret]
+            return ret
+        return _wrapper
+    return _inner
+
+
+@catch
+def decode(func):
+    def _wrapper(*args, **kwargs):
+        p = func(*args, **kwargs)
+
+        if p.returncode == 0:
+            print(p.stdout)
+            return p
+            # return lines if len(lines) > 1 else out.decode()
+        else:
+            return err.decode()
+
+    return _wrapper
+
+
+def call(*args) -> None:
+    with Popen(*args) as p:
+        p.communicate()
+
+
+@filters('git_status')
+@decode
+def run(*args, **kwargs) -> None:
+    with Popen([*args], **{**dict(stdout=PIPE, stderr=PIPE), **kwargs}) as p:
+        p.communicate()
+        return p
+
+
+@filters('git_status')
+def run(*args, **kwargs) -> None:
+    with Popen([*args], **{**dict(stdout=PIPE, stderr=PIPE), **kwargs}) as p:
+        p.communicate()
+        if p.returncode == 0:
+            # print(dir(p))
+            return p.communicate()[0].decode().splitlines()
+
+
+
+class Cli(object):
+    """Do.. stuff."""
+
+    def __init__(self):
+        self.menuitem = CliMenuitem()
+        self.alias = CliAlias()
+        self.dotfiles = CliDotfiles()
+
+        # aliases
+        self.pa = self.parent
+        self.p = self.pipe
+
+
+    def parent(self) -> None:
+        """FIXME """
+        return parent.name
+
+
+    def pipe(self) -> None:
+        if SHELL:
+            return pipe_to_emacs()
+
+        if EDITOR:
+            # if emacs is parent
+           return pipe_to_tmux()
+
+
+    def rofi(self, *items, menu=False) -> None:
+        """TODO rofi"""
+
+        return
+
+    r = rofi                    # alias
+
+    def preview(self, *items) -> None:
+        """fzf preview"""
+
+        return parent.name
+
+    def debug(self):
+        """debug"""
+        cmd = Command('yadm config debug.enable', bool=True)
+        # logger.debug(cmd)
+        res = cmd.run()
+
+        return res
+
+    def notify(self, topic, *msg) -> None:
+        """Send notification."""
+        n = Notify(topic, ' '.join(msg))
+        n.send()
+
+    n = msg = notify
+
+
+    def escape(self, fname, systemd=False, install=False) -> str:
+        if systemd:
+            res = run("", shell=True, capture_output=True)
+            return res[0].decode()
+
+
+    def menu(self, *args):
+        """for debugging."""
+
+        return                  # FIXME
+        submenu = Menu()
+
+        wallpapers = Command('fd',
+                             max_depth=3,
+                             e=['jpg','png','webm'])
+
+        yaml = Command('fd . ~',
+                       max_depth=3, e=['yml', 'yaml'],
+                       a=[])
+
+        fd01 = Command('fd',
+                       max_depth=3,
+                       type='file',
+                       color='never',
+                       absolute_path=None,
+                       unrestricted=None)
+
+        fd02 = Command('fd',
+                       max_depth=3, type='file',
+                       color='never',
+                       absolute_path=None)
+
+        submenu.add(MenuItem('Files', fd02))
+
+        submenu.select(*args)
+
+        return submenu.show()
+
+    def j2(self) -> str:
+        """
+        Render Jinja2 templates
+        ---
+
+        """
+
+        return Template.render()
+
+    def jcat(self, *json_files) -> str:
+        import json
+
+        python_objects = []
+        for json_file in json_files:
+            with open(json_file, "r") as f:
+                python_objects.append(json.load(f))
+
+        return json.dumps(python_objects, indent=4)
+
+    def callback(self) -> None:
+        """Run hooks for application executing this command."""
+
+        if CRON:
+            call(f"""tmux source-file {HOME}/""".split())
+            return
+
+
+    def zsh(self, name, widget=False, plugin=False, force=False) -> str:
+        """Run hooks for application executing this command."""
+        if widget:
+            _in = sys.stdin.read()
+            return ' '.join(_in.split('\n'))
+
+        elif plugin:
+            p = Path.home() / ".oh-my-zsh" / "custom" / "plugins" / name /  f"{name}.plugin.zsh"
+            relpath = p.relative_to(Path.home())
+            p.parent.mkdir(exist_ok=True, parents=True)
+            head = "# ~/{}".format(relpath)
+            _in = sys.stdin.read()
+
+            if force:
+                pass
+            elif not TTY:
+                pass
+            else:
+                return "File exists "
+
+            p.write_text(head + "\n")
+
+            with p.open('a') as fd:
+                fd.write(_in)
+
+            return p.read_text()
+
+
+    def reload(self, _all=True, tmux=False, sway=False, doom=False, systemd=True) -> str:
+        """Reload config(s)"""
+        _all = not any((tmux, sway, doom))
+
+        prefix = "" if not systemd else "/usr/bin/systemd-run"
+
+        if tmux or _all:
+            call(f"""{prefix} tmux source-file {HOME}/.tmux.conf""".split())
+
+        if sway or _all:
+            call(f"""{prefix} sway reload""")
+
+        if doom:
+            os.system(f"""doom sync""")
+            # call(f"""doom sync""")
+
+        return ' '.join(_in.split('\n'))
+
+    yadm_env = dict(GIT_DIR=f"{HOME}/.local/share/yadm/repo.git", GIT_WORK_TREE=HOME)
+
+    def yadm(self, status=False):
+        ret = run('git', 'status', '--porcelain=v1', env=self.yadm_env)
+        return ret
+
+    def status(self, _all=True, yadm=False, git=False) -> list:
+        if yadm:
+            ret = run('git', 'status', '--porcelain=v1', env=self.yadm_env)
+
+            return ret
+
+        elif git:
+
+            return run('git', 'status', '-0')
+
+
+    def list(self, _all=True, yadm=False, docker=False) -> list:
+        if yadm:
+            return run('yadm', 'ls-files').splitlines()
+        elif docker:
+            return run('docker', 'container', 'list', '--all').splitlines()
+        else:
+            return list(range(10))
+
+if __name__ == '__main__':
+    try:
+        fire.Fire(Cli)
+    except KeyboardInterrupt as i:
+        exit(1)
+
+# c -> ../.config/yadm/src/site-packages/deleteme/src/cli.py
