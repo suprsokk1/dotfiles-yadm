@@ -1,13 +1,20 @@
 # ~/.tmux.conf##default -*- mode: conf -*-
 
-set -g base-index      1
-set -g pane-base-index 1
-set -g mouse           on
-
-set-option -g default-shell /bin/zsh
-
-set -g default-terminal     "screen-256color"
-set -sg terminal-overrides  ",*:RGB:clipboard"
+# set-option -g pane-border-status top
+set-option -g base-index      1
+set-option -g default-command    /bin/zsh
+set-option -g default-shell      /bin/zsh
+set-option -g default-terminal     "screen-256color"
+set-option -g mouse           on
+set-option -g pane-base-index 1
+set-option -g pane-border-format @inactive
+set-option -g status             off
+set-option -g synchronize-panes  off
+set-option -sg terminal-overrides  ",*:RGB:clipboard"
+set-optipn -g base-index         1
+set-optipn -g pane-base-index    1
+set-option -g prefix C-Space
+set-option -gw xterm-keys on
 
 # WORKING! truecolor (24 bit color)
 # set -g default-terminal "screen-256color"
@@ -25,7 +32,7 @@ set -sg terminal-overrides  ",*:RGB:clipboard"
 # set -s set-clipboard external
 
 # wl-copy|xsel|xclipboard|xclip
-set -s copy-command '/usr/bin/wl-copy'
+set-option -s copy-command '/usr/bin/wl-copy'
 
 # set -s set-clipboard external
 # set -s set-clipboard off

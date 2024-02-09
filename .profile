@@ -18,7 +18,6 @@ TMPDIR=$XDG_RUNTIME_DIR/tmp
 VISUAL=$EDITOR
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 XDG_RUNTIME_DIR=/run/user/${UID:-$(command id -u)}
-ZSH=$HOME/.oh-my-zsh
 
 export ALTERNATE_EDITOR
 export PYTHONPATH

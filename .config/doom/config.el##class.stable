@@ -5,7 +5,10 @@
 ;; TODO magit + yadm: list todos, but limit to files git
 ;; TODO change alpha when loosing frame focus ()
 
-(setq! query-all-font-backends         t
+(setq! display-line-numbers-type        nil
+
+       query-all-font-backends         t
+
        custom-file                     (expand-file-name "custom.el" (dir!))
 
        frame-title-format              "%b %f"
@@ -22,6 +25,10 @@
 
        async-bytecomp-package-mode      t
 
+       doom-modeline-major-mode-icon      t
+
+       org-log-state-notes-into-drawer    t
+
        initial-buffer-choice            (or initial-buffer-choice
                                             (expand-file-name "dashboard.org" doom-user-dir))
 
@@ -31,11 +38,8 @@
 
        bookmark-default-file           (expand-file-name "_bookmarks.el" doom-user-dir)
 
-       doom-modeline-major-mode-icon      t
-
        compile-command                   "~/bin/c"
 
-       org-log-state-notes-into-drawer   t
 
        vterm-shell                       "/bin/zsh"
 
@@ -48,8 +52,20 @@
                                                     :foundry "UKWN"
                                                     :slant   'normal
                                                     :weight  'light
-                                                    :height  98
+                                                    :height   98
                                                     :width   'normal)
+       )
+
+;;; `workflow'
+;;; jump to *scratch* buffer split words into lines
+;;; -activate multiple-cursors
+(setq-hook! 'fundamental-mode
+  fill-column 1)
+(setq-hook! '(prog-mode text-mode)
+  fill-column 80)
+(setq-hook! 'comint-mode-hook
+  comint-buffer-maximum-size 20000      ; Increase comint buffer size.
+  comint-prompt-read-only        t)     ; Make the prompt read only.
 
 
 ;; https://github.com/hlissner/.doom.d/blob/6af0a541e0b6b6ec9aee4cb9f05e5cbec0800d91/config.el
@@ -59,18 +75,13 @@
 (quote (let ((ELC (file-expand-wildcards (concat (expand-file-name "conf.d" (dir!)) "/*.elc"))))
         (mapc #'load-file ELC)))
 
-(setq-hook! (quote (comint-mode-hook))
-  comint-buffer-maximum-size 20000 ; Increase comint buffer size.
-  comint-prompt-read-only        t ; Make the prompt read only.
-  )
-
 (add-hook! (quote (python-mode-hook)) (quote rainbow-delimiters-mode))
 
 (custom-set-faces
  '(rainbow-delimiters-depth-1-face ((t (:foreground "gray")))))
 
 (after! rainbow-delimiters
-  (add-hook! (quote (python-mode-hook))
+  (add-hook! 'python-mode-hook
     (quote rainbow-delimiters-mode))
   (custom-set-faces
    '(rainbow-delimiters-depth-1-face ((t (:foreground "gray"))))))
@@ -94,12 +105,6 @@
 (quote (setq-hook! (quote (fundamental-mode))
         header-line-format (quote ("%e" (:eval)))))
 
-;;; `workflow'
-;;; jump to *scratch* buffer split words into lines
-;;; -activate multiple-cursors
-(setq-hook! 'fundamental-mode fill-column 1)
-(setq-hook! '(prog-mode text-mode) fill-column 80)
-
 (defun -minor-mode (minor-mode)
   (with-output-to-temp-buffer
       (princ (local-minor-modes))
@@ -120,28 +125,6 @@
   (split-window-sensibly
    (org-agenda nil "t")))
 
-
-(after! org
-  (setq! org-mode-hook
-         (quote (+lookup--init-org-mode-handlers-h
-                 doom-disable-show-paren-mode-h
-                 doom-disable-show-trailing-whitespace-h
-                 +org-make-last-point-visible-h
-                 org-appear-mode
-                 org-fancy-priorities-mode
-                 org-superstar-mode
-                 toc-org-enable
-                 org-babel-result-hide-spec
-                 org-babel-hide-all-hashes
-                 (cmd! (if (not (eq nil (buffer-file-name)))
-                           (progn
-                             (when (not (buffer-narrowed-p))
-                               (when (-by-buffer (get-buffer (buffer-name)))
-                                 (org-babel-find-named-block -org-babel-startup-block)
-                                 (org-babel-execute-src-block:async)))))))))
-
-  (remove-hook! org-mode-hook
-    'doom--setq-display-line-numbers-mode-for-org-mode-h))
 
 (defun M-RET! (&rest BODY)
   "`M-RET' action"
@@ -183,8 +166,8 @@
    (:map dired-mode-map
          "D"   (cmd! (quote (dired-)))  ;NOTE dired cleanup?
          "/"   #'dired-mark-files-regexp
-         (:prefix "h"
-                  "h" (cmd! (dired "~")))
+         ;; (:prefix "h"
+         ;;          "h" (cmd! (dired "~")))
 
          (:prefix ","
                   ","   #'dired-unmark-all-marks)
@@ -192,7 +175,8 @@
          "."   #'dired-up-directory
          "["   #'dired-prev-marked-file
          "]"   #'dired-next-marked-file
-         "~"   (cmd! dired "~")
+         ;; "~"   (cmd! dired "~")
+         "~"   nil
          "r"   #'dired-do-rename-regexp
          "s-." #'dired-jump)))
 
@@ -228,8 +212,7 @@
  "H-g" #'magit-status
  "H-i f" #'+default/insert-file-path
  "H-k" #'delete-window
- "H-l" #'display-line-numbers-mode
- "H-m" #'+zen/toggle-fullscreen
+  "H-m" #'+zen/toggle-fullscreen
  "H-n" #'split-window-horizontally
  "H-p" #'projectile-find-file
  "H-q" #'windmove-left
@@ -274,7 +257,7 @@
  "s-g" #'magit-status
  "s-i f" #'+default/insert-file-path
  "s-k" #'delete-window
- "s-l" #'display-line-numbers-mode
+ 
  "s-m s-m" #'mc/mark-all-like-this
  "s-n" #'split-window-horizontally
  "s-p" #'projectile-find-file
@@ -287,18 +270,18 @@
  ;; "s-8" #'-mark-all-like-this
 
  (:prefix "s-SPC"
-          "m"         '+zen/toggle-fullscreen
+          "m"   #'+zen/toggle-fullscreen
           "SPC" #'org-roam-node-find
 
           "TAB" #'(cmd! (find-file initial-buffer-choice))
-          "[" #'mc/edit-beginnings-of-lines
-          "]" #'mc/edit-enda-of-lines
-          "a" #'mc/edit-beginnings-of-lines
-          "b" #'doom-big-font-mode
-          "c" #'doom/goto-private-config-file
-          "e" #'mc/edit-enda-of-lines
+          "["   #'mc/edit-beginnings-of-lines
+          "]"   #'mc/edit-enda-of-lines
+          "a"   #'mc/edit-beginnings-of-lines
+          "b"   #'doom-big-font-mode
+          "c"   #'doom/goto-private-config-file
+          "e"   #'mc/edit-enda-of-lines
 
-          "n" #'org-capture
+          "n" (cmd! (org-capture ))
           "q" #'delete-other-windows
           "r" nil
           "s" #'org-narrow-to-subtree
@@ -360,7 +343,7 @@
  "H-g" #'magit-status
  "H-i f" #'+default/insert-file-path
  "H-k" #'delete-window
- "H-l" #'display-line-numbers-mode
+ 
  "H-m" #'+zen/toggle-fullscreen
  "H-n" #'split-window-horizontally
  "H-p" #'projectile-find-file
@@ -390,7 +373,7 @@
  "s-g" #'magit-status
  "s-i f" #'+default/insert-file-path
  "s-k" #'delete-window
- "s-l" #'display-line-numbers-mode
+ 
  "s-m s-m" #'mc/mark-all-like-this
  "s-n" #'split-window-horizontally
  "s-p" #'projectile-find-file
@@ -623,3 +606,7 @@
 (global-set-key (kbd "H-SPC g") (quote +tmux/send-region))
 
 (map! :map org-agenda-mode-map "RET" #'org-agenda-goto) ;original: org-agenda-switch-to
+
+(map! (:prefix  "H-SPC" "h" #'+default/man-or-woman)
+      (:prefix "s-SPC"  "h" #'+default/man-or-woman)
+      )
