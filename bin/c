@@ -4,24 +4,43 @@
 import os
 import pathlib
 import re
+import subprocess as S
 import sys
 from functools import lru_cache
 from os.path import exists, getmtime, join
 from pathlib import Path
-import pathlib
-from subprocess import DEVNULL, PIPE, Popen, run
+from subprocess import DEVNULL, PIPE, Popen
+from subprocess import run as Run
 from tempfile import NamedTemporaryFile
 
-import fire
-from jinja2 import BaseLoader, Template, TemplateNotFound
-from rich import print
+try:
+    import fire
+except ModuleNotFoundError:
+    os.system("pip install --user fire")
+    import fire
 
-import os
-import sys
-import psutil
+try:
+    from jinja2 import BaseLoader, Template, TemplateNotFound
+except ModuleNotFoundError:
+    os.system("pip install --user fire")
+    from jinja2 import BaseLoader, Template, TemplateNotFound
+
+try:
+    import psutil
+except ModuleNotFoundError:
+    os.system("pip install --user psutil")
+    import psutil
+
+try:
+    from rich import print
+except ModuleNotFoundError:
+    os.system("pip install --user rich")
+    from rich import print
 
 
 parent = PARENT = psutil.Process(os.getppid())
+
+EMPTY_STRING = ''
 
 EMACS = PARENT.name() == 'emacs'
 ROFI = PARENT.name() == 'rofi'
@@ -45,83 +64,41 @@ USER = os.getenv("USER")
 
 TTY = sys.stdin.isatty()
 
+SYSTEMD_SOCKET_UNIT = """
+# {{ name }}.socket
+[Unit]
+Description = {{ desc }}
+
+[Socket]
+ListenStream = {{ tcp_port }}
+Accept = yes
+
+[Install]
+WantedBy = sockets.target
+"""
+
+SYSTEMD_SERVICE_UNIT = """
+# {{ name }}@.service
+[Unit]
+Description={{ name }} server service
+
+[Service]
+ExecStart=%h/bin/{{ name }} poc --systemd
+StandardInput=socket
+"""
+
+icons = """
+\\u{f115}
+\\u{e5fc}
+\\u{f016}
+\\u{e615}
+"""
+
 NEWLINE = NL = "\n"
-
-
-class MyLoader(BaseLoader):
-    def __init__(self, path):
-         self.path = path
-
-    def get_source(self, environment, template):
-        path = join(self.path, template)
-        if not exists(path):
-            raise TemplateNotFound(template)
-        mtime = getmtime(path)
-        with open(path) as f:
-            source = f.read()
-        return source, path, lambda: mtime == getmtime(path)
-
-
-@lru_cache
-def hexify(string: str, *chars):
-    if chars:
-      char, *rest = chars
-      args = (char, {'/': '-'}.get(char, hex(ord(char))))
-
-      return hexify(string.replace(*args), *rest)
-
-    else:
-
-      return string
-
-
-try:
-    from loguru import logger
-except Exception:
-    class logger:
-        def __call__(self, lvl, *msg):
-            self.__dict__.get(lvl, lambda: print('No such level'))(*msg)
-
-        @classmethod
-        def warn(self, *msg):
-            print(*msg, file=sys.stderr)
-
-        @classmethod
-        def warning(self, *msg):
-            print(*msg, file=sys.stderr)
-
-        @classmethod
-        def information(*self, msg):
-            print(*msg, file=sys.stderr)
-
-        @classmethod
-        def info(self, *msg):
-            print(*msg, file=sys.stderr)
-
-        @classmethod
-        def debug(self, *msg):
-            print(*msg, file=sys.stderr)
-
-        @classmethod
-        def error(self, *msg):
-            print(*msg, file=sys.stderr)
-
-
-dynamic_classes = f'/run/user/{os.getuid()}/site-packages'
-pathlib.Path(dynamic_classes).mkdir(exist_ok=True)
-if dynamic_classes not in sys.path:
-    sys.path.append(dynamic_classes)
 
 
 class CliBase:
     """To use as base for cli apps based on google-fire."""
-
-    def __init__(self):
-        self.a = self.add
-        self.l = self.list
-        self.s = self.set
-        self.r = self.remove
-        self.ls = self.list
 
     def list(self):
         return "list"
@@ -132,59 +109,83 @@ class CliBase:
     def set(self, subcommand):
         return f"set: {subcommand}"
 
+    def edit(self, name):
+        editor = os.getenv("EDITOR", os.getenv("VISUAL", "/usr/bin/vim"))
+        S.Popen([self.edit_format])
+
     def remove(self, subcommand):
         return f"remove: {subcommand}"
 
+    def __init__(self):
+        self.__class__.__name__
+        self.edit_format = "/run/user/%s/{name}" % os.getenv("UID")
+
+class CliConfigure(object):
+    """"""
+    pass
+
+class CliEnvironment(object):
+    """TODO manage environment variables"""
+    template = """
+    {% for %}
+    """
+
+class CliList(object):
+    """All the lists."""
+    pass
+
+class CliInstall(object):
+    """Install using recipes for cli tools"""
+    pass
+
+class CliBootstrap(object):
+    """Quick local setup"""
+    pass
+
+class Tmux(object):
+    pass
+
+
+class CliFzf(CliBase):
+    """TODO Manage password manager."""
 
 class CliPass(CliBase):
     """TODO Manage password manager."""
 
-
 class CliIncron(CliBase):
     """TODO Manage incrontab."""
-
 
 class CliCron(CliBase):
     """TODO Manage crontab."""
 
-
 class CliDotfiles(CliBase):
     """TODO Manage user dotfiles."""
 
-
 class CliAlias(CliBase):
-    """TODO Manage user shell alias."""
-
+    """TODO Manage user shell aliases."""
 
 class CliContainers(CliBase):
     """TODO Generate dynamic menu for applications like fzf or rofi."""
 
-
 class CliOrgTodos(CliBase):
     """TODO Generate dynamic menu for applications like fzf or rofi."""
-
 
 class CliHealthChecks(CliBase):
     """TODO"""
 
-
-class CliMenuitem(CliBase):
+class CliRofiWrapper:
     """TODO Generate dynamic menu for applications like fzf or rofi."""
 
-
 class CliDoctor:
-    """TODO Doctor for doom ...etc."""
-
+    """TODO
+    - DOOM emacs
+    """
 
 class CliConfig(CliBase):
     """TODO Doctor for doom ...etc."""
 
-
 class CliDictLoader:
-    """{"foo": "bar"}"""
-
-    def __init__(self, *args, **kwargs):
-        """"""
+    """TODO"""
 
 
 def systemd_escape(self, fname, systemd=False, install=False) -> str:
@@ -203,15 +204,13 @@ def systemd_escape(self, fname, systemd=False, install=False) -> str:
     elif systemd:
         return hexed
 
+def call_emacs_daemon(sexp):
+    elisp = '(progn'
+    elisp += '(switch-to-buffer (window-buffer))'
+    elisp += '{}'
+    elisp += ')'
 
-def call_emacs_daemon():
-    elisp = r'(progn (switch-to-buffer (window-buffer)){})'
-
-    return
-
-def pipe_to_emacs():
-    elisp = '(progn (switch-to-buffer (window-buffer)){})'
-    cmd = elisp.format(f'(insert "{sys.stdin.read()}")')
+    cmd = elisp.format(sexp)
     call(["emacsclient" , "--eval", cmd])
 
 
@@ -336,20 +335,9 @@ def run(*args, **kwargs) -> None:
 class Cli(object):
     """Do.. stuff."""
 
-    def __init__(self):
-        self.menuitem = CliMenuitem()
-        self.alias = CliAlias()
-        self.dotfiles = CliDotfiles()
-
-        # aliases
-        self.pa = self.parent
-        self.p = self.pipe
-
-
     def parent(self) -> None:
         """FIXME """
         return parent.name
-
 
     def pipe(self) -> None:
         if SHELL:
@@ -359,10 +347,8 @@ class Cli(object):
             # if emacs is parent
            return pipe_to_tmux()
 
-
     def rofi(self, *items, menu=False) -> None:
         """TODO rofi"""
-
         return
 
     r = rofi                    # alias
@@ -453,39 +439,40 @@ class Cli(object):
             return
 
 
-    def zsh(self, name, widget=False, plugin=False, force=False) -> str:
-        """Run hooks for application executing this command."""
-        if widget:
-            _in = sys.stdin.read()
-            return ' '.join(_in.split('\n'))
+    # def zsh(self, name, widget=False, plugin=False, force=False) -> str:
+    #     """Run hooks for application executing this command."""
+    #     if widget:
+    #         _in = sys.stdin.read()
+    #         return ' '.join(_in.split('\n'))
 
-        elif plugin:
-            p = Path.home() / ".oh-my-zsh" / "custom" / "plugins" / name /  f"{name}.plugin.zsh"
-            relpath = p.relative_to(Path.home())
-            p.parent.mkdir(exist_ok=True, parents=True)
-            head = "# ~/{}".format(relpath)
-            _in = sys.stdin.read()
+    #     elif plugin:
+    #         p = Path.home() / ".oh-my-zsh" / "custom" / "plugins" / name /  f"{name}.plugin.zsh"
+    #         relpath = p.relative_to(Path.home())
+    #         p.parent.mkdir(exist_ok=True, parents=True)
+    #         head = "# ~/{}".format(relpath)
+    #         _in = sys.stdin.read()
 
-            if force:
-                pass
-            elif not TTY:
-                pass
-            else:
-                return "File exists "
+    #         if force:
+    #             pass
+    #         elif not TTY:
+    #             pass
+    #         else:
+    #             return "File exists "
 
-            p.write_text(head + "\n")
+    #         p.write_text(head + "\n")
 
-            with p.open('a') as fd:
-                fd.write(_in)
+    #         with p.open('a') as fd:
+    #             fd.write(_in)
 
-            return p.read_text()
+    #         return p.read_text()
 
 
-    def reload(self, _all=True, tmux=False, sway=False, doom=False, systemd=True) -> str:
+    def reload(self, all=True, tmux=False, sway=False, doom=False, systemd=True) -> str:
         """Reload config(s)"""
         _all = not any((tmux, sway, doom))
+        del all
 
-        prefix = "" if not systemd else "/usr/bin/systemd-run"
+        prefix = "" if not systemd else "/usr/bin/systemd-run --user"
 
         if tmux or _all:
             call(f"""{prefix} tmux source-file {HOME}/.tmux.conf""".split())
@@ -515,7 +502,6 @@ class Cli(object):
 
             return run('git', 'status', '-0')
 
-
     def list(self, _all=True, yadm=False, docker=False) -> list:
         if yadm:
             return run('yadm', 'ls-files').splitlines()
@@ -524,10 +510,300 @@ class Cli(object):
         else:
             return list(range(10))
 
-if __name__ == '__main__':
+    def emacs_super_dot_callback(self, *data):
+        """WIP."""
+        call_emacs_daemon(f"""{data}""")
+
+    def grep(self, *args, **kwargs):
+        S.Popen("grep -wo -- 0".split(), env={})
+
+        # S.Popen("grep -wo -- 0".split(), stdin=sys.stdin, stdout=sys.stdout, env={})
+
+    def col(self, n, **kwargs):
+        """Print column(s) 'n' from stdin. Default is 1"""
+        S.Popen("grep -wo -- 0".split(), env={})
+
+        # TODO ip shell command like
+
+    def configure(self, action, fname):
+        """TODO Edit files """
+        return Path(fname)
+
+    def shims(self):
+        """TODO Manage symlinks in ~/.shims"""
+        shims = Path.home() / '.shims'
+
+    def edit(self, action, fname):
+        """TODO Edit files """
+        return Path(fname)
+
+    def dot(self, list=True):
+        """
+        TODO
+        - short for dotfiles
+        - print all dotfiles if no argument is given
+        """
+        if list:
+            S.Popen(['yadm', 'ls-files'])
+
+    # def fzf(self, preview=False):
+    #     """
+    #     fzf helper
+    #     ---
+    #     good defaults
+    #     - dont take up entire screen/term
+    #     - dont show preview
+    #     - binding info. in header
+    #     """
+    #     pattern = r''''''
+
+    def clean(self, backup=True):
+        """TODO Clean home folder"""
+
+    # def reload(self):
+    #     """TODO Verify and reload changed config files."""
+    #     pattern = r''''''
+
+    def run(self):
+        """TODO Run command. Even if not in path."""
+        pattern = r''''''
+
+    def esc(self):
+        """TODO"""
+        # sys.stdout.
+
+    def re(self, jq=False, tmux=False):
+        """TODO agnostic parsing of stdin as json """
+        def e(char):
+            return rf'\x{ord(char):x}'
+        def r(*_range):
+            return r'{%s}' % (','.join(map(str, _range)))
+
+        p_1 = e("^") + e("[") + r(2) + r'\d{2}'
+        # return  p_1
+        p_2 = rf'''(?P<ansi>{p_1})'''
+        pattern = rf'''{p_2}|^(?P<ps1>.*[ ][~#][ ])?(?P<line>(?:\s*)(?P<word>\S+).*)$'''
+        c_regex2json = [f"{HOME}/go/bin/regex2json", pattern]
+        c_jq = [f"/usr/bin/jq", "--slurp"]
+        c_tmux = [f"/usr/bin/tmux","capture-pane", "-C", "-p"]
+
+        kwargs = dict(
+            stdin=sys.stdin if any((sys.stdin.isatty(), tmux)) else S.Popen(c_jq, env={}, stdin=S.PIPE).stdout,
+            stdout=sys.stdout if jq else S.Popen(c_jq, env={}, stdout=S.PIPE).stdin,
+        )
+
+        proc = S.Popen(c_regex2json, env={}, **kwargs)
+        execution_results = proc.communicate()
+
+    def vpn(self, *state):
+        """TODO vpn 'on' or 'off'"""
+        state = "unknown"
+
+        return state
+
+    def c(self, *cols):
+        """???"""
+        fallback = '''{print $1}'''
+        multi = '''{print %s}''' % (','.join([rf'${col}' for col in cols]))
+        S.Popen([f"/bin/awk", fallback if not cols else multi], env={})
+
+    def helper(self, app, action, *optional):
+        rg = rg_cmd_builder(*optional)
+        fzf = fzf_cmd_builder()
+
+        if app == 'fzf' and  action in ['command', 'default']:
+            S.Popen(rg)
+
+        elif app == 'fzf' and action in ['preview']:
+            return optional[0].split(':')[0]
+
+        elif app == 'fzf' and action in  ['run']:
+            S.Popen(fzf)
+
+    def t(self):
+        """***DEBUGGING***"""
+        return fzf_cmd_builder()
+
+    def tt(self):
+        """***DEBUGGING***"""
+        S.Popen(rg_cmd_builder())
+
+    def ttt(self):
+        """***DEBUGGING***"""
+        return rg_cmd_builder()
+
+    def __init__(self):
+        # self.menuitem = Cli()
+        # self.alias = CliAlias()
+        # self.dotfiles = CliDotfiles()
+        # self.bootstrap = CliBootstrap()
+        # self.bind = CliBindings()
+        # self.zsh = CliZsh()
+        # self.fzf = CliFzf()
+        self.default = CliDefault()
+
+        # aliases
+        # self.pa = self.parent
+        # self.p = self.pipe
+
+"""
+TODO load json/yaml/toml as command
+"""
+
+def cmd_builder(cmd, *args, shell_escape=False, **kwargs):
+
+    def _f(k, v):
+        symbol = type(v) is bool
+
+        return '--{key}{sep}{val}'.format(
+            key=k.replace('_', '-'),
+            sep='=' if not symbol else EMPTY_STRING,
+            val=v if not symbol else EMPTY_STRING,
+        )
+
+    longopts = [
+        _f(option, value)
+        for option, values in kwargs.items()
+        for value in (values if type(values) is list else [values])
+    ]
+
+    shortopts = list(args)
+
+    return [cmd] + shortopts + longopts
+
+
+def fzf_cmd_builder():
+        mod = 'ctrl'
+        preview = f'{mod}-v'
+        refresh = f'{mod}-r'
+        selectall = f'{mod}-a'
+        toggleall = f'{mod}-t'
+
+        beg, end = '{}'
+        middle = r'p'
+
+        sep = r'|'              # preview separator
+        sep = r''               # preview separator
+
+        def _b(*args):
+            middle, *rest = args if args else ['']
+            return beg + middle + end
+
+        cmd = cmd_builder(
+            'fzf',
+            query=f'foobar',
+            # preview=f'{__file__} helper fzf preview {beg}{end}',
+            preview=f'( command cut -d: -f1 | head | command xargs bat --color=always ) <<< ' + _b() + ' || echo ' + _b(),
+            bind=[
+                f'{selectall}:select-all',
+                f'{toggleall}:toggle-all',
+                # f'{preview}:preview:({__file__} helper fzf preview {beg}{middle}{end})',
+                f'change:reload:{__file__} helper fzf default {_b("p")} || true',
+            ],
+            header=f"{selectall}:Select all {sep} {preview}:Preview {sep} {refresh}:Refresh",
+            ansi=True,
+            layout='reverse',
+            height=30,
+        )
+
+        return cmd
+
+
+def rg_cmd_builder(*args):
+    rg = cmd_builder(
+        'rg',
+        'foobarbaz',
+        color='always',
+        column=True,
+        line_number=True,
+        no_heading=True,
+        smart_case=True,
+    )
+
+    return rg
+
+
+def j2(template, data: dict):
+    return Template(template, data)
+
+
+def install(content: str, dest: str, **kwargs):
+    dest = Path() / dest
+    assert not dest.is_file() or kwargs.get('force', False)
+    dest.write_text(content)
+
+@lru_cache
+def hexify(string: str, *chars):
+    if chars:
+      char, *rest = chars
+      args = (char, {'/': '-'}.get(char, hex(ord(char))))
+
+      return hexify(string.replace(*args), *rest)
+
+    else:
+
+      return string
+
+
+class CliDefault:
+    def __init__(self):
+        pass
+
+class CliDefaultFzf:
+    def __init__(self):
+        pass
+
+class CliFzf(CliBase):
+    def __init__(self):
+        pass
+
+class CliZsh:
+    def __init__(self):
+        self.plugin = CliZshPlugin()
+
+
+class CliZshPlugin(CliBase):
+    def create(self, name: str, force=False) -> str:
+        p = Path.home() / ".oh-my-zsh" / "custom" / "plugins" / name /  f"{name}.plugin.zsh"
+        relpath = p.relative_to(Path.home())
+        p.parent.mkdir(exist_ok=True, parents=True)
+        head = "# ~/{}".format(relpath)
+        _in = sys.stdin.read()
+
+        if force:
+            pass
+        elif not TTY:
+            pass
+        else:
+            return "File exists "
+
+        p.write_text(head + "\n")
+
+        with p.open('a') as fd:
+            fd.write(_in)
+
+        return p.read_text()
+
+
+class CliBindings(object):
+    """TODO Manage key bindings for ...
+    - Emacs
+    - tmux
+    - zsh
+    - bash
+    """
+
+
+def main():
     try:
         fire.Fire(Cli)
+    except Exception as e:
+        print(e)
+
+if __name__ == '__main__':
+    try:
+        main()
     except KeyboardInterrupt as i:
         exit(1)
-
-# c -> ../.config/yadm/src/site-packages/deleteme/src/cli.py
+    except ModuleNotFoundError as m:
+        pass
