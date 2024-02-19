@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: method-args-n-kwargs
+# key: func
+# --
+def __$1__(self, *args, **kwargs):
+    """${2:Foo bar baz.}"""
+    $0

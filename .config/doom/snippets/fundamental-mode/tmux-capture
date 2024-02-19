@@ -1,0 +1,16 @@
+# type: command
+# key: t
+# name: tmux-capture
+# --
+(let* ((REPLACE t)
+       (OUTPUT_BUFFER nil)
+       (BUFFER_STRING (buffer-string))
+       (LINE_STRING (buffer-substring (bol)(eol)))
+       (LINE_PARTS (string-split LINE_STRING "--"))
+       (CMD (pop LINE_PARTS))
+       (POST_EVAL nil))
+  (beginning-of-line)
+  (kill-line)
+
+  (+tmux/run (concat CMD ""))
+  (insert (shell-command-to-string CMD)))

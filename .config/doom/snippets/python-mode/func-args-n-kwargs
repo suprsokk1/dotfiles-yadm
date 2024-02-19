@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: func-args-n-kwargs
+# key: func
+# --
+def $1(*args, **kwargs):
+    $0

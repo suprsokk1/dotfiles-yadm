@@ -1,0 +1,6 @@
+# type: command
+# key: md
+# name: mark-defun
+# --
+(progn (interactive)
+       (mark-defun))

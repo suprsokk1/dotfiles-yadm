@@ -67,7 +67,7 @@
        ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo +present +dragndrop)
        ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo +present +dragndrop +jupyther)
        ;; (python +lsp +pyenv +pyright +tree-sitter)
-       (python +lsp +pyenv +pyright)
+       (python +lsp +pyright)
        (sh +lsp)
        (go +lsp)
        (cc +lsp)
