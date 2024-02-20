@@ -1,17 +1,77 @@
-#!/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+TODO load json/yaml/toml as command
+TODO generate facts/symbols like cfengine
+.....-like 127_0, 127_0_0, 127_0_0_1 or 192_168, 192_168, 192_168_122
+.....-tcp_80, tcp_53, tcp_127_0_0__53 tcp_0_53
+REVIEW put facts in /etc/sysconfig/facts and load from /etc/profile.d/99-facts.sh
+TODO merge data tree structures
+REVIEW exec("{% for classes %}class {{ class.name }}:...{% endfor %}")
+REVIEW run command s `c key <key>` or `c key <mod>+<key>`
+REVIEW tmux save running config `c config tmux --save --push-remote`
+NOTE git python bindings
+NOTE `def emacs_logger():...`; f.ex. log to buffer *callback*
+NOTE simple dbus server
+......- install packages with dnf, pip, npm...
+......- ???
+REVIEW yaml/json/toml/etc.. to python nested class
+"""
+import sys
+
+
+def catchall(*args, **kwargs):
+    print(args, file=sys.stderr)
+    print(kwargs, file=sys.stderr)
+    sys.__excepthook__(*args, **kwargs)
+    input('Continue...')
+
+sys.excepthook = catchall
+
+import asyncio
+import errno
 import os
 import pathlib
 import re
+import socket
 import subprocess as S
-import sys
+from dataclasses import dataclass, field
 from functools import lru_cache
 from os.path import exists, getmtime, join
 from pathlib import Path
 from subprocess import DEVNULL, PIPE, Popen
 from subprocess import run as Run
 from tempfile import NamedTemporaryFile
+from typing import Any, Callable, Optional, Self
+
+import fire
+import keyboard
+import libtmux
+import loguru
+import psutil
+import pydantic
+from i3ipc import Event
+from i3ipc.aio import Connection
+from jinja2 import BaseLoader, Template, TemplateNotFound
+from loguru import _logger, logger
+from pydantic import BaseModel
+from rich import print as rich_print
+
+"""
+!!!ONLY WORKS WITH X11!!!
+try:
+    from pynput.keyboard import Key, Listener
+except ModuleNotFoundError:
+    os.system("pip install --user pynput")
+    from pynput.keyboard import Key, Listener
+!!!ONLY WORKS WITH X11!!!
+
+try:
+    import keyboard
+except ModuleNotFoundError:
+    os.system("pip install --user keyboard")
+    import keyboard
 
 try:
     import fire
@@ -36,33 +96,43 @@ try:
 except ModuleNotFoundError:
     os.system("pip install --user rich")
     from rich import print
+"""
+SCRIPT = sys.argv[0]
+ARGS = len(sys.argv) > 1
+ZERO_ARGS = not ARGS
 
+parent = psutil.Process(os.getppid())
+PARENT = parent.name()
+PARENT_NAME = PARENT.split('-', 1)[0]
+PARENT_NAME_UPPER = PARENT_NAME.upper()
+PARENT_NAME_LOWER = PARENT_NAME.lower()
 
-parent = PARENT = psutil.Process(os.getppid())
+del parent
+
+exec(f"""
+IS_{PARENT_NAME_UPPER} = True
+{PARENT_NAME_UPPER} = "{PARENT}"
+""")
 
 EMPTY_STRING = ''
 
-EMACS = PARENT.name() == 'emacs'
-ROFI = PARENT.name() == 'rofi'
-DMENU = PARENT.name() == 'dmenu'
-FZF = PARENT.name() == 'fzf'
-VIM = PARENT.name() == 'vim'
-ZSH = PARENT.name() == 'zsh'
-BASH = PARENT.name() == 'bash'
-SH = PARENT.name() == 'sh'
-INCROND = PARENT.name() == 'incrond'
-CROND = PARENT.name() == 'incrond'
-TMUX = PARENT.name() == 'tmux'
+CRON = 'CROND' in vars() or 'INCROND' in vars()
+SHELL = 'SH' in vars() or 'ZSH' in vars() or 'BASH' in vars()
+EDITOR = 'EMACS' in vars() or 'VIM' in vars()
+LAUNCHER = MENU = 'ROFI' in vars() or 'DMENU' in vars() or 'FZF' in vars()
 
-CRON = CROND or INCROND
-SHELL = SH or ZSH or BASH
-EDITOR = EMACS or VIM
-LAUNCHER = MENU = ROFI or DMENU or FZF
+for name, value  in os.environ.items():
+    exec(f"""{name} = '''{value}'''""")
 
 HOME = os.getenv("HOME")
 USER = os.getenv("USER")
+PPID = os.getenv("PPID")
 
-TTY = sys.stdin.isatty()
+if SHELL and ARGS:
+    path = Path(sys.argv[-1])
+    ZSH_PLUGIN = path.is_file() and str(path.absolute()).endswith("zsh.plugin")
+
+IS_INTERACTIVE = INTERACTIVE = IS_TTY = TTY = sys.stdin.isatty()
 
 SYSTEMD_SOCKET_UNIT = """
 # {{ name }}.socket
@@ -87,6 +157,27 @@ ExecStart=%h/bin/{{ name }} poc --systemd
 StandardInput=socket
 """
 
+PYTHON_CLASS = '''
+{% for item in items %}
+class {{ item.name }}:
+{% for method in item.methods %}
+    @overload("{{ method.function }}")
+    def {{ method.name }}(self, *args, **kwargs):
+        """{{ method.doc }}"""
+{% endfor %}
+{% endfor %}
+'''
+
+INJECT_ELISP = """
+(setq! vterm-shell "/bin/tmux")
+(map! :map python-mode-map
+ "M-<return>"  (cmd!
+                (message "%S"
+                         (let ((COMMAND (concat (getenv "HOME") "/bin/c callback")))
+                           (save-window-excursion
+                            (async-shell-command COMMAND))))))
+"""
+
 icons = """
 \\u{f115}
 \\u{e5fc}
@@ -95,6 +186,529 @@ icons = """
 """
 
 NEWLINE = NL = "\n"
+trace_cmd = f"python -m trace --count -C . {HOME}/bin/c dev"
+_print = print
+
+
+def print(*args, **kwargs):
+    if not ZSH_PLUGIN:
+        logger.debug(' '.join(args))
+    elif False:                 # FIXME
+        rich_print()
+    else:
+        pass
+
+def fire_args_helper(func):
+    """Decorator for class functions."""
+
+    def _wrapper(*args, **kwargs):
+        ret = ""
+        for arg in args:
+            if type(arg) is str:
+                ret += arg
+            elif type(arg) is list:
+                for item in arg:
+                    if type(item) is str:
+                        ret += item
+        return ret
+
+    return _wrapper
+
+
+def overload(overload_function_name, when=True):
+    def wrapper(func):
+        def _wrapper(*args, **kwargs):
+            overload_function = globals().get(overload_function_name, False)
+            assert overload_function, "overload(): No such function"
+            # assert overload_function is overload, "overload(): Dont overload with overload()"
+
+            ret = (overload_function if when else func)(*args, **kwargs)
+            return ret
+        return _wrapper
+    return wrapper
+
+
+def iterate(func):
+    """Convert """
+    def _iterate(*args, **kwargs):
+        ret = func(*args, **kwargs)
+
+        return (_ for _ in ret)
+
+    return _iterate
+
+
+def case(switch, default=lambda: None, **do):
+    """TODO."""
+    return do.get(switch, default)
+
+
+def json(func):
+    def _json(*args, **kwargs):
+        from json import dumps
+        ret = func(*args, **kwargs)
+        return dumps(ret, indent=2) if type(ret) is dict else ret
+    return _json
+
+
+class CliYadm:
+    def __init__(self):
+        self._ = Multiplexer()
+        self.env = dict(GIT_DIR=f"{HOME}/.local/share/yadm/repo.git", GIT_WORK_TREE=HOME)
+
+    def status(self, status=False):
+        ret = self._.tmux.spawn(join('git', 'status', '--porcelain=v2'), environment=self.env)
+
+        return ret
+
+    def ls(self):
+        ret = self._.tmux.spawn(join('git', 'ls-files'), environment=self.env)
+
+        return ret
+
+
+class IO:
+    def dump_stdin(self):
+        return sys.stdin.read()
+
+    def __gt__(left, right):
+        self = left
+
+    def __lt__(left, right):
+        self = left
+
+    def __or__(left, right):
+        self = left
+
+# def shell_command_to_string(command):
+#     res = run(command, shell=True, capture_output=True)
+
+class NestedDict(object):
+    key: str
+    value: Any
+
+    def __init__(self, *args, **kwargs):
+        """Foo bar baz."""
+        if args:
+            self.key, *rest = args
+            self.value = self.__new__()
+            del rest
+
+    def __getattr__(self, attr, **kwargs):
+        """Foo bar baz."""
+        print(f'get: {attr}', file=sys.stderr)
+        self.key = attr
+        return self.key
+
+    def __setattr__(self, attr, value):
+        """Foo bar baz."""
+        print(f'set: {attr}=({value.__class__.__name__}){value}', file=sys.stderr)
+        self.__dict__[attr] = value
+
+    def __new__(mcs):
+        return object.__new__(mcs)
+
+    def __str__(self, *args, **kwargs):
+        """Foo bar baz."""
+        return str(self.value)
+
+
+class Multiplexer:
+    def __init__(self):
+        self.tmux = self.Tmux()
+        self.zsh = self.Zsh()
+        self.i3 = self.I3()
+        self.sway = self.Sway()
+        self.emacs = self.Emacs()
+        self.zsh.termopts = self.tmux.get_termopts()
+
+
+    class I3:
+        """TODO."""
+
+    class Emacs:
+        socket: str
+        windows: list
+
+        def __init__(self):
+            """TODO."""
+            t = '''
+            (with-output-to-string (princ (window-list)))
+            '''
+            self.windows = call_emacs_daemon(t)
+
+    class Sway:
+        """TODO."""
+
+    class Docker:
+        """TODO."""
+
+    class Zsh:
+        termopts: str
+
+    class Tmux:
+        server: libtmux.server.Server
+        sessions: list
+        window: list
+        panes: list
+        clients: list
+
+        class active:
+            window: libtmux.window.Window
+            pane: libtmux.pane.Pane
+            session: libtmux.session.Session
+
+        def __init__(self, *args, **kwargs):
+            self.server = libtmux.server.Server()
+            self.sessions = self.server.sessions
+            self.session(-1)
+
+        @lru_cache
+        def get_termopts(self, *args, **kwargs):
+            """Foo bar baz."""
+            # tmux = self
+            return self.spawn("stty -g")
+
+        def session(self, session_id: int):
+            self.active.session = self.sessions[session_id]
+            self.active.window = self.sessions[session_id].active_window
+            self.active.pane = self.active.session.active_pane
+
+        def __lt__(self, *args, **kwargs):
+            """"""
+
+        def set(self, option: str, value: str, glob=False, server=False, session=True, window=False, pane=False):
+            """TODO. """
+            if session:
+                self.active.session.set_option(option, value)
+                return
+
+        def send(self, command, capture=False, send_enter=True):
+            """TODO. """
+            self.active.pane.send_keys(command, enter=send_enter)
+
+        def spawn(self, command, capture=True, **kwargs):
+            FIFO = '/run/user/{UID}/.tmux-{PPID}.fifo'.format(
+                **{**os.environ, 'UID': os.getuid(), 'PPID': os.getppid()}
+            )
+            ret = None
+
+            try:
+                os.mkfifo(FIFO)
+            except OSError as oe:
+                if oe.errno != errno.EEXIST:
+                    raise
+
+            nw = self.active.session.new_window(
+                window_shell=f'{command} > {FIFO}',
+                attach=False,
+                **{**{'environment': {'PS1': ''}}, **kwargs},
+            )
+
+            with open(FIFO) as fifo:
+                while True:
+                    data = fifo.read()
+                    if len(data) == 0:
+                        break
+                    else:
+                        ret = data
+
+            assert ret, "Empty result"
+
+            return ret
+
+
+@logger.catch
+def tmux_command_to_string(command):
+    S = libtmux.Server()
+    s = S.sessions[0]
+    w = s.active_window
+    FIFO = f'/dev/shm/.tmux-{PPID}.fifo'
+    ret = None
+
+    try:
+        os.mkfifo(FIFO)
+    except OSError as oe:
+        if oe.errno != errno.EEXIST:
+            raise
+
+    nw = s.new_window(
+        window_shell=f'{command} > {FIFO}',
+        attach=False,
+        environment=dict(PS1='')
+    )
+
+    with open(FIFO) as fifo:
+        while True:
+            data = fifo.read()
+            if len(data) == 0:
+                break
+            else:
+                ret = data
+
+    assert ret, "Empty result"
+
+    return ret
+
+
+def cmd_builder(cmd, *args, shell_escape=False, **kwargs):
+    def _f(k, v):
+        classname = v.__class__.__name__
+        empty = len(v)
+        kind = type(v)
+        symbol = kind is bool or (classname in ['dict', 'list', 'set', 'tuple'] and empty)
+        kv_sep = '=' if not symbol else EMPTY_STRING
+        val = v if not symbol else EMPTY_STRING
+        key = k.replace('_', '-')
+
+        return '--' + kv_sep.join([key, val])
+
+        # return '--{key}{sep}{val}'.format(
+        #     key=k.replace('_', '-'),
+        #     sep='=' if not symbol else EMPTY_STRING,
+        #     val=v if not symbol else EMPTY_STRING,
+        # )
+
+    longopts = [
+        _f(option, value)
+        for option, values in kwargs.items()
+        for value in (values if type(values) is list else [values])
+    ]
+
+    shortopts = list(args)
+
+    return [cmd] + shortopts + longopts
+
+def fzf_cmd_builder():
+        mod = 'ctrl'
+        preview = f'{mod}-v'
+        refresh = f'{mod}-r'
+        selectall = f'{mod}-a'
+        toggleall = f'{mod}-t'
+
+        beg, end = '{}'
+        middle = r'p'
+
+        sep = r'|'              # preview separator
+        sep = r''               # preview separator
+
+        def _b(*args):
+            middle, *rest = args if args else ['']
+            return beg + middle + end
+
+        cmd = cmd_builder(
+            'fzf',
+            query=f'foobar',
+            # preview=f'{__file__} helper fzf preview {beg}{end}',
+            preview=f'( command cut -d: -f1 | head | command xargs bat --color=always ) <<< ' + _b() + ' || echo ' + _b(),
+            bind=[
+                f'{selectall}:select-all',
+                f'{toggleall}:toggle-all',
+                # f'{preview}:preview:({__file__} helper fzf preview {beg}{middle}{end})',
+                f'change:reload:{__file__} helper fzf default {_b("p")} || true',
+            ],
+            header=f"{selectall}:Select all {sep} {preview}:Preview {sep} {refresh}:Refresh",
+            ansi=True,
+            layout='reverse',
+            height=30,
+        )
+
+        return cmd
+
+
+def rg_cmd_builder(*args):
+    rg = cmd_builder(
+        'rg',
+        'foobarbaz',
+        color='always',
+        column=True,
+        line_number=True,
+        no_heading=True,
+        smart_case=True,
+    )
+
+    return rg
+
+
+def j2(template, data: dict):
+    return Template(template).render(**data)
+
+
+def install(content: str, dest: str, **kwargs):
+    assert not dest.is_file() or kwargs.get('force', False)
+    dest.write_text(content)
+
+
+def join(*args, separator=' '):
+    return separator.join(args)
+
+@lru_cache
+def hexify(string: str, *chars):
+    if chars:
+      char, *rest = chars
+      args = (char, {'/': '-'}.get(char, hex(ord(char))))
+
+      return hexify(string.replace(*args), *rest)
+
+    else:
+
+      return string
+
+
+def systemd_escape(self, fname, systemd=False, install=False) -> str:
+    dest = (Path.home() / 'Projects' / 'site' / 'templates')
+    home = os.getenv('HOME')
+    path = Path(fname)
+    hexed = hexify(
+        path.absolute().__str__().replace(home, '~'), *'-~/'
+    ).replace('0x', '\\x')
+    new = (dest / hexed)
+
+    if systemd and install:
+        new.write_text(path.read_text())
+        return new.absolute().__str__()
+
+    elif systemd:
+        return hexed
+
+@logger.catch
+def run(cmd, **kwargs):
+    return Run(cmd, shell=True, capture_output=True, check=True, **kwargs)
+
+
+def call_emacs_daemon(sexp, window=True, tmux=False):
+    elisp = '(progn'
+    if window:
+        elisp += '(switch-to-buffer (window-buffer))'
+    elisp += '{}'
+    elisp += ')'
+
+    payload = elisp.format(sexp)
+    cmd = ["emacsclient" , "--eval"]
+    if tmux:
+        cmd = ' '.join(cmd) + ' ' + f"'{payload}'"
+        tmux_command_to_string(cmd)
+    else:
+        cmd = ' '.join(cmd) + ' ' + f"'{payload}'"
+        return run(cmd)
+        # call([*cmd, payload])
+        # call([*cmd, payload])
+
+
+def pipe_to_emacs():
+    """TODO swich to temp buffer"""
+
+    elisp = '(progn'
+    elisp += '(switch-to-buffer (window-buffer))'
+    elisp += '(split-window-below)'
+    elisp += '(switch-to-buffer (get-buffer-create "*stdin*"))'
+    elisp += '{}'
+    elisp += '(mark-page)'
+    elisp += ')'
+
+    with NamedTemporaryFile('w+') as tmp:
+        print(sys.stdin.read(), file=tmp)
+        cmd = elisp.format(f'(insert-file "{tmp.name}")')
+        call(["emacsclient" , "--eval", cmd])
+        return tmp.name
+
+def pipe_to_tmux():
+    """TODO tmux"""
+
+
+def decorator():
+    def _wrapper(func):
+        def _inner(*args, **kwargs):
+            ret = func(*args, **kwargs)
+            return ret
+        return _inner
+    return _wrapper
+
+class EasyPath(pathlib.Path):
+    def __rshift__(left, right):
+        """Append to file"""
+        lt = type(left)
+        rt = type(right)
+
+        with right.open('a') as fd:
+            fd.write(left.read() if lt is str else right)
+
+    def __gt__(left, right):
+        """Append to file"""
+        lt = type(left)
+        rt = type(right)
+
+        with right.open('w') as fd:
+            fd.write(left.read() if lt is str else right)
+
+def catch(func):
+    def _catch(*args, **kwargs):
+        ret = ""
+        try:
+            ret = func(*args, **kwargs)
+        except Exception as e:
+            print(e, file=sys.stderr)
+
+        return ret
+
+    return _catch
+
+def paths(func):
+    def _catch(*args, **kwargs):
+        ret = func(*args, **kwargs)
+        lines = ret.splitlines()
+
+        if ret > 1:
+            return [_ for _ in lines if Path(_).exists()]
+        elif type(ret) is str:
+            return ret
+        else:
+            return ""
+
+    return _catch
+
+def filters(*filters):
+    def _inner(func):
+        def _wrapper(*args, **kwargs):
+            ret = func(*args, **kwargs)
+            if 'git_status' in filters:
+                # ret = [_.split(" ", 1)[1] for _ in ret]
+                ret = [_[3:] for _ in ret]
+            return ret
+        return _wrapper
+    return _inner
+
+@catch
+def decode(func):
+    def _wrapper(*args, **kwargs):
+        p = func(*args, **kwargs)
+
+        if p.returncode == 0:
+            print(p.stdout)
+            return p
+        else:
+            return err.decode()
+
+    return _wrapper
+
+def call(*args) -> None:
+    with Popen(*args) as p:
+        p.communicate()
+
+# @filters('git_status')
+# @decode
+# def run(*args, **kwargs) -> None:
+#     with Popen([*args], **{**dict(stdout=PIPE, stderr=PIPE), **kwargs}) as p:
+#         p.communicate()
+#         return p
+
+# @filters('git_status')
+# def run(*args, **kwargs) -> None:
+#     with Popen([*args], **{**dict(stdout=PIPE, stderr=PIPE), **kwargs}) as p:
+#         p.communicate()
+#         if p.returncode == 0:
+#             # print(dir(p))
+#             return p.communicate()[0].decode().splitlines()
 
 
 class CliBase:
@@ -120,224 +734,135 @@ class CliBase:
         self.__class__.__name__
         self.edit_format = "/run/user/%s/{name}" % os.getenv("UID")
 
-class CliConfigure(object):
-    """"""
-    pass
-
-class CliEnvironment(object):
-    """TODO manage environment variables"""
-    template = """
-    {% for %}
-    """
-
-class CliList(object):
-    """All the lists."""
-    pass
-
-class CliInstall(object):
-    """Install using recipes for cli tools"""
-    pass
-
-class CliBootstrap(object):
-    """Quick local setup"""
-    pass
-
-class Tmux(object):
-    pass
 
 
-class CliFzf(CliBase):
-    """TODO Manage password manager."""
-
-class CliPass(CliBase):
-    """TODO Manage password manager."""
-
-class CliIncron(CliBase):
-    """TODO Manage incrontab."""
-
-class CliCron(CliBase):
-    """TODO Manage crontab."""
-
-class CliDotfiles(CliBase):
-    """TODO Manage user dotfiles."""
-
-class CliAlias(CliBase):
-    """TODO Manage user shell aliases."""
-
-class CliContainers(CliBase):
-    """TODO Generate dynamic menu for applications like fzf or rofi."""
-
-class CliOrgTodos(CliBase):
-    """TODO Generate dynamic menu for applications like fzf or rofi."""
-
-class CliHealthChecks(CliBase):
-    """TODO"""
-
-class CliRofiWrapper:
-    """TODO Generate dynamic menu for applications like fzf or rofi."""
-
-class CliDoctor:
-    """TODO
-    - DOOM emacs
-    """
-
-class CliConfig(CliBase):
-    """TODO Doctor for doom ...etc."""
-
-class CliDictLoader:
-    """TODO"""
-
-
-def systemd_escape(self, fname, systemd=False, install=False) -> str:
-    dest = (Path.home() / 'Projects' / 'site' / 'templates')
-    home = os.getenv('HOME')
-    path = Path(fname)
-    hexed = hexify(
-        path.absolute().__str__().replace(home, '~'), *'-~/'
-    ).replace('0x', '\\x')
-    new = (dest / hexed)
-
-    if systemd and install:
-        new.write_text(path.read_text())
-        return new.absolute().__str__()
-
-    elif systemd:
-        return hexed
-
-def call_emacs_daemon(sexp):
-    elisp = '(progn'
-    elisp += '(switch-to-buffer (window-buffer))'
-    elisp += '{}'
-    elisp += ')'
-
-    cmd = elisp.format(sexp)
-    call(["emacsclient" , "--eval", cmd])
-
-
-def pipe_to_emacs():
-    """TODO swich to temp buffer"""
-
-    elisp = '(progn'
-    elisp += '(switch-to-buffer (window-buffer))'
-    elisp += '(split-window-below)'
-    elisp += '(switch-to-buffer (get-buffer-create "*stdin*"))'
-    elisp += '{}'
-    elisp += '(mark-page)'
-    elisp += ')'
-
-    with NamedTemporaryFile('w+') as tmp:
-        print(sys.stdin.read(), file=tmp)
-        cmd = elisp.format(f'(insert-file "{tmp.name}")')
-        call(["emacsclient" , "--eval", cmd])
-        return tmp.name
-
-
-def pipe_to_tmux():
-    """TODO tmux"""
-
-
-class EasyPath(pathlib.Path):
-    def __rshift__(left, right):
-        """Append to file"""
-        lt = type(left)
-        rt = type(right)
-
-        with right.open('a') as fd:
-            fd.write(left.read() if lt is str else right)
-
-    def __gt__(left, right):
-        """Append to file"""
-        lt = type(left)
-        rt = type(right)
-
-        with right.open('w') as fd:
-            fd.write(left.read() if lt is str else right)
-
-
-def catch(func):
-    def _catch(*args, **kwargs):
-        ret = ""
-        try:
-            ret = func(*args, **kwargs)
-        except Exception as e:
-            print(e, file=sys.stderr)
-
-        return ret
-
-    return _catch
-
-
-def paths(func):
-    def _catch(*args, **kwargs):
-        ret = func(*args, **kwargs)
-        lines = ret.splitlines()
-
-        if ret > 1:
-            return [_ for _ in lines if Path(_).exists()]
-        elif type(ret) is str:
-            return ret
-        else:
-            return ""
-
-    return _catch
-
-
-def filters(*filters):
-    def _inner(func):
-        def _wrapper(*args, **kwargs):
-            ret = func(*args, **kwargs)
-            if 'git_status' in filters:
-                # ret = [_.split(" ", 1)[1] for _ in ret]
-                ret = [_[3:] for _ in ret]
-            return ret
-        return _wrapper
-    return _inner
-
-
-@catch
-def decode(func):
-    def _wrapper(*args, **kwargs):
-        p = func(*args, **kwargs)
-
-        if p.returncode == 0:
-            print(p.stdout)
-            return p
-            # return lines if len(lines) > 1 else out.decode()
-        else:
-            return err.decode()
-
-    return _wrapper
-
-
-def call(*args) -> None:
-    with Popen(*args) as p:
-        p.communicate()
-
-
-@filters('git_status')
-@decode
-def run(*args, **kwargs) -> None:
-    with Popen([*args], **{**dict(stdout=PIPE, stderr=PIPE), **kwargs}) as p:
-        p.communicate()
-        return p
-
-
-@filters('git_status')
-def run(*args, **kwargs) -> None:
-    with Popen([*args], **{**dict(stdout=PIPE, stderr=PIPE), **kwargs}) as p:
-        p.communicate()
-        if p.returncode == 0:
-            # print(dir(p))
-            return p.communicate()[0].decode().splitlines()
-
+class CliDefault:
+    def __init__(self):
+        pass
 
 
 class Cli(object):
     """Do.. stuff."""
 
-    def parent(self) -> None:
+    class fzf(CliBase):
+        def __init__(self):
+            pass
+
+    class zsh:
+        def __init__(self):
+            self.plugin = CliZshPlugin()
+
+    class zsh:
+        class plugin(CliBase):
+            def create(self, name: str, force=False) -> str:
+                p = Path.home() / ".oh-my-zsh" / "custom" / "plugins" / name /  f"{name}.plugin.zsh"
+                relpath = p.relative_to(Path.home())
+                p.parent.mkdir(exist_ok=True, parents=True)
+                head = "# ~/{}".format(relpath)
+                _in = sys.stdin.read()
+
+                if force:
+                    pass
+                elif not TTY:
+                    pass
+                else:
+                    return "File exists "
+
+                p.write_text(head + "\n")
+
+                with p.open('a') as fd:
+                    fd.write(_in)
+
+                return p.read_text()
+
+        '''
+    class bindings(object):
+        """TODO Manage key bindings for ...
+        - Emacs
+        - tmux
+        - zsh
+        - bash
+        """
+
+    class configure(object):
+        """"""
+        pass
+
+    class environment(object):
+        """TODO manage environment variables"""
+        template = """
+        {% for %}
+        """
+
+    class list(object):
+        """All the lists."""
+        pass
+
+    class install(object):
+        """Install using recipes for cli tools"""
+        pass
+
+    class bootstrap(object):
+        """Quick local setup"""
+        pass
+
+    # class Tmux(object):
+    #     pass
+
+    class fzf(CliBase):
+        """TODO Manage password manager."""
+
+    class pass(CliBase):
+        """TODO Manage password manager."""
+
+    class incron(CliBase):
+        """TODO Manage incrontab."""
+
+    class cron(CliBase):
+        """TODO Manage crontab."""
+
+    class dotfiles(CliBase):
+        """TODO Manage user dotfiles."""
+
+    class alias(CliBase):
+        """TODO Manage user shell aliases."""
+
+    class containers(CliBase):
+        """TODO Generate dynamic menu for applications like fzf or rofi."""
+
+    class orgtodos(CliBase):
+        """TODO Generate dynamic menu for applications like fzf or rofi."""
+
+    class healthchecks(CliBase):
+        """TODO"""
+
+    class rofiwrapper:
+        """TODO Generate dynamic menu for applications like fzf or rofi."""
+
+    class doctor:
+        """TODO
+        - DOOM emacs
+        """
+
+    class config(CliBase):
+        """TODO Doctor for doom ...etc."""
+
+    class dictloader:
+        """TODO"""
+'''
+
+    def parent(self, *pids) -> str:
         """FIXME """
-        return parent.name
+        return PARENT if not pids else ' '.join([
+            psutil.Process(pid).name for pid in pids
+        ])
+
+    class tmux:
+        def __init__(self):
+            self._ = Multiplexer.Tmux()
+
+        def send(self, *args, **kwargs):
+            self._.send(' '.join(args))
 
     def pipe(self) -> None:
         if SHELL:
@@ -351,12 +876,9 @@ class Cli(object):
         """TODO rofi"""
         return
 
-    r = rofi                    # alias
-
     def preview(self, *items) -> None:
         """fzf preview"""
-
-        return parent.name
+        return PARENT
 
     def debug(self):
         """debug"""
@@ -366,19 +888,15 @@ class Cli(object):
 
         return res
 
-    def notify(self, topic, *msg) -> None:
+    def notify(self, topic, *message) -> None:
         """Send notification."""
-        n = Notify(topic, ' '.join(msg))
+        n = Notify(topic, ' '.join(message))
         n.send()
-
-    n = msg = notify
-
 
     def escape(self, fname, systemd=False, install=False) -> str:
         if systemd:
             res = run("", shell=True, capture_output=True)
             return res[0].decode()
-
 
     def menu(self, *args):
         """for debugging."""
@@ -431,13 +949,17 @@ class Cli(object):
 
         return json.dumps(python_objects, indent=4)
 
-    def callback(self) -> None:
+    @logger.catch
+    def callback(self, *context) -> str:
         """Run hooks for application executing this command."""
+        # print(*context)
+        ret = globals().get(
+            f'{PARENT_NAME_LOWER}_callback_hook', lambda *x: str(x)
+        )(*context)
 
-        if CRON:
-            call(f"""tmux source-file {HOME}/""".split())
-            return
+        return ret
 
+        # os.system(f"{HOME}/bin/comma dev")
 
     # def zsh(self, name, widget=False, plugin=False, force=False) -> str:
     #     """Run hooks for application executing this command."""
@@ -466,7 +988,6 @@ class Cli(object):
 
     #         return p.read_text()
 
-
     def reload(self, all=True, tmux=False, sway=False, doom=False, systemd=True) -> str:
         """Reload config(s)"""
         _all = not any((tmux, sway, doom))
@@ -486,44 +1007,49 @@ class Cli(object):
 
         return ' '.join(_in.split('\n'))
 
-    yadm_env = dict(GIT_DIR=f"{HOME}/.local/share/yadm/repo.git", GIT_WORK_TREE=HOME)
+# """
+#     def status(self, _all=True, yadm=False, git=False) -> list:
+#         if yadm:
+#             ret = run('git', 'status', '--porcelain=v1', env=self.yadm_env)
+#             return ret
+#         elif git:
+#             return run('git', 'status', '-0')
+# """
 
-    def yadm(self, status=False):
-        ret = run('git', 'status', '--porcelain=v1', env=self.yadm_env)
-        return ret
+    # def list(self, _all=True, yadm=False, docker=False) -> list:
+    #     if yadm:
+    #         return run('yadm', 'ls-files').splitlines()
+    #     elif docker:
+    #         return run('docker', 'container', 'list', '--all').splitlines()
+    #     else:
+    #         return list(range(10))
 
-    def status(self, _all=True, yadm=False, git=False) -> list:
-        if yadm:
-            ret = run('git', 'status', '--porcelain=v1', env=self.yadm_env)
-
-            return ret
-
-        elif git:
-
-            return run('git', 'status', '-0')
-
-    def list(self, _all=True, yadm=False, docker=False) -> list:
-        if yadm:
-            return run('yadm', 'ls-files').splitlines()
-        elif docker:
-            return run('docker', 'container', 'list', '--all').splitlines()
-        else:
-            return list(range(10))
-
-    def emacs_super_dot_callback(self, *data):
-        """WIP."""
-        call_emacs_daemon(f"""{data}""")
+    # def emacs_super_dot_callback(self, *data):
+    #     """WIP."""
+    #     call_emacs_daemon(f"""{data}""")
 
     def grep(self, *args, **kwargs):
         S.Popen("grep -wo -- 0".split(), env={})
 
         # S.Popen("grep -wo -- 0".split(), stdin=sys.stdin, stdout=sys.stdout, env={})
 
-    def col(self, n, **kwargs):
-        """Print column(s) 'n' from stdin. Default is 1"""
-        S.Popen("grep -wo -- 0".split(), env={})
+    # @fire_args_helper
+    class col:
+        def __call__(self, *columns, **kwargs):
+            """Print column(s) 'n' from stdin. Default is 1"""
+            replace = r'[\t ]+'
+            # TODO detect stdin
+            # os.system(rf"""sd '{replace}' '\u0000' |  cut -d '' -f{n}""")
+            print("foo")
+            # os.system(rf"""sd '{replace}' '\u0000' | awk '{self.OPEN}{self.CLOSE}'""")
 
-        # TODO ip shell command like
+        # def first(self, *args, **kwargs):
+        #     # os.system(r"""rg --only-matching --color=never '^\S+'""")
+        #     return "foo"
+
+        def __init__(self, *args, **kwargs):
+            """Foo bar baz."""
+            self.OPEN, self.CLOSE = '{}'
 
     def configure(self, action, fname):
         """TODO Edit files """
@@ -620,190 +1146,101 @@ class Cli(object):
         elif app == 'fzf' and action in  ['run']:
             S.Popen(fzf)
 
-    def t(self):
-        """***DEBUGGING***"""
-        return fzf_cmd_builder()
-
-    def tt(self):
-        """***DEBUGGING***"""
-        S.Popen(rg_cmd_builder())
-
-    def ttt(self):
-        """***DEBUGGING***"""
-        return rg_cmd_builder()
+    @overload('develop')
+    def dev(self):
+        pass
 
     def __init__(self):
-        # self.menuitem = Cli()
-        # self.alias = CliAlias()
-        # self.dotfiles = CliDotfiles()
-        # self.bootstrap = CliBootstrap()
-        # self.bind = CliBindings()
-        # self.zsh = CliZsh()
-        # self.fzf = CliFzf()
         self.default = CliDefault()
-
-        # aliases
-        # self.pa = self.parent
-        # self.p = self.pipe
-
-"""
-TODO load json/yaml/toml as command
-"""
-
-def cmd_builder(cmd, *args, shell_escape=False, **kwargs):
-
-    def _f(k, v):
-        symbol = type(v) is bool
-
-        return '--{key}{sep}{val}'.format(
-            key=k.replace('_', '-'),
-            sep='=' if not symbol else EMPTY_STRING,
-            val=v if not symbol else EMPTY_STRING,
-        )
-
-    longopts = [
-        _f(option, value)
-        for option, values in kwargs.items()
-        for value in (values if type(values) is list else [values])
-    ]
-
-    shortopts = list(args)
-
-    return [cmd] + shortopts + longopts
+        self.yadm = CliYadm()
 
 
-def fzf_cmd_builder():
-        mod = 'ctrl'
-        preview = f'{mod}-v'
-        refresh = f'{mod}-r'
-        selectall = f'{mod}-a'
-        toggleall = f'{mod}-t'
-
-        beg, end = '{}'
-        middle = r'p'
-
-        sep = r'|'              # preview separator
-        sep = r''               # preview separator
-
-        def _b(*args):
-            middle, *rest = args if args else ['']
-            return beg + middle + end
-
-        cmd = cmd_builder(
-            'fzf',
-            query=f'foobar',
-            # preview=f'{__file__} helper fzf preview {beg}{end}',
-            preview=f'( command cut -d: -f1 | head | command xargs bat --color=always ) <<< ' + _b() + ' || echo ' + _b(),
-            bind=[
-                f'{selectall}:select-all',
-                f'{toggleall}:toggle-all',
-                # f'{preview}:preview:({__file__} helper fzf preview {beg}{middle}{end})',
-                f'change:reload:{__file__} helper fzf default {_b("p")} || true',
-            ],
-            header=f"{selectall}:Select all {sep} {preview}:Preview {sep} {refresh}:Refresh",
-            ansi=True,
-            layout='reverse',
-            height=30,
-        )
-
-        return cmd
+def function(func):
+    def _inner(*args, **kwargs):
+        return func
+    return _inner
 
 
-def rg_cmd_builder(*args):
-    rg = cmd_builder(
-        'rg',
-        'foobarbaz',
-        color='always',
-        column=True,
-        line_number=True,
-        no_heading=True,
-        smart_case=True,
-    )
+# @function
+def emacs_callback_hook(*args, **kwargs):
+    _ = Multiplexer()
+    call_emacs_daemon("((save-excursion (vterm)))")
+    # from time import sleep
+    sleep(2)
+    _.tmux.set("status", "off")
+    _.tmux.send(f"{SCRIPT} callback", send_enter=True)
 
-    return rg
+    return "OK"
 
+# @function
+def zsh_callback_hook(*args, **kwargs):
+    return develop()
 
-def j2(template, data: dict):
-    return Template(template, data)
+    _ = Multiplexer()
+    _.tmux.set("status", "off")
+    # tmux.send(f" | {SCRIPT} ", send_enter=True)
+    res = _.tmux.spawn(r"yadm status --porcelain=v1 | colrm 1 3 | xargs dirname | sort | uniq | grep -P -- '\S{3,}' | xargs")
+    return res
 
+    if args:
+        return ""
 
-def install(content: str, dest: str, **kwargs):
-    dest = Path() / dest
-    assert not dest.is_file() or kwargs.get('force', False)
-    dest.write_text(content)
+    return _.zsh.termopts
 
-@lru_cache
-def hexify(string: str, *chars):
-    if chars:
-      char, *rest = chars
-      args = (char, {'/': '-'}.get(char, hex(ord(char))))
-
-      return hexify(string.replace(*args), *rest)
-
-    else:
-
-      return string
+def f(v):
+    if hasattr(v, 'iter') and type(v) is not str:
+        for _ in v:
+            yield f(_)
+    return v
 
 
-class CliDefault:
-    def __init__(self):
-        pass
-
-class CliDefaultFzf:
-    def __init__(self):
-        pass
-
-class CliFzf(CliBase):
-    def __init__(self):
-        pass
-
-class CliZsh:
-    def __init__(self):
-        self.plugin = CliZshPlugin()
-
-
-class CliZshPlugin(CliBase):
-    def create(self, name: str, force=False) -> str:
-        p = Path.home() / ".oh-my-zsh" / "custom" / "plugins" / name /  f"{name}.plugin.zsh"
-        relpath = p.relative_to(Path.home())
-        p.parent.mkdir(exist_ok=True, parents=True)
-        head = "# ~/{}".format(relpath)
-        _in = sys.stdin.read()
-
-        if force:
-            pass
-        elif not TTY:
-            pass
-        else:
-            return "File exists "
-
-        p.write_text(head + "\n")
-
-        with p.open('a') as fd:
-            fd.write(_in)
-
-        return p.read_text()
-
-
-class CliBindings(object):
-    """TODO Manage key bindings for ...
-    - Emacs
-    - tmux
-    - zsh
-    - bash
+def develop(*args, **kwargs):
+    _ = Multiplexer()
+    # res = _.tmux.spawn("yadm status --porcelain=v1")
+    json_string = """
+    [{"dst":"0.0.0.0/1","gateway":"10.11.18.1","dev":"tun0","flags":[]},{"dst":"default","gateway":"10.0.10.1","dev":"wlp2s0","protocol":"dhcp","prefsrc":"10.0.10.201","metric":600,"flags":[]},{"dst":"10.0.0.243","gateway":"10.11.18.1","dev":"tun0","flags":[]},{"dst":"10.0.10.0/24","dev":"wlp2s0","protocol":"kernel","scope":"link","prefsrc":"10.0.10.201","metric":600,"flags":[]},{"dst":"10.11.18.0/24","dev":"tun0","protocol":"kernel","scope":"link","prefsrc":"10.11.18.46","flags":[]},{"dst":"128.0.0.0/1","gateway":"10.11.18.1","dev":"tun0","flags":[]},{"dst":"188.126.94.77","gateway":"10.0.10.1","dev":"wlp2s0","flags":[]}]
     """
 
+    from json import loads
 
+    d = loads(json_string)
+
+    res = f(d)
+
+    return res
+    _ = Multiplexer()
+    # res = tmux.spawn("stty -g")
+    i = IO()
+
+    return
+    return i.dump_stdin()
+    return _.emacs.windows
+    return _.zsh.termopts
+
+"""
+async def main():
+    bus = await MessageBus().connect()
+    interface = ExampleInterface('test.interface')
+    bus.export('/test/path', interface)
+    # now that we are ready to handle requests, we can request name from D-Bus
+    await bus.request_name('test.name')
+    # wait indefinitely
+    await asyncio.get_event_loop().create_future()
+"""
+
+# async def main():
 def main():
-    try:
-        fire.Fire(Cli)
-    except Exception as e:
-        print(e)
+    pass
+    # asyncio.get_event_loop().run_until_complete(main())
 
+
+# loop = asyncio.get_event_loop()
 if __name__ == '__main__':
     try:
-        main()
-    except KeyboardInterrupt as i:
+        fire.Fire(Cli)
+        # asyncio.get_event_loop().run_until_complete(main())
+        # await loop.run_until_complete(main())
+    except (KeyboardInterrupt, ModuleNotFoundError) as e:
         exit(1)
-    except ModuleNotFoundError as m:
-        pass
+    except NameError as ne:
+        print(ne, vars(), sep='\n', file=sys.stderr)
