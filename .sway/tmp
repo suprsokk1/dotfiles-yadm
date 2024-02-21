@@ -271,11 +271,11 @@ output HEADLESS-1 {
 
 # output * bg ~/.local/wallpaper fill
 
-bindsym  --to-code --locked {
-  XF86AudioLowerVolume  exec `c key XF86AudioLowerVolume`
-  XF86AudioMicMute      exec `c key XF86AudioMicMute`
-  XF86AudioMute         exec `c key XF86AudioMute`
-  XF86AudioRaiseVolume  exec `c key XF86AudioRaiseVolume`
-  XF86MonBrightnessDown exec `c key XF86MonBrightnessDown`
-  XF86MonBrightnessUp   exec `c key XF86MonBrightnessUp`
-}
+# bindsym  --to-code --locked {
+#   XF86AudioLowerVolume  exec `c key XF86AudioLowerVolume`
+#   XF86AudioMicMute      exec `c key XF86AudioMicMute`
+#   XF86AudioMute         exec `c key XF86AudioMute`
+#   XF86AudioRaiseVolume  exec `c key XF86AudioRaiseVolume`
+#   XF86MonBrightnessDown exec `c key XF86MonBrightnessDown`
+#   XF86MonBrightnessUp   exec `c key XF86MonBrightnessUp`
+# }
