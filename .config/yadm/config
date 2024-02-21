@@ -4,3 +4,6 @@
 	local = stable
 [yadm]
 	auto-alt = 0
+# [remote "origin"]
+# 	url = https://github.com/suprsokk1/dotfiles-yadm.git
+# 	fetch = +refs/heads/*:refs/remotes/origin/*

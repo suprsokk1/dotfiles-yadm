@@ -49,7 +49,7 @@
                 (desktop-change-dir desktop-dir) ;; FIXME
               (desktop-save desktop-dir)))))
 
-        (projectile-invalidate-cache nil)
+        ;; (projectile-invalidate-cache nil)
 
         (when python
           (python-sort-imports)

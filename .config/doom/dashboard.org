@@ -41,7 +41,7 @@ find: ‘.config/doom/conf.d/_dired.el’: No such file or directory
 :end:
 
 #+begin_src shell
-stdbuf -oL env -C $HOME -  fd -a  -tf -0 |
+stdbuf -oL env -C $HOME - fd -a  -tf -0 |
     sed -nE '/[\]]/d;p' |
     xargs -0 printf '[[file:%s][%s]]\n' |
     head

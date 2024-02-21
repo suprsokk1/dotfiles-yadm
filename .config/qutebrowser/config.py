@@ -160,12 +160,12 @@ config.set('content.headers.user_agent', 'Mozilla/5.0 ({os_info}) AppleWebKit/53
 config.set('content.javascript.enabled', False, '*://linuxize.com/*')
 
 # searxng = 'http://127.0.0.1:8080/search?q={}'
-searxng = 'http://127.0.0.1:6081/search?q={}'
+searxng_general = 'http://127.0.0.1:6081/search?q=!general {}'
 google = 'https://www.duckduckgo.com/?={}'
 duckduckgo = 'https://www.google.com/search?q={}'
 
 searchengines = dict(
-    DEFAULT=searxng,
+    DEFAULT=searxng_general,
     d=duckduckgo,
     g=google,
 )

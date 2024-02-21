@@ -13,13 +13,13 @@
     // bug => 🐜
     // "keyboard-state",
     "modules-right": [
-        "sway/mode",
-        "custom/shell-json",
+        // "sway/mode",
+        // "custom/shell-json",
         "backlight",
         "network#vpn",
-        "sway/language",
+        // "sway/language",
         "network",
-        "pulseaudio",
+        // "pulseaudio",
         "battery",
         "clock"
         // "temperature",
@@ -257,7 +257,8 @@
         "format-ethernet": "{icon}",
         "format-icons":["󰌾"],
         "format-linked": "{ifname} (No IP) 🖧",
-        "format-disconnected": "🚫"
+        // "format-disconnected": "🚫"
+        "format-disconnected": ""
     },
 
 

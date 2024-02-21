@@ -51,12 +51,13 @@ import libtmux
 import loguru
 import psutil
 import pydantic
-from i3ipc import Event
-from i3ipc.aio import Connection
+from i3ipc import Connection, Event
+# from i3ipc.aio import Connection
 from jinja2 import BaseLoader, Template, TemplateNotFound
 from loguru import _logger, logger
 from pydantic import BaseModel
 from rich import print as rich_print
+from pathlib import Path
 
 """
 !!!ONLY WORKS WITH X11!!!
@@ -192,7 +193,8 @@ _print = print
 
 def print(*args, **kwargs):
     if not ZSH_PLUGIN:
-        logger.debug(' '.join(args))
+        pass
+        # logger.debug(' '.join(args))
     elif False:                 # FIXME
         rich_print()
     else:
@@ -239,8 +241,11 @@ def iterate(func):
 
 
 def case(switch, default=lambda: None, **do):
-    """TODO."""
-    return do.get(switch, default)
+    """
+    depricated:
+    Python support case switch from v3.10
+    """
+    # return do.get(switch, default)
 
 
 def json(func):
@@ -748,9 +753,9 @@ class Cli(object):
         def __init__(self):
             pass
 
-    class zsh:
-        def __init__(self):
-            self.plugin = CliZshPlugin()
+    # class zsh:
+    #     def __init__(self):
+    #         self.plugin = CliZshPlugin()
 
     class zsh:
         class plugin(CliBase):
@@ -961,6 +966,7 @@ class Cli(object):
 
         # os.system(f"{HOME}/bin/comma dev")
 
+
     # def zsh(self, name, widget=False, plugin=False, force=False) -> str:
     #     """Run hooks for application executing this command."""
     #     if widget:
@@ -1030,6 +1036,10 @@ class Cli(object):
 
     def grep(self, *args, **kwargs):
         S.Popen("grep -wo -- 0".split(), env={})
+
+    # def init(*args, **kwargs):
+
+
 
         # S.Popen("grep -wo -- 0".split(), stdin=sys.stdin, stdout=sys.stdout, env={})
 
@@ -1121,6 +1131,14 @@ class Cli(object):
         proc = S.Popen(c_regex2json, env={}, **kwargs)
         execution_results = proc.communicate()
 
+        return execution_results
+
+    def rx(self, pattern):
+        """TODO agnostic parsing of stdin as json """
+        re_string = rf'''(?P<pattern>{pattern})'''
+
+        os.system(fr"regex2json '{re_string}'")
+
     def vpn(self, *state):
         """TODO vpn 'on' or 'off'"""
         state = "unknown"
@@ -1150,9 +1168,82 @@ class Cli(object):
     def dev(self):
         pass
 
+    class init:
+        def zsh(self):
+            match PARENT:
+                case "zsh":
+                    return '''
+rc=~/.zshrc
+ZSH_THEME="simple"
+
+# "official" plugins
+plugins=(fzf git ssh-agent zoxide)
+
+# custom plugins
+plugins+=(exa2ls fzf-settings bat-settings)
+
+# plugin development
+plugins+=(testing)
+
+source ${ZSH:-${HOME:-~}/.oh-my-zsh}/oh-my-zsh.sh
+                    '''.strip('\n')
+                case _:
+                    exit(1)
+
+    def binding(self, *keys):
+        match PARENT:
+            case "sway":
+                return
+            case _:
+                pass
+
+    class yadm:
+        pass
+
+    class tmux:
+        def cap(self):
+            _ = Multiplexer()
+            _.tmux.session(0)
+            res = _.tmux.active.pane.capture_pane()
+
+            return res
+
+    def loop(self, *args):
+        first, *rest = args
+
+    class key:
+        XF86AudioLowerVolume = "exec pactl set-sink-volume @DEFAULT_SINK@ -5%"
+        XF86AudioMicMute = "exec pactl set-source-mute @DEFAULT_SOURCE@ toggle"
+        XF86AudioMute = "exec pactl set-sink-mute @DEFAULT_SINK@ toggle"
+        XF86AudioRaiseVolume = "exec pactl set-sink-volume @DEFAULT_SINK@ +5%"
+        XF86MonBrightnessDown = "exec brightnessctl set 5%-"
+        XF86MonBrightnessUp = "exec brightnessctl set +5%"
+
+    def relative(self, *files):
+        """"""
+        def _relative(f):
+            p = Path(f).resolve()
+            res = p
+            cur = p
+            while not cur == Path.home() and (cur / '.git').exists():
+                cur = cur.parent
+
+            res = res.relative_to(cur)
+            res = cur.relative_to(res)
+
+            return res.absolute().__str__()
+
+        return list(map(_relative, files))
+
+
+    def reposync(self, *files):
+        """"""
+
+
     def __init__(self):
         self.default = CliDefault()
         self.yadm = CliYadm()
+
 
 
 def function(func):

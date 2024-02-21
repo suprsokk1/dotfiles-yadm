@@ -1,7 +1,8 @@
 # ~/.tmux.conf##default -*- mode: conf -*-
 
 # set-option -g pane-border-status top
-set-option -g base-index      1
+set-option -g base-index       1
+set-option -g pane-base-index  1
 set-option -g default-command    /bin/zsh
 set-option -g default-shell      /bin/zsh
 set-option -g default-terminal     "screen-256color"
@@ -11,8 +12,6 @@ set-option -g pane-border-format @inactive
 set-option -g status             off
 set-option -g synchronize-panes  off
 set-option -sg terminal-overrides  ",*:RGB:clipboard"
-set-optipn -g base-index         1
-set-optipn -g pane-base-index    1
 set-option -g prefix C-Space
 set-option -gw xterm-keys on
 
