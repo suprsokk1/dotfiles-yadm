@@ -1,0 +1,7 @@
+# -*- mode: conf -*-
+
+include adhoc.conf
+
+include tmp
+
+include bindings
