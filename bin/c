@@ -1426,7 +1426,7 @@ source ${ZSH:-${HOME:-~}/.oh-my-zsh}/oh-my-zsh.sh
 
     def yadm_sync(self):
         _ = Multiplexer()
-        res = _.tmux.spawn('yadm status --porcelain=v1 | colrm 1 3 | xargs yadm add && yadm commit -m.')
+        res = _.tmux.spawn('yadm status --porcelain=v1 | colrm 1 3 | xargs yadm add && yadm commit -m.; yadm status --porcelain=v1')
 
         return res
 
