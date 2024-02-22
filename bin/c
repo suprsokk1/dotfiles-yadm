@@ -176,6 +176,7 @@ if SHELL and ARGS:
     ZSH_PLUGIN = path.is_file() and str(path.absolute()).endswith("zsh.plugin")
 
 IS_INTERACTIVE = INTERACTIVE = IS_TTY = TTY = sys.stdin.isatty()
+IS_CONSOLE = sys.stdout.isatty()
 
 SYSTEMD_SOCKET_UNIT = """
 # {{ name }}.socket
@@ -1342,6 +1343,7 @@ source ${ZSH:-${HOME:-~}/.oh-my-zsh}/oh-my-zsh.sh
         def __init__(self):
             self.__load__ = self.load
             self.__save__ = self.save
+            self.__dump__ = self.dump
 
             try:
                 self.__load__()
@@ -1349,7 +1351,12 @@ source ${ZSH:-${HOME:-~}/.oh-my-zsh}/oh-my-zsh.sh
                 logger.warning(ex)
                 self.__save__()
 
+        def dump(self):
+            return json_dumps(self.data)
+
         def __call__(self, *args, **kwargs):
+            if not sys.stdout.isatty():
+                return self.__dump__()
 
             generic_console = Console(highlight=True)
             json_console = Console(highlighter=JSONHighlighter())
@@ -1430,10 +1437,17 @@ source ${ZSH:-${HOME:-~}/.oh-my-zsh}/oh-my-zsh.sh
 
         return res
 
+    def cache(self):
+        """TODO cache pipe to file or tmux buffer"""
+
+
+        return res
+
     def __init__(self):
         self.default = CliDefault()
         self.yadm = CliYadm()
 
+    # fzf = fzf_cmd_builder
 
 
 def function(func):
