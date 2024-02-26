@@ -1,60 +1,17 @@
 :PROPERTIES:
-:HEADER-ARGS:        :var LIMIT=50
+:HEADER-ARGS:shell+: :var LIMIT=50
 :HEADER-ARGS:shell+: :results replace drawer
 :HEADER-ARGS:shell+: :shebang "#/usr/bin/env bash"
 :END:
 #+title: Dashboard
+#+include: _inclues.org
 
-#+begin_src shell
-exec 2>&1
-export LIMIT=20
-~/bin/yadm status --porcelain |
-    sed s,...,,\;1,${LIMIT:-10}\!d\;p |
-    tr \\n \\0 |
-    env -C ~ xargs -I %FILES% -0r find %FILES% -type f -maxdepth 0 -print0 |
-    env -C ~ xargs -0 printf '[[file:%s][%s]]\n'
+#+name: git-repos
+#+begin_src shell :shebang #!/usr/bin/env bash :tangle
+command env - $(which fd) -t d -g .git
 #+end_src
 
-#+RESULTS:
-:results:
-find: ‘.config/doom/conf.d/_dired.el’: No such file or directory
-find: ‘.config/doom/conf.d/_dired.el’: No such file or directory
-[[file:.config/doom/_lob.org][.config/doom/_lob.org]]
-[[file:.config/doom/agenda.lst][.config/doom/agenda.lst]]
-[[file:.config/doom/conf.d/_bindings.el][.config/doom/conf.d/_bindings.el]]
-[[file:.config/doom/conf.d/_functions.el][.config/doom/conf.d/_functions.el]]
-[[file:.config/doom/conf.d/_ligatures.el][.config/doom/conf.d/_ligatures.el]]
-[[file:.config/doom/conf.d/_org.el][.config/doom/conf.d/_org.el]]
-[[file:.config/doom/config.el##class.stable][.config/doom/config.el##class.stable]]
-[[file:.config/doom/init.el][.config/doom/init.el]]
-[[file:.config/doom/packages.el##template.j2][.config/doom/packages.el##template.j2]]
-[[file:.config/doom/snippets/fundamental-mode/shell-command-on-buffer][.config/doom/snippets/fundamental-mode/shell-command-on-buffer]]
-[[file:.config/qutebrowser/autoconfig.yml][.config/qutebrowser/autoconfig.yml]]
-[[file:.config/qutebrowser/bookmarks/urls][.config/qutebrowser/bookmarks/urls]]
-[[file:.config/qutebrowser/config.py][.config/qutebrowser/config.py]]
-[[file:.config/tmux/tmux.conf][.config/tmux/tmux.conf]]
-[[file:.config/yadm/TODO/README.org][.config/yadm/TODO/README.org]]
-[[file:.config/yadm/bootstrap][.config/yadm/bootstrap]]
-[[file:.local/bin/_emacs_pipe_in][.local/bin/_emacs_pipe_in]]
-[[file:.local/bin/_helper_rofi][.local/bin/_helper_rofi]]
-[[file:.sh.d/80-completion.zsh][.sh.d/80-completion.zsh]]
-:end:
-
+#+name: todos
 #+begin_src shell
-stdbuf -oL env -C $HOME - fd -a  -tf -0 |
-    sed -nE '/[\]]/d;p' |
-    xargs -0 printf '[[file:%s][%s]]\n' |
-    head
-#+end_src
 
-#+RESULTS:
-| [[file:/home/geir/coreos.bu][/home/geir/coreos.ign]]                 |
-| [[file:/home/geir/lynis-report.dat][/home/geir/lynis.log]]                  |
-| [[file:/home/geir/gepr.gitconfig][/home/geir/start-sway.sh]]              |
-| [[file:/home/geir/Dropbox/fedora-coreos-38.20230806.3.0-metal.x86_64.raw.xz][/home/geir/highlight.css]]              |
-| [[file:/home/geir/remediation.yml][/home/geir/Documents/regnr.org]]        |
-| [[file:/home/geir/Documents/scratch.org][/home/geir/Documents/anaconda-ks.cfg-]] |
-| [[file:/home/geir/Documents/anaconda-ks.cfg][/home/geir/bin/autocommit.sh]]          |
-| [[file:/home/geir/bin/xidel][/home/geir/bin/yadm]]                   |
-| [[file:/home/geir/bin/,][/home/geir/go/bin/gitmux]]              |
-| [[file:/home/geir/go/bin/regex2json][/home/geir/go/bin/pup]]                 |
+#+end_src

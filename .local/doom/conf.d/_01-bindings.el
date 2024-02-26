@@ -91,10 +91,10 @@
  ;; "s-8" #'-mark-all-like-this
 
  (:prefix "s-SPC"
-          "m"         '+zen/toggle-fullscreen
+          "m"   #'+zen/toggle-fullscreen
           "SPC" #'org-roam-node-find
 
-          "TAB" #'(cmd! (find-file initial-buffer-choice))
+          "TAB" (cmd! (find-file initial-buffer-choice))
           "[" #'mc/edit-beginnings-of-lines
           "]" #'mc/edit-enda-of-lines
           "a" #'mc/edit-beginnings-of-lines

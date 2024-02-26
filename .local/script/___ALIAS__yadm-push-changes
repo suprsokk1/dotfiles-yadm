@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 yadm status --porcelain=v1 |
-    awk '
-/\.elc$/{system("yadm rm --cached -- "$NF)}
-/^ [ADM]/{system("yadm add "$NF)}
-END{(system("yadm status"))}
-'
+    awk '/~$|\.elc$/{system("yadm rm --cached -- "$NF)}
+         /^ [ADM]/{system("yadm add "$NF)}
+         END{(system("yadm status"))}'

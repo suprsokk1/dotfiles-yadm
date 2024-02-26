@@ -1,0 +1,26 @@
+# -*- mode: conf -*-
+input type:touchpad {
+      dwt enabled
+      tap enabled
+      natural_scroll enabled
+      middle_emulation enabled
+
+      # disable mouse acceleration (enabled by default; to set it manually, use "adaptive" instead of "flat")
+      accel_profile "flat"
+
+      # set mouse sensitivity (between -1 and 1)
+      pointer_accel 0.5
+}
+
+
+# /usr/include/X11/keysymdef.h
+input type:keyboard {
+  xkb_layout "us,no"
+
+  xkb_options "caps:hyper, grp:shifts_toggle"
+  # default: 250
+  repeat_delay 250
+
+  # default: 45
+  repeat_rate 20
+}

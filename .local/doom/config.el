@@ -1,24 +1,4 @@
 ;;; config.el --- Description -*- lexical-binding: t; -*-
-;;
-;; Copyright (C) 2024 geir
-;;
-;; Author: geir <geir@fedora>
-;; Maintainer: geir <geir@fedora>
-;; Created: February 24, 2024
-;; Modified: February 24, 2024
-;; Version: 0.0.1
-;; Keywords: abbrev bib c calendar comm convenience data docs emulations extensions faces files frames games hardware help hypermedia i18n internal languages lisp local maint mail matching mouse multimedia news outlines processes terminals tex tools unix vc wp
-;; Homepage: https://github.com/geir/config
-;; Package-Requires: ((emacs "24.3"))
-;;
-;; This file is not part of GNU Emacs.
-;;
-;;; Commentary:
-;;
-;;  Description
-;;
-;;; Code:
-
 
 ;; (quote (let ((ELC (file-expand-wildcards (concat (expand-file-name "conf.d" (dir!)) "/*.elc"))))
 ;;         (mapc #'load-file ELC)))
@@ -56,6 +36,7 @@
 (quote (setq-hook! (quote (fundamental-mode))
         header-line-format (quote ("%e" (:eval)))))
 
+;;;###autoload
 (defun -minor-mode (minor-mode)
   (with-output-to-temp-buffer
       (princ (local-minor-modes))
@@ -119,13 +100,13 @@
 (defun -mark-word (&rest BODY)          ;FIXME
   (interactive)
   (let ((REGEXP (rx blank)))
-   (when (looking-at (rx (not blank)))
-     (unless (region-active-p)
-       (set-mark-command 0)
-       (re-search-backward (rx blank) nil t)
-       (re-search-forward (rx blank) nil t)
-       )
-     ))
+    (when (looking-at (rx (not blank)))
+      (unless (region-active-p)
+        (set-mark-command 0)
+        (re-search-backward (rx blank) nil t)
+        (re-search-forward (rx blank) nil t)
+        )
+      ))
   )
 
 (map! "M-+" #'-mark-word)
@@ -135,3 +116,16 @@
 
 (advice-add '-frame-title :after  #'-frame-title:after)
 (advice-add '-frame-title :before #'-frame-title:before)
+(setq doom-font                         (font-spec :family  "Iosevka Nerd Font Mono"
+                                                   :foundry "UKWN"
+                                                   :slant   'normal
+                                                   :weight  'light
+                                                   :height   98
+                                                   :width   'normal)
+
+      doom-big-font                    (font-spec :family  "Iosevka Nerd Font Mono"
+                                                  :foundry "UKWN"
+                                                  :slant   'normal
+                                                  :weight  'light
+                                                  :height  1.5
+                                                  :width   'normal))

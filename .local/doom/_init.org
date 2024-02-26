@@ -1,0 +1,13 @@
+:PROPERTIES:
+:HEADER-ARGS: :result silent
+:END:
+
+#+begin_src emacs-lisp :tangle yes
+(message "*** INIT ***")
+;; (repeat 19)
+(org-babel-lob-ingest (expand-file-name "_lob.org" (dir!)))
+(setq-default
+ org-babel-default-header-args 
+ )
+#+end_src
+
