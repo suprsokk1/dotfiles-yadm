@@ -1,0 +1,7 @@
+#!/usr/bin/env zsh
+
+parent=$(readlink /proc/$PPID/exe)
+
+if ! [ "${parent##*/}" = rofi ]; then
+    command rofi -dmenu
+fi

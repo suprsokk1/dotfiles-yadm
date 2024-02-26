@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+~/.local/script/___EMACSCLIENT__current-window '(python-shell-send-file (buffer-file-name))'
+
+exit
+
+cat <<EVAL | command xargs -0 --replace ELISP emacsclient --eval 'ELISP'
+(python-shell-send-file (buffer-file-name))
+ELISP
+
+<<ELISP
+(let ((PROCESSES_SOURCE (format "%s" (process-list)))
+      (WINDOW_SOURCE (format "%s" (window-list)))
+      (PYTHON_RUNNING (string-match python-shell-buffer-name PROCESS_SOURCE))
+      (PYTHON_VISIBLE (string-match python-shell-buffer-name WINDOW_SOURCE)))
+     ;;(unless (and PYTHON_VISIBLE PYTHON_RUNNING) (run-python))
+    (message "%S" python-shell-buffer-name)
+    (string-match (format "*%s*" python-shell-buffer-name) )
+    (python-shell-send-file (buffer-file-name)))
+EVAL
+
+notify-send --icon=emacs 'M-RET'

@@ -17,18 +17,15 @@ NOTE simple dbus server
 ......- install packages with dnf, pip, npm...
 ......- ???
 REVIEW yaml/json/toml/etc.. to python nested class
+REVIEW zsh precmd(); cache result of command in rundir (/var/run/user/$UID)
+NOTE ntfy.sh
+NOTE inline sort and replace
 """
+
+
 import sys
-
-
-def catchall(*args, **kwargs):
-    print(args, file=sys.stderr)
-    print(kwargs, file=sys.stderr)
-    sys.__excepthook__(*args, **kwargs)
-    input('Continue...')
-
-
-sys.excepthook = catchall
+import os
+import psutil
 
 
 def highlight(func):
@@ -60,46 +57,162 @@ def highlight(func):
     return _wrapper
 
 
+def catchall(*args, **kwargs):
+    # input('Continue...')
+    print(*(_ for _ in args if not _[0] == "_"))
+    exit(1)
 
-import asyncio
+    print(f'{kwargs = }', file=sys.stderr)
+    print(file=sys.stderr)
+    print(file=sys.stderr)
+
+    # sys.__excepthook__(*args, **kwargs)
+    input('Continue...')
+
+
+sys.excepthook = catchall
+
+class proc:
+    raw: bytes
+    data: dict
+    items: tuple
+
+    def FOO__init__(self):
+        with open('/proc/self/status', 'rb') as fd:
+            self.raw = fd.read()
+
+        self.data = {
+            k:v
+            for line in self.raw.decode().splitlines()
+            for k, v in (
+_ for _ in line.split(':', 1) if len(_) > 1
+            )
+        }
+
+    def __del__(self):
+        """TODO. """
+
+    def FOO__call__(self, *args, **kwargs):
+        """Foo bar baz."""
+        return self.raw
+
+
+class hook:
+    class parent:
+        def __call__(self):
+            p = proc()
+            return p
+
+            parent = psutil.Process(os.getppid()).parent
+            for _ in range(2):
+                parent = psutil.Process(parent.pid).parent
+
+            return parent
+
+
+def function(func):
+    def _inner(*args, **kwargs):
+        return func
+    return _inner
+
+
+# @function
+def emacs_callback_hook(*args, **kwargs):
+    _ = Multiplexer()
+    call_emacs_daemon("((save-excursion (vterm)))")
+    # from time import sleep
+    sleep(2)
+    _.tmux.set("status", "off")
+    _.tmux.send(f"{SCRIPT} callback", send_enter=True)
+
+    return "OK"
+
+# @function
+def zsh_callback_hook(*args, **kwargs):
+    # return develop()
+
+    _ = Multiplexer()
+    _.tmux.set("status", "off")
+    # tmux.send(f" | {SCRIPT} ", send_enter=True)
+    # res = _.tmux.spawn(r"yadm status --porcelain=v1 | colrm 1 3 | xargs dirname | sort | uniq | grep -P -- '\S{3,}' | xargs")
+
+    return res
+
+    if args:
+        return ""
+
+    return _.zsh.termopts
+
+def f(v):
+    if hasattr(v, 'iter') and type(v) is not str:
+        for _ in v:
+            yield f(_)
+    return v
+
+
+def develop(*args, **kwargs):
+    _ = Multiplexer()
+    # res = _.tmux.spawn("yadm status --porcelain=v1")
+    json_string = """
+    [{"dst":"0.0.0.0/1","gateway":"10.11.18.1","dev":"tun0","flags":[]},{"dst":"default","gateway":"10.0.10.1","dev":"wlp2s0","protocol":"dhcp","prefsrc":"10.0.10.201","metric":600,"flags":[]},{"dst":"10.0.0.243","gateway":"10.11.18.1","dev":"tun0","flags":[]},{"dst":"10.0.10.0/24","dev":"wlp2s0","protocol":"kernel","scope":"link","prefsrc":"10.0.10.201","metric":600,"flags":[]},{"dst":"10.11.18.0/24","dev":"tun0","protocol":"kernel","scope":"link","prefsrc":"10.11.18.46","flags":[]},{"dst":"128.0.0.0/1","gateway":"10.11.18.1","dev":"tun0","flags":[]},{"dst":"188.126.94.77","gateway":"10.0.10.1","dev":"wlp2s0","flags":[]}]
+    """
+
+    from json import loads
+
+    d = loads(json_string)
+
+    res = f(d)
+
+    return res
+    _ = Multiplexer()
+    # res = tmux.spawn("stty -g")
+    i = IO()
+
+    return
+    return i.dump_stdin()
+    return _.emacs.windows
+    return _.zsh.termopts
+
+# import asyncio
 import errno
 import os
-import pathlib
-import re
-import socket
-import subprocess as S
-from dataclasses import dataclass, field
+# import pathlib
+# import re
+# import socket
+# import subprocess as S
+# from dataclasses import dataclass, field
 from functools import lru_cache
-from json import dump as json_dump
-from json import dumps as json_dumps
-from json import load as json_load
-from json import loads as json_loads
+# from json import dump as json_dump
+# from json import dumps as json_dumps
+# from json import load as json_load
+# from json import loads as json_loads
 from pathlib import Path
-from subprocess import DEVNULL, PIPE, Popen
-from subprocess import run as Run
-from tempfile import NamedTemporaryFile
+import pathlib
+from subprocess import DEVNULL, PIPE, Popen, run as Run
+# from tempfile import NamedTemporaryFile
 from typing import Any, Callable, Optional, Self
 
 import fire
-import keyboard
+# import keyboard
 import libtmux
-import loguru
-import numpy as np
-# import pandas as pd
-import psutil
-# import pyarrow as pa
-import pydantic
-import ruamel.yaml as YAML
-from box import Box
-from i3ipc import Connection, Event
-# from i3ipc.aio import Connection
-from jinja2 import BaseLoader, Template, TemplateNotFound
+# import loguru
+# import numpy as np
+# # import pandas as pd
+# import psutil
+# # import pyarrow as pa
+# import pydantic
+# import ruamel.yaml as YAML
+# from box import Box
+# from i3ipc import Connection, Event
+# # from i3ipc.aio import Connection
+# from jinja2 import BaseLoader, Template, TemplateNotFound
 from loguru import logger
-from pydantic import BaseModel
-from rich import print as rich_print
+# from pydantic import BaseModel
+# from rich import print as rich_print
 from rich.console import Console
 from rich.highlighter import Highlighter, JSONHighlighter
-from rich.table import Table
+# from rich.table import Table
+
 
 """
 !!!ONLY WORKS WITH X11!!!
@@ -164,16 +277,16 @@ SHELL = 'SH' in vars() or 'ZSH' in vars() or 'BASH' in vars()
 EDITOR = 'EMACS' in vars() or 'VIM' in vars()
 LAUNCHER = MENU = 'ROFI' in vars() or 'DMENU' in vars() or 'FZF' in vars()
 
-for name, value  in os.environ.items():
-    exec(f"""{name} = '''{value}'''""")
+# for name, value  in os.environ.items():
+#     exec(f"""{name} = '''{value}'''""")
 
 HOME = os.getenv("HOME")
 USER = os.getenv("USER")
 PPID = os.getenv("PPID")
 
-if SHELL and ARGS:
-    path = Path(sys.argv[-1])
-    ZSH_PLUGIN = path.is_file() and str(path.absolute()).endswith("zsh.plugin")
+# if SHELL and ARGS:
+#     path = Path(sys.argv[-1])
+#     ZSH_PLUGIN = path.is_file() and str(path.absolute()).endswith("zsh.plugin")
 
 IS_INTERACTIVE = INTERACTIVE = IS_TTY = TTY = sys.stdin.isatty()
 IS_CONSOLE = sys.stdout.isatty()
@@ -249,14 +362,15 @@ trace_cmd = f"python -m trace --count -C . {HOME}/bin/c dev"
 _print = print
 
 
-def print(*args, **kwargs):
-    if not ZSH_PLUGIN:
-        pass
-        # logger.debug(' '.join(args))
-    elif False:                 # FIXME
-        rich_print(*args, **kwargs)
-    else:
-        pass
+# def print(*args, **kwargs):
+#     if not ZSH_PLUGIN:
+#         pass
+#         # logger.debug(' '.join(args))
+#     elif False:                 # FIXME
+#         rich_print(*args, **kwargs)
+#     else:
+#         pass
+
 
 def fire_args_helper(func):
     """Decorator for class functions."""
@@ -306,12 +420,12 @@ def case(switch, default=lambda: None, **do):
     # return do.get(switch, default)
 
 
-def json(func):
-    def _json(*args, **kwargs):
-        from json import dumps
-        ret = func(*args, **kwargs)
-        return dumps(ret, indent=2) if type(ret) is dict else ret
-    return _json
+# def json(func):
+#     def _json(*args, **kwargs):
+#         from json import dumps
+#         ret = func(*args, **kwargs)
+#         return dumps(ret, indent=2) if type(ret) is dict else ret
+#     return _json
 
 
 class CliYadm:
@@ -1013,10 +1127,16 @@ class Cli(object):
 
         return json.dumps(python_objects, indent=4)
 
-    @logger.catch
+    # @logger.catch
+    # @hook.parent('emacs.tmux.zsh', {'tmux':{'status':False}})
     def callback(self, *context) -> str:
         """Run hooks for application executing this command."""
+        # PARENT = psutil.Process(os.getppid())
+        return hook.parent()
+        # return PARENT.
         # print(*context)
+        for _ in context:
+            if True: pass
         ret = globals().get(
             f'{PARENT_NAME_LOWER}_callback_hook', lambda *x: str(x)
         )(*context)
@@ -1295,9 +1415,6 @@ source ${ZSH:-${HOME:-~}/.oh-my-zsh}/oh-my-zsh.sh
             case _:
                 pass
 
-    class yadm:
-        pass
-
     class tmux:
         def cap(self):
             _ = Multiplexer()
@@ -1431,86 +1548,74 @@ source ${ZSH:-${HOME:-~}/.oh-my-zsh}/oh-my-zsh.sh
             with open(f"{HOME}/.config/config.json") as fd:
                 self.data = json_load(fd)
 
-    def yadm_sync(self):
-        _ = Multiplexer()
-        res = _.tmux.spawn('yadm status --porcelain=v1 | colrm 1 3 | xargs yadm add && yadm commit -m.; yadm status --porcelain=v1')
+    class yadm:
+        def sync(self):
+            _ = Multiplexer()
+            res = _.tmux.spawn('yadm status --porcelain=v1 | colrm 1 3 | xargs yadm add && yadm commit -m.; yadm status --porcelain=v1')
 
-        return res
+            return res
 
-    def cache(self):
+    # def cache(self):
+    #     """TODO cache pipe to file or tmux buffer"""
+
+    def test(self):
         """TODO cache pipe to file or tmux buffer"""
+        exit(0)
 
-
-        return res
+    class cache:
+        def add(self):
+            """Add cachedir tag"""
+            pass
 
     def __init__(self):
         self.default = CliDefault()
         self.yadm = CliYadm()
 
+# '''
+# MAILTO=geir
+# START_HOURS_RANGE=0-23
+# PATH=$HOME/.pyenv/shims:$HOME/bin:$HOME/.pyenv/bin:/usr/bin:/usr/local/bin:/usr/local/sbin:/usr/sbin:$HOME/.cargo/bin:$HOME/.local/bin:$HOME/go/bin:$HOME/opt/doom-emacsdir/bin:$HOME/.vector/bin
+# RANDOM_DELAY=2
+
+# _RCLONE_SYNC_DIR=~/.local/share/rclone
+# _RCLONE_REMOTE_DIR_PUSH_google_drive=~/.local/share/rclone/push/google_drive
+# _RCLONE_REMOTE_DIR_PUSH_onedrive=~/.local/share/rclone/push/onedrive
+# _RCLONE_REMOTE_DIR_PULL_google_drive=~/.local/share/rclone/pull/google_drive
+# _RCLONE_REMOTE_DIR_PULL_onedrive=~/.local/share/rclone/pull/onedrive
+
+# # _RCLONE_CMD="rclone sync $_RCLONE_REMOTE_DIR_PULL_onedrive onedrive:"
+# _RCLONE_PULL_VERB="sync"
+# _RCLONE_PUSH_VERB="sync"
+# _NOTIFY_CMD="notify-send --expire-time=3000"
+
+# # pull onedrive:
+# */10 * * * *     systemd-run --user rclone $_RCLONE_PULL_VERB onedrive: $_RCLONE_REMOTE_DIR_PULL_onedrive/
+
+# # push onedrive:
+# */20 * * * *     systemd-run --user rclone $_RCLONE_PUSH_VERB onedrive: $_RCLONE_REMOTE_DIR_PUSH_onedrive/
+
+# # TODO pull google_drive:
+# # */10 * * * *   systemd-run --user rclone $_RCLONE_PULL_VERB google_drive: $_RCLONE_REMOTE_DIR_PULL_google_drive/
+
+# # TODO topgrade
+# # * * * * * systemd-run --user --wait -p SuccessExitStatus=42 -p "ExecStartPost=notify-send 'Finished OK' '$_RCLONE_CMD'" env cmd="$_RCLONE_CMD" bash -c "trap ' $cmd' ERR; set -o errexit -o nounset; \$cmd ; exit 42"
+
+# # sync org-files to
+# */5 * * * * systemd-run --user --wait -p SuccessExitStatus=42 bash -c "eval 'cd ~/org/ || exit 1; git add . && git commit -m $(date +cron-%s)' || exit 1; exit 42"
+
+# # */10 * * * *   notify-send --expire-time=3000 '*/10 * * * *'
+# */10 * * * *   notify-send --expire-time=3000 crond 'yadm push'; systemd-run --user yadm push
+# */10 * * * *   systemd-run --user pass git push
+
+# 0    * * * *   emacsclient --no-wait --eval '(-cron-hourly)'
+
+
+# # *    * * * *   notify-send --expire-time=3000 crond
+# # */10 * * * *   systemd-run --user 'rclone sync $_RCLONE_REMOTE_DIR_PULL_onedrive onedrive:'
+# '''
+
     # fzf = fzf_cmd_builder
 
-
-def function(func):
-    def _inner(*args, **kwargs):
-        return func
-    return _inner
-
-
-# @function
-def emacs_callback_hook(*args, **kwargs):
-    _ = Multiplexer()
-    call_emacs_daemon("((save-excursion (vterm)))")
-    # from time import sleep
-    sleep(2)
-    _.tmux.set("status", "off")
-    _.tmux.send(f"{SCRIPT} callback", send_enter=True)
-
-    return "OK"
-
-# @function
-def zsh_callback_hook(*args, **kwargs):
-    return develop()
-
-    _ = Multiplexer()
-    _.tmux.set("status", "off")
-    # tmux.send(f" | {SCRIPT} ", send_enter=True)
-    res = _.tmux.spawn(r"yadm status --porcelain=v1 | colrm 1 3 | xargs dirname | sort | uniq | grep -P -- '\S{3,}' | xargs")
-    return res
-
-    if args:
-        return ""
-
-    return _.zsh.termopts
-
-def f(v):
-    if hasattr(v, 'iter') and type(v) is not str:
-        for _ in v:
-            yield f(_)
-    return v
-
-
-def develop(*args, **kwargs):
-    _ = Multiplexer()
-    # res = _.tmux.spawn("yadm status --porcelain=v1")
-    json_string = """
-    [{"dst":"0.0.0.0/1","gateway":"10.11.18.1","dev":"tun0","flags":[]},{"dst":"default","gateway":"10.0.10.1","dev":"wlp2s0","protocol":"dhcp","prefsrc":"10.0.10.201","metric":600,"flags":[]},{"dst":"10.0.0.243","gateway":"10.11.18.1","dev":"tun0","flags":[]},{"dst":"10.0.10.0/24","dev":"wlp2s0","protocol":"kernel","scope":"link","prefsrc":"10.0.10.201","metric":600,"flags":[]},{"dst":"10.11.18.0/24","dev":"tun0","protocol":"kernel","scope":"link","prefsrc":"10.11.18.46","flags":[]},{"dst":"128.0.0.0/1","gateway":"10.11.18.1","dev":"tun0","flags":[]},{"dst":"188.126.94.77","gateway":"10.0.10.1","dev":"wlp2s0","flags":[]}]
-    """
-
-    from json import loads
-
-    d = loads(json_string)
-
-    res = f(d)
-
-    return res
-    _ = Multiplexer()
-    # res = tmux.spawn("stty -g")
-    i = IO()
-
-    return
-    return i.dump_stdin()
-    return _.emacs.windows
-    return _.zsh.termopts
 
 """
 async def main():
@@ -1523,16 +1628,25 @@ async def main():
     await asyncio.get_event_loop().create_future()
 """
 
+
+def cli_framework_click():
+    pass
+    # hello()
+
 # async def main():
 def main():
-    pass
-    # asyncio.get_event_loop().run_until_complete(main())
-
+    match os.getenv("FRAMEWORK", "fire"):
+        case "click":
+            cli_framework_click()
+        case "fire":
+            fire.Fire(Cli)
+        case _:
+            """wtf?!"""
 
 # loop = asyncio.get_event_loop()
 if __name__ == '__main__':
     try:
-        fire.Fire(Cli)
+        main()
         # asyncio.get_event_loop().run_until_complete(main())
         # await loop.run_until_complete(main())
     except (KeyboardInterrupt, ModuleNotFoundError) as e:
@@ -1541,3 +1655,21 @@ if __name__ == '__main__':
         print(ne, vars(), sep='\n', file=sys.stderr)
     except AssertionError as ae:
         logger.warning(ae)
+
+# import click
+
+# @click.command()
+# @click.option("--count", default=1, help="Number of greetings.")
+# @click.option("--name", prompt="Your name", help="The person to greet.")
+# def hello(count, name):
+#     """Simple program that greets NAME for a total of COUNT times."""
+#     for _ in range(count):
+#         click.echo(f"Hello, {name}!")
+
+# @click.command()
+# @click.option("--count", default=1, help="Number of greetings.")
+# @click.option("--name", prompt="Your name", help="The person to greet.")
+# def rofi(count, name):
+#     """Simple program that greets NAME for a total of COUNT times."""
+#     for _ in range(count):
+#         click.echo(f"Hello, {name}!")

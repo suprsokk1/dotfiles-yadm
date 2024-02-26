@@ -3,8 +3,10 @@
 # set-option -g pane-border-status top
 set-option -g base-index       1
 set-option -g pane-base-index  1
-set-option -g default-command    /bin/zsh
-set-option -g default-shell      /bin/zsh
+
+# set-option -g default-command    /bin/zsh
+# set-option -g default-shell      /bin/zsh
+
 set-option -g default-terminal     "screen-256color"
 set-option -g mouse           on
 set-option -g pane-base-index 1
@@ -46,3 +48,5 @@ source-file ~/.config/tmux/tmux.conf
 # run-shell /usr/bin/env sh -c 'if ! test -d ~/src/extrakto.tmux; then tmux split git clone https://github.com/laktak/extrakto ~/src/extrakto.tmux ; fi; ~/src/extrakto.tmux'
 
 run-shell ~/.local/share/tpm/tpm
+
+unbind -n C-t

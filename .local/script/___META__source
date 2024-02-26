@@ -1,0 +1,3 @@
+#!/usr/bin/env zsh
+
+print -l ${(kM)commands:#___${(U)0##*_}*}

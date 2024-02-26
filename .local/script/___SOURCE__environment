@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+for i in "${@:-$PPID}"; do
+    command xargs -0rn1 -a  /proc/"$i"/environ
+done

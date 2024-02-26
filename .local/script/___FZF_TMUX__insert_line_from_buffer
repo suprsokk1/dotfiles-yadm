@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+export LC_ALL=C
+
+command tmux capture-pane -p -S - |
+    command rg --no-config -- '' |
+    command uniq |
+    command tac |
+    command fzf --multi --ansi --preview '___FZF_PREVIEW__tmux {+}'

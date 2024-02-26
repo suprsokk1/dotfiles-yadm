@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+notify-send -u critical \
+  "Build failed!" \
+  "There were <b>123</b> errors. Click here to see the results: http://buildserver/latest"

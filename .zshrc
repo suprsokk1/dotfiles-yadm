@@ -1,4 +1,4 @@
-# ~/.zshrc -*- mode: sh -*-
+# ~/.zshrc -*- mode: sh[zsh] -*-
 rc=~/.zshrc
 
 ZSH_THEME="simple"
@@ -10,8 +10,15 @@ plugins=(fzf git ssh-agent zoxide)
 plugins+=(exa2ls fzf-settings bat-settings)
 
 # plugin development
-plugins+=(testing)
+plugins+=( testing )
 
 source ${ZSH:-${HOME:-~}/.oh-my-zsh}/oh-my-zsh.sh
 
-# . <(comma init zsh || echo)
+path+=( ~/.local/script )
+
+# shellcheck disable=SC2206,SC2296
+path=( ${(u)path} )
+
+if ! [[ -L ~/.run ]]; then
+    command ln -frvs ${XDG_RUNTIME_DIR:-/run/user/"$UID"} ~/.run
+fi

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+command gron -c |
+    command fzf --multi --ansi |
+    command gron --ungron

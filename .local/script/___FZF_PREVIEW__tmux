@@ -1,0 +1,7 @@
+#!/usr/bin/env zsh
+true <<DOC
+-l Separate by newlines
+___TMUX__capture-current-buffer
+DOC
+
+print -l "$*"

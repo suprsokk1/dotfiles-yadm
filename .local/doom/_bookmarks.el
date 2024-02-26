@@ -45,11 +45,11 @@
  (position . 58)
  (last-modified 26056 45366 725174 32000))
 ("org-capture-last-stored"
- (filename . "~/git.gepr/org/roam/20240224231036-mpm_meta_package_manager.org")
+ (filename . "~/git.gepr/org/roam/20240224113627-emacs_lisp_json.org")
  (front-context-string)
- (rear-context-string . "package manager\n")
- (position . 104)
- (last-modified 26074 26973 483066 363000))
+ (rear-context-string . "s lisp <-> json\n")
+ (position . 97)
+ (last-modified 26073 50860 440493 145000))
 ("-*- emacs | conf.d -*-"
  (filename . "~/.config/doom/conf.d/")
  (front-context-string . "_00-line-numbers")

@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+command env - $(which fd) -t d -g .git

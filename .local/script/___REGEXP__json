@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+grep -Poz -- '\n{[\s\S]+\n?}'

@@ -18,7 +18,7 @@ config.load_autoconfig(True)
 from custom import *
 
 # Position of the tab bar.
-# Type: Position
+# Type: Position2
 # Valid values:
 #   - top
 #   - bottom
@@ -28,7 +28,7 @@ c.tabs.position = 'right'
 
 # darkmode enabled for supported pages
 # TODO read yadm config
-config.set('colors.webpage.darkmode.enabled', True)
+# config.set('colors.webpage.darkmode.enabled', True)
 
 # Which cookies to accept. With QtWebEngine, this setting also controls
 # other features with tracking capabilities similar to those of cookies;
@@ -166,6 +166,7 @@ duckduckgo = 'https://www.google.com/search?q={}'
 
 searchengines = dict(
     DEFAULT=searxng_general,
+    x=searxng_general,
     d=duckduckgo,
     g=google,
 )

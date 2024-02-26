@@ -1,6 +1,4 @@
 ;;; $DOOMDIR/init.el -*- lexical-binding: t; -*-
-(mkdir "~/.local/emacs" t)
-
 (doom! :completion
        company
        vertico
@@ -11,8 +9,8 @@
        hl-todo
        treemacs
        zen
-       ;; (modeline +light)
-       modeline
+       (modeline +light)
+       ;; modeline
        ;; (ligatures +extra +fira +iosevka)
        (popup +defaults)
 
@@ -22,7 +20,6 @@
        fold
        format                           ; auto format
        snippets
-
        ;; (evil +everywhere)
 
        :emacs
@@ -40,7 +37,7 @@
        :tools
        ansible
        magit
-       direnv
+       ;; direnv
        editorconfig
        lookup
        tmux
@@ -59,6 +56,7 @@
        ;; (org +roam2)
 
        (org +roam2 +pretty +pomodoro)
+
        ;; (org +roam2 +pretty +pomodoro +contacts)
        ;; (org +roam2 +pretty +pomodoro +gnuplot)
        ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc)
@@ -67,6 +65,7 @@
        ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo +present +dragndrop)
        ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo +present +dragndrop +jupyther)
        ;; (python +lsp +pyenv +pyright +tree-sitter)
+
        (python +lsp +pyright)
        (sh +lsp)
        (go +lsp)

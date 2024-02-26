@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+command swaymsg --raw -t get_tree
