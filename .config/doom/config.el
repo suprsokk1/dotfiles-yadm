@@ -148,17 +148,34 @@
  "M-s-["      #'winner-undo
  "M-s-}"      #'winner-redo
  "M-s-<return>" (cmd! (winner-remember)
-                      (message "winner-remember"))
+                      (message "winner-remember"))22
+
+ (:mode rustic-mode
+        "M-RET" (cmd!
+                 (let ((outdir (make-temp-file (getenv "XDG_RUNTIME_DIR") t))
+                       (file (buffer-file-name)))
+                   (shell-command
+                    (format "rustc %s --outdir=%s" file outdir))
+                   (file-expand-wildcards (format "%s/*" outdir))
+                   )))
 
  (:mode dired-mode
+        "."     nil
+        ". ." #'dired-up-directory
         "/"     #'dired-mark-files-regexp
-
+        "D"     nil
+        "a"     nil
         ;; "M"     (cmd! (dired-do-rename (dired-get-marked-files)))
-        "C-a"   (cmd! (dired-mark-files-regexp (rx any)))
+        "a a"   nil
+        "a a" (cmd! (dired-mark-files-regexp (rx any)))
+        "a e" (cmd! (dired-mark-files-regexp (rx ".el" eol)))
         "C-t"   (cmd! (if (dired-get-marked-files)
                           (dired-unmark-all-marks)
                         (dired-mark-files-regexp (rx any))))
-
+        "s-\\" (cmd! (save-excursion
+                   (dired (dir!))
+                   (dired-next-line 1)
+                   (dired-find-file)))
         ;; "M" nil
         ;; "M"     (cmd! (message "%S" (dired-get-marked-files)))
         )
@@ -266,12 +283,16 @@
 
 (defun -generic-advice (func &rest args)
   (let ((RUN (apply func args))
-        (empty-buffer-name (null (buffer-file-name)))
-        (file-buffer (not (string-match (buffer-name) (rx ?* (* any)  ?* ))))
+        (empty-file-name (null (buffer-file-name)))
+        (file-buffer (not (string-match (buffer-name)
+                                        (rx bol ?*
+                                            (+  (any word space))
+                                             ?*)
+                                        )))
         (buffer-match-window (string-match (buffer-name) (format "%s" (window-list)))))
     (if (string-match "save-buffer" (format "%S" func))
-        (if empty-buffer-name
-            nil                         ;do nothing
+        (if empty-file-name
+            (message )
             (if (and file-buffer buffer-match-window)
                 (make-symbolic-link (buffer-file-name) (HOME "emacs.buffer-save") t)
               (eval RUN)))

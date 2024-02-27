@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
-yadm status --porcelain=v1 |
-    awk '/~$|\.elc$/{system("yadm rm --cached -- "$NF)}
+command yadm status --porcelain=v1 |
+    awk '/~$|\.elc$|\.pyc$/{system("yadm rm --cached -- "$NF)}
          /^ [ADM]/{system("yadm add "$NF)}
          END{(system("yadm status"))}'
+
+echo -n 'OK?[yN]'
+read confirm
+case $confirm in
+    [yY])
+        command yadm commit && command yadm push
+        ;;
+    *)
+esac

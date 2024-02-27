@@ -3,14 +3,13 @@
 # type: command
 # key: cc
 # --
-(let ((FILENAME (buffer-file-name)))
-  (when FILENAME
-    (let* ((REPLACE t)
-      (OUTPUT-BUFFER nil)
-      (LINE (buffer-substring (bol) (eol)))
-      (CMD (format "%s %s"  LINE FILENAME)))
-  (beginning-of-line)
-  (kill-line)
-  (save-excursion
-  (unless (string= CMD "")
-    (shell-command CMD))))))
+(when-let  (FILENAME (buffer-file-name))
+  (let* ((OUTPUT-BUFFER nil)
+         (LINE (buffer-substring (bol) (eol)))
+         (CMD (format "%s %s"  LINE FILENAME))
+         (empty-string (string= CMD "")))
+(beginning-of-line)
+(kill-line)
+(save-excursion
+  (unless empty-string
+    (async-shell-command CMD )))))
