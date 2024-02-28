@@ -1,13 +1,16 @@
 # -*- mode: conf -*-
 set $laptop eDP-1
 
-bindswitch --reload --locked lid:on output $laptop disable
-bindswitch --reload --locked lid:off output $laptop enable
+bindswitch --reload --locked {
+    lid:on  output $laptop disable; exec swaylock --image `readlink ~/WALLPAPER`
+    lid:off output $laptop enable
+}
 
-bindsym --to-code --locked XF86AudioLowerVolume  exec pactl set-sink-volume @DEFAULT_SINK@ -5%
-bindsym --to-code --locked XF86AudioMicMute      exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
-bindsym --to-code --locked XF86AudioMute         exec pactl set-sink-mute @DEFAULT_SINK@ toggle
-bindsym --to-code --locked XF86AudioRaiseVolume  exec pactl set-sink-volume @DEFAULT_SINK@ +5%
-bindsym --to-code --locked XF86MonBrightnessDown exec brightnessctl set 5%-
-bindsym --to-code --locked XF86MonBrightnessUp   exec brightnessctl set +5%
-bindsym --to-code Mod4+9 exec emacsclient --eval '(message "foo")'
+bindsym --to-code --locked {
+    XF86AudioLowerVolume  exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+    XF86AudioMicMute      exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+    XF86AudioMute         exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+    XF86AudioRaiseVolume  exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+    XF86MonBrightnessDown exec brightnessctl set 5%-
+    XF86MonBrightnessUp   exec brightnessctl set +5%
+}

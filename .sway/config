@@ -4,79 +4,122 @@ include _input
 include _output
 include _laptop
 
-font San Francisco Display 0
+font San Francisco Display 10
 xwayland enable
 
-set $escape_mode "escape"
 set $floating_x_max -1
 set $floating_x_min 75
 set $floating_y_max -1
 set $floating_y_min 50
-set $rofi "rofi -show combi -modes combi -combi-modes drun,window,ssh"
+# set $rofi "rofi -show combi -modes combi -combi-modes drun,window,ssh"
+set $rofi     "rofi -show combi -modes combi -combi-modes drun,window,ssh,filebrowser"
 set $rofi_alt "rofi -show drun -modi drun,window,ssh"
 
-default_border pixel 1px
-floating_modifier Mod4 normal
 focus_follows_mouse no
 focus_on_window_activation urgent
 focus_wrapping force
 force_display_urgency_hint 500 ms
-gaps inner 10
-hide_edge_borders none
-no_focus [window_role="pop-up"]
+
 show_marks yes
 smart_borders on
-title_align right
-workspace_auto_back_and_forth yes
-workspace_layout default
+default_border pixel 1px
+hide_edge_borders none
 
+gaps inner 10
+
+floating_modifier Mod4 normal
 floating_minimum_size $floating_x_min x $floating_y_min
 floating_maximum_size $floating_x_max x $floating_y_max
 
+no_focus [window_role="pop-up"]
+
+title_align right
+
+workspace_auto_back_and_forth yes
+workspace_layout default
+
+# bindsym --to-code Mod4+l mark `/bin/sh -c 'echo q$(((RANDOM % 3)+1))'`
+
+bindsym --to-code Mod4+l mark full
+
 for_window {
 
-    [title='(?i)^ob-'] mark org-babel
-    [app_id="(?i)alacritty"] mark terminal
-    [app_id="(?i)emacs"] mark editor
-    [app_id="(?i)firefox"] mark browser
-    [app_id="(?i)gnome.terminal"] mark terminal
-    [app_id="(?i)qutebrowser"] mark browser
-    [app_id="(?i)rxvt"] mark terminal
-    [app_id="(?i)xterm"] mark terminal
-    [class=".*"] border_pixel $border_px
-    [class="^Menu$"] floating enabled
-    [con_mark="(?i)browser"] send to scratchpad
-    [con_mark="(?i)org-babel"] resize set 50ppt 100ppt; move position 50ppt 0
-    [con_mark="(?i)terminal"] send to scratchpad
-    [con_mark="terminal"] mark --add term
-    [con_mark="terminal"] mark --add vt
-    [con_mark=browser] mark --add web
-    [con_mark=browser] mark --add www
-    [con_mark=left] resize set 50ppt 100ppt; move position 50ppt 0
-    [con_mark=left] resize set 50ppt 100ppt; move position 50ppt 0x
-    [con_mark=right] move position 50ppt 0
-    [title="GNOME Tweaks"] floating enabled
-    [title="SCAP"] floating enabled
-    [title="Volume Control"] floating enabled #; resize set
-    [title="Volume Control"] floating enabled}
+    [app_id="(?i)pavucontrol"]     mark float
+    [app_id="(?i)firefox"]         mark float
 
+    [con_mark=.*float.*]           floating enabled
+
+    # [floating] move position   0       0
+
+    [floating con_mark=full]  {
+        resize set 98ppt 98ppt
+        move position 1ppt 1ppt
+    }
+
+    # [floating]                         move position  0       0
+    [floating con_mark=foo.*]                move position  0       0
+    [floating con_mark=foo con_mark=bar]   move position  50ppt   50ppt
+
+    [con_mark=.*q1.*]         move position   0       0
+    [con_mark=.*q2.*]         move position   50ppt   0
+    [con_mark=.*q3.*]         move position   50ppt   50ppt
+    [con_mark=.*q4.*]         move position   0       50ppt
+
+    # [app_id="(?i)xterm"] mark terminal
+    # [app_id="(?i)alacritty"] mark terminal
+    # [app_id="(?i)gnome.terminal"] mark terminal
+
+    # [title="GNOME Tweaks"] floating enabled
+    # [title="SCAP"] floating enabled
+    # [title="Volume Control"] floating enabled
+    # [app_id=pavucontrol] mark foo
+    # [title='(?i)^ob-'] mark org-babel
+    # [app_id="(?i)emacs"] mark editor
+    # [app_id="(?i)firefox"] mark browser
+    # [app_id="(?i)qutebrowser"] mark browser
+
+    # [class=".*"] border_pixel $border_px
+    # [class="^Menu$"] floating enabled
+
+    # [con_mark="(?i)browser"] send to scratchpad
+    # [con_mark="(?i)org-babel"] resize set 50ppt 100ppt; move position 50ppt 0
+    # [con_mark="(?i)terminal"] send to scratchpad
+
+    # [con_mark="terminal"]   mark --add term
+    # [con_mark="terminal"]   mark --add vt
+    # [con_mark=browser]      mark --add web
+    # [con_mark=browser]      mark --add www
+
+    # [con_mark=left] resize set 50ppt 100ppt; move position 50ppt 0
+    # [con_mark=right] move position 50ppt 0
+    # [con_mark=foo] move position 50ppt 0
 
 }
 
 bindsym --to-code {
+    # Mod4+j move to scratchpad
+
+    # Mod4+k mark foo
+
     Mod4+d exec --no-startup-id "$rofi"
+
     Mod4+2 [floating] move to scratchpad; [app_id=Alacritty]   scratchpad show
     Mod4+3 [floating] move to scratchpad; [app_id=qutebrowser] scratchpad show
     Mod4+1 [floating] move to scratchpad
+
     Mod4+4 scratchpad show
+
     Mod4+equal [floating] resize set 50ppt 100ppt; move position 50ppt 0
     Mod4+minus [floating] resize set 50ppt 100ppt; move position 0 0
+
     Mod1+Mod4+f floating toggle
-    Mod4+j move to scratchpad
+
     Mod1+Mod4+c reload
     Mod4+Tab focus next
-    Mod4+f          fullscreen toggle
-    Mod1+Mod3+c    reload
+    Mod4+f fullscreen toggle
+    Mod1+Mod3+c reload
+
+    # Mod4+9 exec emacsclient --eval '(message "foo")'
 }
 
 bar {
@@ -92,14 +135,3 @@ output HEADLESS-1 {
     pos 1920,0
     mode 1280x720@75Hz
 }
-
-set $rofi "rofi -show drun -modi drun,window,ssh"
-set $escape_mode "escape"
-
-set $floating_x_min 75
-set $floating_y_min 50
-set $floating_x_max -1
-set $floating_y_max -1
-
-floating_minimum_size $floating_x_min x $floating_y_min
-floating_maximum_size $floating_x_max x $floating_y_max
