@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: sed-sway-or-i3-binding-helper
+# key: sed
+# --
+sed -E '/[[:print:]]/{s#^([^[:space:]]+)[[:space:]]+(.*?)#"\\1","\\2"#}' c

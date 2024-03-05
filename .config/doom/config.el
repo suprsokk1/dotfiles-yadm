@@ -1,5 +1,6 @@
 ;;; $DOOMDIR/config.el -*- mode: emacs-lisp; lexical-binding: t; -*-
 
+;; TODO pcre2 regex builder
 ;; TODO focus-{in,out}-hook is depricated, find replacement
 ;; TODO sway-mode
 ;; TODO magit + yadm: list todos, but limit to files git
@@ -7,35 +8,29 @@
 ;; TODO delete sexp; then delete whitespace around point
 
 (setq-default
- ;; frame-title-format "%b %f"
- frame-title-format (quote (:eval (-frame-title-format)))
- frame-title-format "%b %f"
+ org-babel-default-header-args '((:session . "none") (:results . "replace drawer") (:exports . "code") (:cache . "no") (:noweb . "no") (:hlines . "no") (:tangle . "no"))
 
- ;; frame-title-format nil
- header-line-format (quote (:eval (-header-title-format)))
- header-line-format nil
-)
-
-(setq!
  display-line-numbers-type nil
 
+ comint-move-point-for-output t
+ )
+
+ (setq!
  query-all-font-backends t
 
  custom-file (expand-file-name "~/.local/doom/_custom.el")
 
- initial-buffer-choice (or initial-buffer-choice
+ initial-buffer-choice (or (expand-file-name "~/org/roam/20221211091724-scratch.org")
+                           initial-buffer-choice
                            (expand-file-name "notes.org" org-directory))
-
- ;; header-line-format "%b %V"
- ;; header-line-format  (quote ("%e" (:eval)))
- ;; header-line-format nil
 
  shift-select-mode nil
 
  comint-move-point-for-output t
 
  +snippets-dir (or (expand-file-name "snippets" (file-truename doom-user-dir))
-                   (expand-file-name "snippets" (expand-file-name doom-user-dir)))
+                   (expand-file-name "snippets" (expand-file-name doom-user-dir))
+                   (expand-file-name "snippets" (expand-file-name "~/.local/doom")))
 
  async-bytecomp-package-mode t
 
@@ -53,14 +48,16 @@
  global-hl-line-mode -1
 
  ;;performance
- ;; company-minimum-prefix-length 2
- company-minimum-prefix-length 1
+ company-minimum-prefix-length (max 2)
 
  ;;wait `n' secs before lookup
  ;; company-idle-delay 2
  company-idle-delay 0
 
  org-log-state-notes-into-drawer t
+
+ docker-compose-command "docker compose"
+
  )
 
 
@@ -81,38 +78,35 @@
 (add-to-list 'load-path (expand-file-name "~/.local/doom"))
 
 (with-temp-buffer
-  (expand-file-name "_init.org" "~/.local/doom")
-  (org-babel-execute-buffer))
+  (org-babel-tangle-file (expand-file-name "_init.org" "~/.local/doom"))
+  ;; (find-file (expand-file-name "_init.org" "~/.local/doom"))
+  )
+
 
 (defun advice:after:+lookup/definition (FUNC &rest ARGS)
   "TODO"
-
   (let ((res (apply FUNC ARGS)))
     (message "res %s" res)))
 
-
-
 ;; (map! :mode ()  "M-RET" :desc "Default compile" #'M-RET)
-
+(map! :prefix "s-SPC" "t w"  #'writeroom-mode)
 (map! :desc "Next file in current directory" "s-\\" (cmd! (save-excursion (dired (dir!)) (dired-next-line 1) (dired-find-file))))
 (map! :desc "Previous file in current directory" "s-'"  (cmd! (save-excursion (dired (dir!)) (dired-next-line -1) (dired-find-file))))
+(map! "s-<backspace>" #'delete-pair)
+(map! "s-x" #'eros-eval-last-sexp)
+(map! "s-/" #'+default/search-buffer)
+(map! "s-<return>" (cmd! (consult-buffer (quote ;FIXME
+                                          (consult--source-bookmark
+                                           consult--source-hidden-buffer
+                                           consult--source-modified-buffer
+                                           consult--source-buffer
+                                           consult--source-recent-file
+                                           consult--source-file-register
+                                           consult--source-project-buffer-hidden
+                                           consult--source-project-recent-file-hidden))))
+      )
 
-(map!
- "s-/"        #'+default/search-buffer
-
- "s-<return>" #'bookmark-jump
- "s-<return>" nil
- "s-<return>"  (cmd! (consult-buffer (quote ;FIXME
-                                      (consult--source-bookmark
-                                       consult--source-hidden-buffer
-                                       consult--source-modified-buffer
-                                       consult--source-buffer
-                                       consult--source-recent-file
-                                       consult--source-file-register
-                                       consult--source-project-buffer-hidden
-                                       consult--source-project-recent-file-hidden))))
-
- "s-r"          (cmd! (consult-buffer (quote ;FIXME
+(map! "s-r"          (cmd! (consult-buffer (quote ;FIXME
                                        (consult--source-recent-file
                                         consult--source-bookmark
                                         consult--source-hidden-buffer
@@ -120,180 +114,125 @@
                                         consult--source-buffer
                                         consult--source-file-register
                                         consult--source-project-buffer-hidden
-                                        consult--source-project-recent-file-hidden))))
+                                        consult--source-project-recent-file-hidden)))))
 
- "s-k"        #'delete-window
- "M-s-k"      #'doom/kill-this-buffer-in-all-windows
- "M-s-k"      nil
- "M-s-k"      #'doom/kill-this-buffer-in-all-windows
 
- "s-n"        #'split-window-right
- "M-s-n"      #'split-window-below
+(map! "s-["        nil)
+(map! "s-]"        nil)
 
- "s-["        #'undo
- "s-]"        #'undo-redo
+(map! "s-[" :map org-mode-map #'org-meta-leftshift)
+(map! "s-]" :map org-mode-map #'org-meta-rightshift)
 
- "s-."        #'dired-jump
- "M-s-."      (cmd! (message "TODO"))
+(map! "s-k"        #'delete-window)
+(map! "M-s-k"      #'doom/kill-this-buffer-in-all-windows)
 
- "s-0"        #'balance-windows
+;; (mapcar
+;;  (lambda (&rest BODY) (or (pcase (type-of BODY) (t nil))))
+;;  (let ((END 10)
+;;        (BEGINNING 0))
+;;    (let ((_ BEGINNING))
+;;      (while (not (eq _ END))
+;;          (set (quote _) (+ _ 1))
 
- "M-s-e"      #'windmove-swap-states-right
- "M-s-q"      #'windmove-swap-states-left
- "M-s-s"      #'windmove-swap-states-down
- "M-s-w"      #'windmove-swap-states-up
- "s-e"        #'windmove-right
- "s-q"        #'windmove-left
- "s-s"        #'windmove-down
- "s-w"        #'windmove-up
+;;      ))
+;;  ))
 
- "M-s-["      #'winner-undo
- "M-s-}"      #'winner-redo
- "M-s-<return>" (cmd! (winner-remember) (message "winner-remember"))
+(map! "s-n"        (cmd! (when (split-window-sensibly)(dired "."))))
+(map! "M-s-n"      #'split-window-below)
+(map! "s-{"        #'undo)
+(map! "s-}"        #'undo-redo)
+(map! "s-."        #'dired-jump)
+(map! "M-s-."      (cmd! (message "TODO")))
+(map! "s-0"        #'balance-windows)
+(map! "M-s-e"      #'windmove-swap-states-right)
+(map! "M-s-q"      #'windmove-swap-states-left)
+(map! "M-s-s"      #'windmove-swap-states-down)
+(map! "M-s-w"      #'windmove-swap-states-up)
+(map! "s-e"        #'windmove-right)
+(map! "s-q"        #'windmove-left)
+(map! "s-s"        #'windmove-down)
+(map! "s-w"        #'windmove-up)
+(map! "M-s-["      #'winner-undo)
+(map! "M-s-}"      #'winner-redo)
+(map! "M-s-<return>" (cmd! (winner-remember) (message "winner-remember")))
 
- (:mode rustic-mode
-        "M-RET" (cmd!
-                 (let ((outdir (make-temp-file (getenv "XDG_RUNTIME_DIR") t))
-                       (file (buffer-file-name)))
-                   (shell-command
-                    (format "rustc %s --outdir=%s" file outdir))
-                   (file-expand-wildcards (format "%s/*" outdir))
-                   )))
+(map! (:mode rustic-mode "M-RET" (cmd!
+                                  (let ((outdir (make-temp-file (getenv "XDG_RUNTIME_DIR") t))
+                                        (file (buffer-file-name)))
+                                    (shell-command
+                                     (format "rustc %s --outdir=%s" file outdir))
+                                    (file-expand-wildcards (format "%s/*" outdir))))))
 
- (:mode dired-mode
-        "."     nil
-        ". ." #'dired-up-directory
-        "/"     #'dired-mark-files-regexp
-        "D"     nil
-        "a"     nil
-        "a a"   nil
-        "a a" (cmd! (dired-mark-files-regexp (rx any)))
-        "a e" (cmd! (dired-mark-files-regexp (rx ".el" eol)))
-        "C-t"   (cmd! (if (dired-get-marked-files)
-                          (dired-unmark-all-marks)
-                        (dired-mark-files-regexp (rx any))))
+(map! (:mode dired-mode "."   nil))
+(map! (:mode dired-mode :prefix "." "."  nil))
+(map! (:mode dired-mode "." (cmd! (treemacs) ())))
+(map! (:mode dired-mode "/"   #'dired-mark-files-regexp))
+(map! (:mode dired-mode "D"   nil))
+(map! (:mode dired-mode "a"   nil))
+(map! (:mode dired-mode "C-t" (cmd! (if (dired-get-marked-files)) (dired-unmark-all-marks) (dired-mark-files-regexp (rx any))))) ;FIXME
+(map! (:mode dired-mode :prefix "a" "a" nil))
+(map! (:mode dired-mode :prefix "a" "a" (cmd! (dired-mark-files-regexp (rx any)))))
+(map! (:mode dired-mode :prefix "a" "e" (cmd! (dired-mark-files-regexp (rx ".el" eol)))))
 
-        ;; "M" nil
-        ;; "M"     (cmd! (message "%S" (dired-get-marked-files)))
+(map! (:when (modulep! :editor multiple-cursors)
+        ;; "C-."      #'mc/mark-next-lines
+        ;; "C-." nil                            ;FIXME
+        "C-."      #'mc/mark-next-like-this
+
+        (:prefix
+         "s-SPC"
+         "["       #'mc/edit-beginnings-of-lines
+         "]"       #'mc/edit-ends-of-lines
+         )
         )
 
- (:when (modulep! :editor multiple-cursors)
-   ;; "C-."      #'mc/mark-next-lines
-   ;; "C-." nil                            ;FIXME
-   "C-."      #'mc/mark-next-like-this
+      (:when (modulep! :checkers syntax)
+        "M-]" #'next-error
+        "M-[" #'previous-error
+        "s-g s-g"  #'first-error
+        "M-s-g"    nil                       ;TODO last error
+        "<f12>"      #'flycheck-list-errors
+        "s-l e"      #'flycheck-list-errors
+        )
 
-   (:prefix
-    "s-SPC"
-    "["       #'mc/edit-beginnings-of-lines
-    "]"       #'mc/edit-ends-of-lines
-    )
-   )
+      (:after org
+       :prefix "s-SPC"
+       "s"         #'org-narrow-to-subtree
+       (:after org-roam "SPC"
+               #'org-roam-node-find
+               (:prefix "n" "n" #'org-capture)))
 
- (:when (modulep! :checkers syntax)
-   "M-]" #'next-error
-   "M-[" #'previous-error
-   "s-g s-g"  #'first-error
-   "M-s-g"    nil                       ;TODO last error
-   "<f12>"      #'flycheck-list-errors
-   "s-l e"      #'flycheck-list-errors
-   )
+      (:prefix
+       "s-SPC"
+       (:prefix
+        "s-SPC" "c" #'doom/goto-private-config-file
+        "s-SPC"     #'-refresh
+        )
+       "m"         #'+zen/toggle-fullscreen
+       "TAB"       (cmd! (find-file initial-buffer-choice))
+       "b"         #'doom-big-font-mode
 
- (:after org
-  :prefix "s-SPC"
-  "n"         #'org-capture
-  "s"         #'org-narrow-to-subtree
-  "SPC"       #'org-roam-node-find
-  )
-
- (:prefix
-  "s-SPC"
-  (:prefix
-   "s-SPC" "c" #'doom/goto-private-config-file
-   "s-SPC"     #'-refresh
-   )
-  "m"         #'+zen/toggle-fullscreen
-  "TAB"         (cmd! (find-file initial-buffer-choice))
-  "b"         #'doom-big-font-mode
-
-  "q"         #'delete-other-windows
-  "x"         #'doom/open-scratch-buffer
-  "s-q"       #'delete-other-frames
-  )
-
- (:map sh-mode-map
-       "M-RET"  (cmd! (quote (+tmux/run "swaymsg focus"))
-                      (+tmux/cd-to-here)
-                      (+tmux/run)))
-
- (:map python-mode-map
-       "M-RET" (cmd! (let ((PYTHON_RUNNING (string-match python-shell-buffer-name (format "%s" (process-list))))
-                           (PYTHON_VISIBLE (string-match python-shell-buffer-name (format "%s" (window-list)))))
-                       (unless (and PYTHON_VISIBLE PYTHON_RUNNING) (run-python))
-                       ;; (message "%S" python-shell-buffer-name)
-                       ;; (string-match (format "*%s*" python-shell-buffer-name) )
-                       (python-shell-send-file (buffer-file-name))))
+       "q"         #'delete-other-windows
+       ;; "x"         #'doom/open-scratch-buffer
+       "x"         (cmd! (find-file (expand-file-name "~/org/roam/20221211091724-scratch.org")))
+       "s-q"       #'delete-other-frames
        )
- )
 
-(after! consult
-  (setq!
-   consult-buffer-sources (quote
-                           (consult--source-recent-file
-                            consult--source-hidden-buffer
-                            consult--source-modified-buffer
-                            consult--source-buffer
-                            consult--source-file-register
-                            consult--source-bookmark
-                            consult--source-project-buffer-hidden
-                            consult--source-project-recent-file-hidden))))
+      (:map python-mode-map
+            "M-RET" (cmd!
+                     (when (executable-find "ipython")
+                       (setq python-shell-interpreter "ipython"))
+                      (let ((_ (string-match "\*Python\*" (format "%S" (window-list)))))
+                        (or
+                         ;; (run-python)   ;FIXME
+                         (run-python nil nil (not _))))
+                     (python-shell-send-buffer (buffer-file-name))
+                     (let ((INITIAL-BUFFER (buffer-name)))
+                       (save-excursion
+                         (switch-to-buffer-other-window "*Python*" t)
+                         (goto-char (point-max))
+                         (recenter-top-bottom 2)
+                         (switch-to-buffer-other-window INITIAL-BUFFER t))))))
 
-(defun --read-key (key-sequence)
-  "TODO"
-  (interactive
-   (list (read-key-sequence "Press key: ")))
-  (let ((sym (key-binding key-sequence)))
-    (cond
-     ((null sym)
-      (user-error "No command is bound to %s"
-                  (key-description key-sequence)))
-     (t
-      (user-error "%s is bound to %s which is not a command"
-                  (key-description key-sequence)
-                  sym)))))
-
-(after! modus-themes
-  (unless (equal doom-theme 'modus-vivendi)
-      (modus-themes-select 'modus-vivendi)))
-
-(advice-add '+lookup/definition :around #'advice:after:+lookup/definition)
-
-(defmacro HOME (EXPAND)
-  (let ((HOME (getenv "HOME")))
-     `(expand-file-name ,EXPAND ,HOME)))
-
-(defmacro GIT (PATH &optional RELATIVE)
-  `(message "TODO defmacro GIT"))
-
-(setq! -generic-advice:buffer-save:is-file
-       (quote (make-symbolic-link (buffer-file-name)
-               (HOME "emacs.buffer-save") t)))
-
-(defun -generic-advice (func &rest args)
-  (let ((empty-file-name (null (buffer-file-name)))
-        (file-buffer (not (string-match (buffer-name) (rx bol ?* (+ (any word space)) ?* eol))))
-        (is-window-buffer (string-match (buffer-name) (format "%s" (window-list)))))
-    (pcase major-mode
-      ('save-buffer (unless empty-file-name
-                      (when (and file-buffer is-window-buffer)
-                        (make-symbolic-link (buffer-file-name) (HOME "emacs.buffer-save") t))
-                      (apply func args)))
-      (_ (apply func args)))))
-
-(map! "s-<backspace>" #'delete-pair)
-
-(advice-add 'save-buffer :around '-generic-advice)
-;; (advice-remove 'save-buffer #'-generic-advice)
-
-;; (save-buffer)
-;; (advice-add '-header-title-format :around #')
-;; (advice-add '-frame-title-format :around #')
+(map! "n" #'self-insert-command)
+(map! :prefix "s-SPC" (:prefix "s-SPC" "s-SPC" :desc "`yas-new-snippet' if region is active" (cmd! (when (region-active-p) (yas-new-snippet)))))

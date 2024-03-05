@@ -1,5 +1,8 @@
 # -*- mode: conf -*-
 set $laptop eDP-1
+set $min_brightness 7
+
+exec_always brightnessctl set $min_brightness
 
 bindswitch --reload --locked {
     lid:on  output $laptop disable; exec swaylock --image `readlink ~/WALLPAPER`

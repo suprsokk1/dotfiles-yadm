@@ -4,23 +4,19 @@
        vertico
 
        :ui
+       (modeline +light)
+       (popup +defaults)
        emoji
-       ;; indent-guides
        hl-todo
        treemacs
        zen
-       (modeline +light)
-       ;; modeline
-       ;; (ligatures +extra +fira +iosevka)
-       (popup +defaults)
 
        :editor
        multiple-cursors
        file-templates
        fold
-       format                           ; auto format
+       format
        snippets
-       ;; (evil +everywhere)
 
        :emacs
        (dired +icons)
@@ -29,33 +25,40 @@
 
        :checkers
        syntax
-       ;; (spell +flyspell)
 
        :term
        vterm
 
        :tools
-       ansible
-       magit
+       (docker +lsp +custom)
+       (eval +overlay)
+       (lsp +eglot)
        ;; direnv
+       ansible
+       debugger
        editorconfig
        lookup
+       magit
        tmux
-       debugger
-       (eval +overlay)
-       (docker +lsp)
-       ;; (lsp +eglot +peek)
-       (lsp +eglot)
 
        :lang
+       (org +roam2 +pretty +pomodoro)
+       (python +lsp +pyright)
+       (rust +lsp)
+       (sh +lsp)
+       cc
        data
        emacs-lisp
+       go
+       ruby
        yaml
-       ;; rest
-       ;; rst
-       ;; (org +roam2)
 
-       (org +roam2 +pretty +pomodoro)
+       :config
+       (default +bindings)
+
+       :development
+       ;; (experimental +modus-operandi)
+       )
 
        ;; (org +roam2 +pretty +pomodoro +contacts)
        ;; (org +roam2 +pretty +pomodoro +gnuplot)
@@ -65,13 +68,8 @@
        ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo +present +dragndrop)
        ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo +present +dragndrop +jupyther)
        ;; (python +lsp +pyenv +pyright +tree-sitter)
-
-       (python +lsp +pyright)
-       (sh +lsp)
-       (go +lsp)
-       (cc +lsp)
-       (ruby +lsp)
-       (rust +lsp)
-
-       :config
-       (default +bindings))
+       ;; (lsp +eglot +peek)
+       ;; (spell +flyspell)
+       ;; modeline
+       ;; (ligatures +extra +fira +iosevka)
+       ;; indent-guides

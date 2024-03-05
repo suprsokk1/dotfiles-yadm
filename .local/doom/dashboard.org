@@ -4,10 +4,10 @@
 :HEADER-ARGS:shell+: :shebang "#/usr/bin/env bash"
 :END:
 #+title: Dashboard
-#+include: _inclues.org
+#+include: _includes.org
 
 #+name: git-repos
-#+begin_src shell :shebang #!/usr/bin/env bash :tangle
+#+begin_src shell :shebang #!/usr/bin/env bash :tangle nil
 command env - $(which fd) -t d -g .git
 #+end_src
 

@@ -11,21 +11,21 @@
     "ipc": true,
     // TODO debug mode
     // bug => 🐜
-    // "keyboard-state",
+
     "modules-right": [
-        // "sway/mode",
+        "sway/mode",
         // "custom/shell-json",
         "backlight",
         "network#vpn",
-        // "sway/language",
+        "sway/language",
         "network",
-        // "pulseaudio",
+        "pulseaudio",
         "battery",
-        "clock"
-        // "temperature",
-        // "cpu",
-        // "memory"
-
+        "temperature",
+        "cpu",
+        "memory",
+        "clock",
+        "keyboard-state"
     ],
 
     "modules-left": [
@@ -46,15 +46,15 @@
         "signal": 8,
     },
 
-    // "custom/debug": {
-    //     "format": "debug: {}",
-    //     "return-type": "text",
-    //     "max-length": 40,
-    //     "interval": 2,
-    //     "exec": ", info",
-    //     "on-click": "pkill -SIGRTMIN+8 --exact waybar",
-    //     "signal": 8,
-    // },
+    "custom/debug": {
+        "format": "debug: {}",
+        "return-type": "text",
+        "max-length": 40,
+        "interval": 2,
+        "exec": ", info",
+        "on-click": "pkill -SIGRTMIN+8 --exact waybar",
+        "signal": 8,
+    },
 
     "custom/shell-text": {
         "format": "{} {icon}",
@@ -86,31 +86,30 @@
 
     },
 
-    // "custom/bar": {
-    //     "format": "",
-    //     "return-type": "json",
-    //     "max-length": 40,
-    //     "escape": true,
-    //     "exec-if": "sh -c 'true'",
-    //     "exec": "wc -l"
-    // },
+    "custom/bar": {
+        "format": "",
+        "return-type": "json",
+        "max-length": 40,
+        "escape": true,
+        "exec-if": "sh -c 'true'",
+        "exec": "wc -l"
+    },
 
-
-    // "custom/foo": {
-    //     "format": "{icon}",
-    //     "format-foo": "{icon}",
-    //     "return-type": "json",
-    //     "max-length": 40,
-    //     "format-icons": {
-    //         "foo": "",
-    //         "good": "",
-    //         "bad": "🚫",
-    //         "default": "🚫"
-    //     },
-    //     "escape": true,
-    //     "exec-if": "test -L /sys/class/net/wgpia0",
-    //     "exec": ""
-    // },
+    "custom/foo": {
+        "format": "{icon}",
+        "format-foo": "{icon}",
+        "return-type": "json",
+        "max-length": 40,
+        "format-icons": {
+            "foo": "",
+            "good": "",
+            "bad": "🚫",
+            "default": "🚫"
+        },
+        "escape": true,
+        "exec-if": "test -L /sys/class/net/wgpia0",
+        "exec": ""
+    },
 
     // Modules configuration
     "sway/workspaces": {
@@ -202,7 +201,7 @@
 
 
     "backlight": {
-        "on-click": "brightnessctl set 8",
+        "on-click": "systemd-run --user 'brightnessctl set 8'",
         // "device": "acpi_video1",
         "format": "{percent}% {icon}",
         "format": "{icon}",

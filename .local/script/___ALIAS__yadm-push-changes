@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 command yadm status --porcelain=v1 |
     awk '/~$|\.elc$|\.pyc$/{system("yadm rm --cached -- "$NF)}
          /^ [ADM]/{system("yadm add "$NF)}

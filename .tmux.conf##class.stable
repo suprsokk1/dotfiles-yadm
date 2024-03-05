@@ -48,5 +48,3 @@ source-file ~/.config/tmux/tmux.conf
 # run-shell /usr/bin/env sh -c 'if ! test -d ~/src/extrakto.tmux; then tmux split git clone https://github.com/laktak/extrakto ~/src/extrakto.tmux ; fi; ~/src/extrakto.tmux'
 
 run-shell ~/.local/share/tpm/tpm
-
-unbind -n C-t

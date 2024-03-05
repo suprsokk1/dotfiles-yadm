@@ -1,7 +1,3 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env emacs -x
 
-parent=$(readlink /proc/$PPID/exe)
-
-if ! [ "${parent##*/}" = rofi ]; then
-    command rofi -dmenu
-fi
+(buffer-list)

@@ -1,18 +1,27 @@
+
+
 include /etc/sway/config.d/*.
 include _colors
 include _input
 include _output
 include _laptop
+include _wallpaper
 
 font San Francisco Display 10
+
 xwayland enable
 
 set $floating_x_max -1
 set $floating_x_min 75
 set $floating_y_max -1
 set $floating_y_min 50
+
 # set $rofi "rofi -show combi -modes combi -combi-modes drun,window,ssh"
-set $rofi     "rofi -show combi -modes combi -combi-modes drun,window,ssh,filebrowser"
+# set $rofi     "rofi -show combi -modes combi,ssh,filebrowser -combi-modes drun,window"
+set $rofi     "rofi -show combi -modes combi,ssh,filebrowser -combi-modes drun,window"
+
+# TODO bind alt tab to rofi -modi window
+set $rofi     "rofi -show drun -modi combi,drun -combi-modes window,ssh"
 set $rofi_alt "rofi -show drun -modi drun,window,ssh"
 
 focus_follows_mouse no
@@ -45,19 +54,23 @@ bindsym --to-code Mod4+l mark full
 for_window {
 
     [app_id="(?i)pavucontrol"]     mark float
-    [app_id="(?i)firefox"]         mark float
+    [app_id="(?i)firefox"]         floating enabled; move position 1ppt 1ppt; resize set 98ppt 98ppt
 
     [con_mark=.*float.*]           floating enabled
 
-    # [floating] move position   0       0
+    [floating] move position   0       0
 
-    [floating con_mark=full]  {
-        resize set 98ppt 98ppt
-        move position 1ppt 1ppt
-    }
+    # [floating con_mark=full]  {
+    #     floating enabled
+    #     resize set 98ppt 98ppt
+    #     move position 1ppt 1ppt
+    # }
+
+    [floating con_mark=full] floating enabled; resize set 98ppt 98ppt; move position 1ppt 1ppt
+
 
     # [floating]                         move position  0       0
-    [floating con_mark=foo.*]                move position  0       0
+    [floating con_mark=foo.*]              move position  0       0
     [floating con_mark=foo con_mark=bar]   move position  50ppt   50ppt
 
     [con_mark=.*q1.*]         move position   0       0
@@ -103,11 +116,12 @@ bindsym --to-code {
 
     Mod4+d exec --no-startup-id "$rofi"
 
+    Mod4+1 [floating] move to scratchpad
     Mod4+2 [floating] move to scratchpad; [app_id=Alacritty]   scratchpad show
     Mod4+3 [floating] move to scratchpad; [app_id=qutebrowser] scratchpad show
-    Mod4+1 [floating] move to scratchpad
 
-    Mod4+4 scratchpad show
+    Mod4+4 [floating] move to scratchpad; [app_id="(?i)firefox"] scratchpad show
+    Mod4+5 scratchpad show
 
     Mod4+equal [floating] resize set 50ppt 100ppt; move position 50ppt 0
     Mod4+minus [floating] resize set 50ppt 100ppt; move position 0 0

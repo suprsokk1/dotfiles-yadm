@@ -22,6 +22,8 @@ settings:
     global: false
   fonts.default_family:
     global: Ubuntu Nerd Font
+  fonts.default_size:
+    global: 15pt
   tabs.position:
     global: right
   tabs.show:

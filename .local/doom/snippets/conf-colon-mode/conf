@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: conf
+# condition: t
+# --
+# -*- mode: conf -*-
+$0
