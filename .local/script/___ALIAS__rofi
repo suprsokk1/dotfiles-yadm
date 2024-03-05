@@ -1,0 +1,12 @@
+#!/usr/bin/env zsh
+case $(readlink /proc/$PPID/exe) in
+    *rofi*)
+        selection="$*"
+        if [ -n "$selection" ]; then
+            :
+        fi
+        ;;
+    *)
+
+        command rofi -show pass -combi pass:"$HOME"/.local/script/___SOURCE__password-manager-passwords
+esac

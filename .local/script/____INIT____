@@ -1,0 +1,232 @@
+#!/usr/bin/env python
+r"""
+--------------------------------------------------------------------------------
+NOTE sys.exceoption print zsh executable string; f.ex. python -mpip install --user MISSING_LIB
+NOTE print org-agenda in zsh shells
+NOTE fork this script to background so shell dont wait for io
+NOTE print all TODO statements in git controlled dotfiles
+--------------------------------------------------------------------------------
+# ~/.zshrc -*- mode: sh[zsh] -*-
+rc=~/.zshrc
+
+ZSH_THEME="simple"
+
+# "official" plugins
+plugins=(fzf git ssh-agent zoxide)
+
+# custom plugins
+plugins+=( exa2ls fzf-settings bat-settings )
+
+# plugin development
+plugins+=( testing )
+
+# shellcheck disable=SC2206,SC2296
+path=( ~/.local/script ${(u)path} ) # unique
+
+fpath+=( ~/.local/zsh/completion )
+
+if ! [[ -L ~/.run ]]; then
+    command ln -frvs ${XDG_RUNTIME_DIR:-/run/user/"$UID"} ~/.run
+fi
+
+export DEBUG=1
+eval "$(____INIT____ || ~/.local/script/____INIT____)"
+
+source ${ZSH:-${HOME:-~}/.oh-my-zsh}/oh-my-zsh.sh
+--------------------------------------------------------------------------------
+MAILTO=geir
+START_HOURS_RANGE=0-23
+PATH=HOME/.pyenv/shims:$HOME/bin:$HOME/.pyenv/bin:/usr/bin:/usr/local/bin:/usr/local/sbin:/usr/sbin:$HOME/.cargo/bin:$HOME/.local/bin:$HOME/go/bin:$HOME/opt/doom-emacsdir/bin:$HOME/.vector/bin
+RANDOM_DELAY=2
+
+_RCLONE_SYNC_DIR=~/.local/share/rclone
+_RCLONE_REMOTE_DIR_PUSH_google_drive=~/.local/share/rclone/push/google_drive
+_RCLONE_REMOTE_DIR_PUSH_onedrive=~/.local/share/rclone/push/onedrive
+_RCLONE_REMOTE_DIR_PULL_google_drive=~/.local/share/rclone/pull/google_drive
+_RCLONE_REMOTE_DIR_PULL_onedrive=~/.local/share/rclone/pull/onedrive
+
+_RCLONE_PULL_VERB="sync"
+_RCLONE_PUSH_VERB="sync"
+_NOTIFY_CMD="notify-send --expire-time=3000"
+*/10 * * * * systemd-run --user rclone $_RCLONE_PULL_VERB onedrive: $_RCLONE_REMOTE_DIR_PULL_onedrive/
+*/20 * * * * systemd-run --user rclone $_RCLONE_PUSH_VERB onedrive: $_RCLONE_REMOTE_DIR_PUSH_onedrive/
+*/5 * * * *  systemd-run --user --wait -p SuccessExitStatus=42 bash -c "eval '\''cd ~/org/ || exit 1; git add . && git commit -m (date +cron-%s)'\'' || exit 1; exit 42"
+*/10 * * * * notify-send --expire-time=3000 crond '\''yadm push'\''; systemd-run --user yadm push
+*/10 * * * * systemd-run --user pass git push
+0 * * * *    emacsclient --no-wait --eval '\''(-cron-hourly)'\''
+"""
+
+ZSH_ANSI = r"""
+autoload -Uz add-zsh-hook
+
+function xterm_title_precmd () {
+	print -Pn -- '\e]2;%n@%m %~\a'
+	[[ "$TERM" == 'screen'* ]] && print -Pn -- '\e_\005{g}%n\005{-}@\005{m}%m\005{-} \005{B}%~\005{-}\e\\'
+}
+
+function xterm_title_preexec () {
+	print -Pn -- '\e]2;%n@%m %~ %# ' && print -n -- "${(q)1}\a"
+	[[ "$TERM" == 'screen'* ]] && { print -Pn -- '\e_\005{g}%n\005{-}@\005{m}%m\005{-} \005{B}%~\005{-} %# ' && print -n -- "${(q)1}\e\\"; }
+}
+
+if [[ "$TERM" == (Eterm*|alacritty*|aterm*|foot*|gnome*|konsole*|kterm*|putty*|rxvt*|screen*|wezterm*|tmux*|xterm*) ]]; then
+	add-zsh-hook -Uz precmd xterm_title_precmd
+	add-zsh-hook -Uz preexec xterm_title_preexec
+fi
+"""
+
+ZSH_FRAMEWORK_ZIM = r"""
+ZIM_HOME=~/.zim
+
+curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh | zsh
+
+zmodule asciiship
+zmodule zsh-users/zsh-completions --fpath src
+zmodule completion
+zmodule zsh-users/zsh-syntax-highlighting
+zmodule zsh-users/zsh-autosuggestions
+"""
+
+
+import glob
+import os
+import sys
+import re
+from subprocess import run, Popen, PIPE, DEVNULL
+from pathlib import Path
+
+SCRIPT = Path(__file__)
+MKDIR = dict(exist_ok=True, parents=True)
+DEBUG = "DEBUG" in os.environ
+_print = print
+
+
+def zsh_init():
+    plugins = []
+    _list = 'foo'
+    def select(new: str):
+        _list = new
+
+    def add(x: str):
+        _list()
+
+
+    add('ssh-agent',)
+    add('pipenv',)
+
+    zshrc =  r"""
+    export PS4='\b'
+    set -x
+    export DEBUG=1
+    """
+
+    os.chdir(SCRIPT.parent)
+    # zsh_print(r"plugins=( ${(u)plugins} %s )" % ' '.join(plugins)
+    # ls ~/.local/zsh/
+    zsh_print(r'''plugins=("${(u)plugins}" ''', *plugins, ")", sep=" ")
+    scripts()
+
+
+def crontab_install():
+    crontab = r"""\
+    MAILTO={USER}
+    START_HOURS_RANGE=0-23
+    PATH={PATH}
+    RANDOM_DELAY=2
+
+    """.format(**os.environ)
+
+    current = shell("crontab -l")
+
+    print(current.count("\n"))
+
+
+def shell(command):
+    res = run(command, shell=True, capture_output=True)
+
+    return res.stdout.decode()
+
+
+def crontab_add_raw(command, *cron):
+    minute, hour, week, month, year = cron
+    line = fr"""{minute} {hour} {week} {month} {year} {command}"""
+
+    return line
+
+
+def print(*a, **k):
+    """Override builtin print function."""
+    if os.getenv("DEBUG", False):
+        _print(*a, **{**{'file': sys.stderr}, **k})
+
+
+def zsh_print(*a, **k):
+    """Override builtin print function."""
+    _print(*a, **{**{'file': sys.stderr if DEBUG else sys.stdout}, **k})
+
+
+def lockfile(func):
+    def _lockfile(*args, **kwargs):
+
+        # exit on existing running process
+        if (lockfile := Path.home() / ".local/run/init.lock").is_file():
+            # still running?
+            if (Path("/proc") / (lockfile.read_text())).is_file():
+                exit(0)
+
+        # create run dir if missing
+        lockfile.parent.mkdir(**MKDIR)
+
+        # write process id to lockfile
+        lockfile.write_bytes(bytes(os.getpid()))
+
+        try:
+            ret = func(*args, **kwargs)
+        except Exception as err:
+            print(err)
+
+        exit(0)
+
+    return _lockfile
+
+
+def scripts():
+    for prefix in "ALIAS", "TEST":
+        for item in Path().glob(f"___{prefix}__*"):
+            handle_script(item, prefix)
+
+
+def handle_script(
+        item,
+        prefix,
+        pat=re.compile(r'''_{2,3}|-{2}'''),
+        garbage=slice(2, None, 1)
+):
+
+    match len(t := pat.split(str(item))[garbage]):
+        case 2:
+            name, desc = t
+            match prefix:
+                case "ALIAS":
+                    zsh_print(output := f"# {desc}\nalias -- {name}='command {item}'\n")
+                    print(output)
+                case _:
+                    print(UserWarning(f"Not implemented yet: {prefix}"))
+
+        case 1:
+            name, *_ = t
+            zsh_print("cd ~/.local/script")
+            zsh_print(f"echo {str(item)}")
+            print(UserWarning(f"Description part of filename is missing: ({name})"))
+
+        case _:
+            raise UserWarning("Check your files in ~/.local/script")
+
+
+@lockfile
+def main():
+    zsh_init()
+
+
+if __name__ == '__main__':
+    main()

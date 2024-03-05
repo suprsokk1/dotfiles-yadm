@@ -1,0 +1,5 @@
+#!/bin/bash
+
+pgrep emacs 0 || exit 1
+
+emacsclient

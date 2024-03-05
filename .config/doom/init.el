@@ -57,7 +57,8 @@
        (default +bindings)
 
        :development
-       ;; (experimental +modus-operandi)
+       (experimental +modus-operandi)
+
        )
 
        ;; (org +roam2 +pretty +pomodoro +contacts)

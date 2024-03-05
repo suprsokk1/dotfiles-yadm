@@ -28,9 +28,8 @@
 
  comint-move-point-for-output t
 
- +snippets-dir (or (expand-file-name "snippets" (file-truename doom-user-dir))
-                   (expand-file-name "snippets" (expand-file-name doom-user-dir))
-                   (expand-file-name "snippets" (expand-file-name "~/.local/doom")))
+ +snippets-dir (or (expand-file-name "snippets" (file-truename "~/.local/doom"))
+                   (expand-file-name "snippets" (file-truename doom-user-dir)))
 
  async-bytecomp-package-mode t
 
