@@ -123,8 +123,9 @@ bindsym --to-code {
     Mod4+4 [floating] move to scratchpad; [app_id="(?i)firefox"] scratchpad show
     Mod4+5 scratchpad show
 
-    Mod4+equal [floating] resize set 50ppt 100ppt; move position 50ppt 0
-    Mod4+minus [floating] resize set 50ppt 100ppt; move position 0 0
+    Mod4+0     [floating] resize set 100ppt 100ppt; move position      0    0
+    Mod4+equal [floating] resize set 50ppt  100ppt; move position  50ppt    0
+    Mod4+minus [floating] resize set 50ppt  100ppt; move position      0    0
 
     Mod1+Mod4+f floating toggle
 

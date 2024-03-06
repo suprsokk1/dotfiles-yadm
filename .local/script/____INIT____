@@ -118,6 +118,23 @@ def zsh_init():
     export PS4='\b'
     set -x
     export DEBUG=1
+
+    function _tmux_completion_helper {
+        command tmux capturep -p |
+            command grep -Poz '[^\n]+$'
+    }
+
+    function _tmux {
+        _tmux_completion_helper | tee /dev/shm/.gg
+        reply=("${(f@)mapfile[/dev/shm/.gg]}")
+        # [ -n "$TMUX" ] || return 0
+    }
+
+    function _tmux_dnf {
+        _tmux_completion_helper | tee /dev/shm/.gg
+        reply=("${(f@)mapfile[/dev/shm/.gg]}")
+        # [ -n "$TMUX" ] || return 0
+    }
     """
 
     os.chdir(SCRIPT.parent)
@@ -202,7 +219,6 @@ def handle_script(
         pat=re.compile(r'''_{2,3}|-{2}'''),
         garbage=slice(2, None, 1)
 ):
-
     match len(t := pat.split(str(item))[garbage]):
         case 2:
             name, desc = t

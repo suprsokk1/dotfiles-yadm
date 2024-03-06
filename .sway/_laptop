@@ -1,6 +1,6 @@
 # -*- mode: conf -*-
 set $laptop eDP-1
-set $min_brightness 7
+set $min_brightness 8
 
 exec_always brightnessctl set $min_brightness
 

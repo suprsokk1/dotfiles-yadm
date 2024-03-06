@@ -42,7 +42,7 @@
         "return-type": "text",
         "max-length": 40,
         "interval": 2,
-        // "exec": "/usr/bin/env , info",
+        "exec": "/usr/bin/env c ",
         "signal": 8,
     },
 
@@ -242,14 +242,17 @@
         "format-linked": "{ifname} (No IP) 🖧",
         // "format-disconnected": "🚫",
         // "format-alt": "{ifname}: {ipaddr}/{cidr}"
-        "format-alt": "{ifname}: {ipaddr}/{cidr}"
+        "format-alt": "{ifname}: {ipaddr}/{cidr}",
+        "on-click": "systemd-run --user piactl connect",
+        "mouse-right": "systemd-run --user piactl disconnect"
+
     },
 
 
     "network#vpn": {
         "interface": "wgpia*",
-        "on-click": ", pia on-click",
-        "mouse-right": ", pia mouse-right",
+        "on-click": "systemd-run --user 'piactl connect'",
+        "mouse-right": "systemd-run --user 'piactl disconnect'",
         "format": "default: {icon}",
         // "format-alt": "{ifname}: {ipaddr}/{cidr}",
         "format-alt": "{ifname}",
