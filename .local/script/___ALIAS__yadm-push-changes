@@ -9,7 +9,7 @@ echo -n 'OK?[yN]'
 read confirm
 case $confirm in
     [yY])
-        command yadm commit && command yadm push
+        command yadm commit --message '.' && command yadm push origin
         ;;
     *)
 esac
