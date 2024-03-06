@@ -1,8 +1,7 @@
 #!/bin/bash
 command yadm status --porcelain=v1 |
     awk '/~$|\.elc$|\.pyc$/{system("yadm rm --cached -- "$NF)}
-         /^ [AMT] /{system("yadm add "$NF)}
-         /^ D /{system("yadm rm "$NF)}
+         /^ [AMTD] /{system("yadm add "$NF)}
          END{(system("yadm status"))}'
 
 echo -n 'OK?[yN]'
