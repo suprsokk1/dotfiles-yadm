@@ -1,99 +1,16 @@
-;;; $DOOMDIR/config.el -*- mode: emacs-lisp; lexical-binding: t; -*-
-
-;; TODO pcre2 regex builder
-;; TODO focus-{in,out}-hook is depricated, find replacement
-;; TODO sway-mode
-;; TODO magit + yadm: list todos, but limit to files git
-;; TODO change alpha when loosing frame focus ()
-;; TODO delete sexp; then delete whitespace around point
-
-(setq-default
- org-babel-default-header-args '((:session . "none") (:results . "replace drawer") (:exports . "code") (:cache . "no") (:noweb . "no") (:hlines . "no") (:tangle . "no"))
-
- display-line-numbers-type nil
-
- comint-move-point-for-output t
- )
-
- (setq!
- query-all-font-backends t
-
- custom-file (expand-file-name "~/.local/doom/_custom.el")
-
- initial-buffer-choice (or (expand-file-name "~/org/roam/20221211091724-scratch.org")
-                           initial-buffer-choice
-                           (expand-file-name "notes.org" org-directory))
-
- shift-select-mode nil
-
- comint-move-point-for-output t
-
- +snippets-dir (or (expand-file-name "snippets" (file-truename "~/.local/doom"))
-                   (expand-file-name "snippets" (file-truename doom-user-dir)))
-
- async-bytecomp-package-mode t
-
- doom-theme 'modus-vivendi
- doom-modeline-major-mode-icon t
- doom-scratch-initial-major-mode (quote fundamental-mode)
- doom-projectile-cache-blacklist (quote "/tmp")
-
- bookmark-default-file (expand-file-name "_bookmarks.el" doom-user-dir)
-
- compile-command "~/bin/c callback compile-command"
-
- vterm-shell "/bin/tmux"
-
- global-hl-line-mode -1
-
- ;;performance
- company-minimum-prefix-length (max 2)
-
- ;;wait `n' secs before lookup
- ;; company-idle-delay 2
- company-idle-delay 0
-
- org-log-state-notes-into-drawer t
-
- docker-compose-command "docker compose"
-
- )
-
-
-;;; `workflow'
-;;; jump to *scratch* buffer split words into lines
-;;; -activate multiple-cursors
-(setq-hook! 'fundamental-mode
-  fill-column 1)
-
-(setq-hook! 'comint-mode-hook
-  comint-buffer-maximum-size    20000   ; Increase comint buffer size.
-  comint-prompt-read-only       t)      ; Make the prompt read only.
-
-;; https://github.com/hlissner/.doom.d/blob/6af0a541e0b6b6ec9aee4cb9f05e5cbec0800d91/config.el
-(add-to-list
- 'default-frame-alist '(inhibit-double-buffering . t))
-
-(add-to-list 'load-path (expand-file-name "~/.local/doom"))
-
-(with-temp-buffer
-  (org-babel-tangle-file (expand-file-name "_init.org" "~/.local/doom"))
-  ;; (find-file (expand-file-name "_init.org" "~/.local/doom"))
-  )
-
-
-(defun advice:after:+lookup/definition (FUNC &rest ARGS)
-  "TODO"
-  (let ((res (apply FUNC ARGS)))
-    (message "res %s" res)))
+;;; custom/bindings/config.el -*- lexical-binding: t; -*-
 
 ;; (map! :mode ()  "M-RET" :desc "Default compile" #'M-RET)
+
+;; sed -E 's#(")s(-[^-\"])#\1H\2#g' c
+
 (map! :prefix "s-SPC" "t w"  #'writeroom-mode)
 (map! :desc "Next file in current directory" "s-\\" (cmd! (save-excursion (dired (dir!)) (dired-next-line 1) (dired-find-file))))
 (map! :desc "Previous file in current directory" "s-'"  (cmd! (save-excursion (dired (dir!)) (dired-next-line -1) (dired-find-file))))
 (map! "s-<backspace>" #'delete-pair)
 (map! "s-x" #'eros-eval-last-sexp)
 (map! "s-/" #'+default/search-buffer)
+
 (map! "s-<return>" (cmd! (consult-buffer (quote ;FIXME
                                           (consult--source-bookmark
                                            consult--source-hidden-buffer
@@ -119,8 +36,8 @@
 (map! "s-["        nil)
 (map! "s-]"        nil)
 
-(map! "s-[" :map org-mode-map #'org-meta-leftshift)
-(map! "s-]" :map org-mode-map #'org-meta-rightshift)
+(map!(:after org "s-[" :map org-mode-map #'org-meta-leftshift))
+(map!(:after org "s-]" :map org-mode-map #'org-meta-rightshift))
 
 (map! "s-k"        #'delete-window)
 (map! "M-s-k"      #'doom/kill-this-buffer-in-all-windows)
@@ -153,6 +70,7 @@
 (map! "s-w"        #'windmove-up)
 (map! "M-s-["      #'winner-undo)
 (map! "M-s-}"      #'winner-redo)
+
 (map! "M-s-<return>" (cmd! (winner-remember) (message "winner-remember")))
 
 (map! (:mode rustic-mode "M-RET" (cmd!
