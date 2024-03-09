@@ -1,11 +1,28 @@
 #!/bin/bash
-command yadm status --porcelain=v1 |
-    awk '/~$|\.elc$|\.pyc$/{system("yadm rm --cached -- "$NF)}
-         /^.D./{system("yadm rm "$NF)}
-         /^.[AMT]./{system("yadm add "$NF)}
-         END{(system("yadm status"))}'
+# command yadm status --porcelain=v1 |
+#     awk 'BEGIN{status=$1;$1=""}/~$|\.elc$|\.pyc$/{system("yadm rm --cached -- "$NF)}
+#             status ~ /^.D./{system("yadm rm "$0)}
+#             status ~ /^.[AMT]./{system("yadm add "$0)}
+#             END{(system("yadm status"))}'
 
-echo -n 'OK?[yN]'
+command yadm status --porcelain=v1 |
+    while read -r line
+    do read -r status file <<< "$line"
+       [[ $line =~ ^[[:space:]]([[ADMT]]) ]]
+
+       status=${BASH_REMATCH[1]}
+
+       case $status in
+           [AM]) yadm add "$file" ;;
+           D)    yadm rm "$file"  ;;
+           *)
+       esac
+
+    done
+
+yadm status --porcelain=v1 | sed "s/^[[:space:]]/_/;/^ A/s,,+,;/^ D/s,-,,"  | cat --show-all
+echo -n 'OK?[y/N]'
+
 read confirm
 case $confirm in
     [yY])
