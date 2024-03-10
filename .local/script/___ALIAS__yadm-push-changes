@@ -1,32 +1,33 @@
 #!/bin/bash
-# command yadm status --porcelain=v1 |
-#     awk 'BEGIN{status=$1;$1=""}/~$|\.elc$|\.pyc$/{system("yadm rm --cached -- "$NF)}
-#             status ~ /^.D./{system("yadm rm "$0)}
-#             status ~ /^.[AMT]./{system("yadm add "$0)}
-#             END{(system("yadm status"))}'
 
 command yadm status --porcelain=v1 |
     while read -r line
     do read -r status file <<< "$line"
        [[ $line =~ ^[[:space:]]([[ADMT]]) ]]
-
        status=${BASH_REMATCH[1]}
-
        case $status in
            [AM]) yadm add "$file" ;;
            D)    yadm rm "$file"  ;;
            *)
        esac
-
     done
 
-yadm status --porcelain=v1 | sed "s/^[[:space:]]/_/;/^ A/s,,+,;/^ D/s,-,,"  | cat --show-all
-echo -n 'OK?[y/N]'
+yadm status --porcelain=v1 | sed "s/^[[:space:]]/_/;/^A./s,,+,;/^D./s,-,,"
 
-read confirm
-case $confirm in
-    [yY])
-        command yadm commit --message '.' && command yadm push origin
-        ;;
+echo -n 'Commit?[y/N]'
+read commit
+
+echo -n 'Push?[y/N]'
+read push
+
+case $commit in
+    [yY]) command yadm commit --message '.'
+          ;;
+    *)
+esac
+
+case $push in
+    [yY]) command yadm push origin
+          ;;
     *)
 esac
