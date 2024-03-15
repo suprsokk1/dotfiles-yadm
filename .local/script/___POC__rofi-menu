@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+name=menu
+parent=$(readlink /proc/$PPID/exe)
+parent_name=${parent##*/}
+selection="$*"
+script="${0##/*}"
+
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1001/bus
+export WAYLAND_DISPLAY=wayland-1
+
+command_not_found_handle() {
+    if ${selection:+selection-is-${selection}}; then
+         printf '%s\n' foo bar baz
+    fi
+}
+
+parent-is-zsh() {
+    systemd-run --user -E WAYLAND_DISPLAY  -- rofi -show $name -modi $name:$0
+}
+
+selection-is-foo() {
+    command fd -t f . /proc/sys
+}
+
+parent-is-${parent_name}
+
+exit 0
