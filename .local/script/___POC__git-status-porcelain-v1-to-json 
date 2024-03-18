@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+if command -v regex2json &>/dev/null
+then yadm status --porcelain=v1 |
+        tee /dev/stderr |
+        regex2json '^(?P<status>(?P<them>.)(?P<us>.))\s(?P<file>[\s\S]+)$'
+fi

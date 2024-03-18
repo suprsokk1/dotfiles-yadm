@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# TODO
+exit
+
+'^?\[32m/dev/shm/foo \[01;34m\(main \[32m✔\[01;34m\)\[00m $'

@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+fdignore=${XDG_RUNTIME_DIR:-/run/user/${UID}}/.fdignore
+command cat - <<'__FD_IGNORE__' | command install --compare -DT /dev/sdin "$fdignore" &>/dev/null
+fuse-overlayfs
+*.org_archive
+__pycache__
+*#*
+*~
+.git
+*.pyc
+*.elc
+.cache
+*cache*
+go/pkg
+__FD_IGNORE__
+
+echo "$fdignore"

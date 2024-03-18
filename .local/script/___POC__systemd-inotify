@@ -1,0 +1,64 @@
+#!python
+# [[file:../home/geir/org/roam/20221211091724-scratch.org::*systemd-generator][systemd-generator:1]]
+import os
+import sys
+from subprocess import run, Popen, PIPE, DEVNULL
+from pathlib import Path
+from jinja2 import Template
+from box import Box
+
+template_service = Template("""\
+# {{ service.unit }}.service
+[Service]
+Type=oneshot
+ExecStart={{ service.exec_start }}
+""")
+
+template_path = Template("""\
+# {{ path.unit }}.path
+[Path]
+PathChanged={{ path.filepath }}
+Unit={{ service.unit }}{{ path.filepath|replace('/', '-') }}.service
+""")
+
+alt_template_path = Template("""\
+# {{ path.unit }}.path
+[Path]
+PathChanged={{ path.filepath }}
+Unit={{ service.unit }}{{ path.filepath|replace('/', '-') }}.service
+""")
+
+name_alt = "foo"
+name = "watch@"
+tmpdir = Path('/tmp')
+# systemd = Path.home() / '.config/systemd/user'
+systemd = Path("/run/user/1001/systemd/user")
+
+systemd.mkdir(exist_ok=True, parents=True)
+
+_ = box = Box(default_box=True, camel_killer_box=True)
+_.service.unit = "notify-user@"
+_.service.exec_start = "notify-send --expire-time=3000 -- \"File changed\" %I"
+_.path.unit = f"{name}"
+_.path.filepath_alt = f"/tmp/{name}"
+_.path.filepath = "%I"
+
+tmpfile = Path(_.path.filepath)
+service = systemd / f"{_.service.unit}.service"
+path = systemd / f"{_.path.unit}.path"
+service.write_text(template_service.render(**box))
+path.write_text(template_path.render(**box))
+
+os.system('systemctl --user daemon-reload')
+# os.system(f'systemctl --user start {name}.path')
+os.system(f'systemctl --user start {name}.path')
+# os.system(f'systemctl --user start {name}-tmp-bar.path')
+# os.system(f'systemctl --user start {name}-tmp-baz.path')
+
+print(path.read_text())
+print()
+print(service.read_text())
+
+tmpfile.write_text("foo")
+service.unlink()
+path.unlink()

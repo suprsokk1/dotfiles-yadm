@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+command jq | command tee "$HOME"/OUTPUT

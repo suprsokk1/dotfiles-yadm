@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+${DEBUG:+set -x}
+pushd "$HOME"/.config/yadm/AUTOCOMMIT/
+A="FILES.txt"
+B="$(mktemp)"
+
+if [[ -s $A ]]; then
+    :
+else
+    touch "$A"
+fi
+
+{
+    command xargs -d '\n' realpath --relative-base="$HOME" <<< "$@"
+} | command sort | command uniq |
+    while read -r i
+    do command systemd-escape "$i"
+    done | command install -DT /dev/stdin "$B"
+
+exit
+
+# command xargs realpath |
+#      command env -C "$HOME"/.config/yadm/AUTOCOMMIT/ xargs -I FNAME

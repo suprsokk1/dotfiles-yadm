@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Usage:
+# $ cd <new dir>
+# $ ___ALIAS__yadm--add-safe-directory
+dir=~/.config/yadm/DIRS
+
+command mkdir -p "$dir"
+command ln -sfrv $(command realpath $PWD) "$dir"/"$(command systemd-escape $PWD)"

@@ -1,0 +1,12 @@
+#!___POC__jinja2
+# -*- mode: yaml; -*-
+---
+items:
+  - foo
+  - bar
+  - baz
+
+template: |
+  {% for item in items %}
+  printf '^s\n' {{ item }}
+  {%- endfor %}

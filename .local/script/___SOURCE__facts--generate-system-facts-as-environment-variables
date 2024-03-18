@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# TODO
+# ip -j r | jq '.[]|try map(keys)' C

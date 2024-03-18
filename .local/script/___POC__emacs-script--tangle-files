@@ -1,0 +1,11 @@
+#!emacs -x
+;;; -*- mode: emacs-lisp;  -*-
+
+(require 'org)
+(require 'rx)
+
+(quote (with-temp-buffer
+  (insert-file "/proc/self/cmdline")
+  (princ (string-replace "" " " (buffer-string)))))
+
+(org-babel-tangle )

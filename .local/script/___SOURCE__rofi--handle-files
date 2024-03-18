@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+printf '%s\n' Delete 'yadm add' Copy Move Rename 'Insert systemd-escaped' 'Pipe to command'

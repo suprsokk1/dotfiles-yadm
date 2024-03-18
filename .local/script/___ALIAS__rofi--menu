@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+name=menu
+parent=$(readlink /proc/$PPID/exe)
+parent_name=${parent##*/}
+selection="$*"
+script="${0##/*}"
+
+read -r red < <(tput setaf 1)
+read -r end < <(tput sgr0)
+
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1001/bus
+export WAYLAND_DISPLAY=wayland-1
+export LC_ALL=C
+
+command_not_found_handle() {
+    exec >&2
+    printf $red
+    printf 'COMMAND NOT FOUND HANDLE [%q]\n' "$*"
+    printf $end
+}
+
+selection-is-Files() {
+    echo @Exit
+    "$HOME"/.local/script/___SOURCE__files--home |
+         command sd "$HOME" ''
+}
+
+
+selection-is-Files() {
+    echo @Exit
+    command fd -uuu -t f . ~/
+}
+
+selection-is-tmux-lines() {
+    echo @Exit
+    command tmux capture-pane -C -p -S - |
+         command uniq |
+         command tac |
+         command grep -P '\S' |
+         command cat -n
+}
+
+selection-is-Shell-history() {
+    echo @Exit
+    command zsh -c 'history'
+}
+
+selection-is-tmux-words() {
+    echo @Exit
+    command tmux capture-pane -S -
+}
+
+selection-is-Exit() {
+    exit 0
+}
+
+if ${parent_name:+parent-is-$parent_name}; then
+
+     if ${selection:+selection-is-${selection// /-}}; then
+          printf '%s\n' Files 'tmux lines' Passwords
+
+     else
+
+         case ${selection[@]} in
+             @Exit) ;; # End run
+
+             "$HOME"/*|[a-zA-Z]*)
+                 if "$HOME"/.local/script/___SOURCE__rofi--handle-files; then
+                      printf '%s\n' Delete 'yadm add' Copy Move Rename 'Insert systemd-escaped' 'Pipe to command'
+                 fi
+
+                 ;;
+             /*/*)
+                 printf 'Ignored %s\n' "${selection[@]}" >&2
+                 ;;
+             *)
+         esac
+     fi
+else
+
+    systemd-run --user -E WAYLAND_DISPLAY rofi -show $name
+
+fi
+
+exit 0
+
+# parent-is-zsh() {
+#     # systemd-run --user -E WAYLAND_DISPLAY  -- rofi -show $name -modi $name:$0 -show-icons -markup
+#     # command rofi -show $name -modi $name:$0 -show-icons -markup
+#     systemd-run --user -E WAYLAND_DISPLAY rofi -show $name -modes $name:$0
+# }
+
+# parent-is-sway() {
+#     systemd-run --user -E WAYLAND_DISPLAY rofi -show $name
+#     # systemd-run --user rofi -show $name -modi $name:$0 -show-icons -markup
+# }

@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+command env --chdir="${HOME}" --ignore-environment NO_COLOR=1 LC_ALL=C "$(which rg)" --one-file-system --ignore-file=$(___SOURCE__fd-ignore)

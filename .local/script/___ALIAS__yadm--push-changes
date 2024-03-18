@@ -1,0 +1,65 @@
+#!/bin/bash
+# TODO replace yadm command with git command; use GIT_WORK_TREE and GIT_DIR instead
+# FIXME logic not working
+
+dir="$HOME"/.config/yadm/DIRS
+
+if mpm freeze > "$HOME"/FREEZE 2> /dev/null
+then yadm add --force "$HOME"/FREEZE
+fi &
+
+pushd "$HOME"
+
+# FIXME command find -P "$dir" -type f -exec realpath --relative-to="$PWD"/ {} + | command xargs yadm add
+
+command yadm status --porcelain=v1 |
+    while IFS=$'\n' read -r line
+    do [[ $line =~ ^(.)(.)[[:space:]]([[:print:]]+) ]]
+       file="${BASH_REMATCH[3]}"
+       us=${BASH_REMATCH[2]}
+
+       case $us in
+           A) yadm add "$file" || continue;;
+           M) yadm add "$file" || continue;;
+           D) yadm rm  "$file" || continue;;
+           *) echo "Ignoring: '$line'" >&2
+              continue
+       esac
+       touch ".${$}"
+    done
+
+if ! [[ -f .${$} ]]; then
+    echo "Nothing todo"
+    exit
+fi
+
+rm -f ."$$"
+
+echo -n 'Commit?[y/N]'
+read commit
+
+case $commit in
+    [yY]) command yadm commit --message '.'
+          ;;
+    *)
+        echo "Leaving"
+        exit
+esac
+
+echo -n 'Push?[y/N]'
+read push
+
+yadm status --porcelain=v1 | sed "s/^[[:space:]]/_/;/^A./s,,+,;/^D./s,-,,"
+case $push in
+    [yY]) command yadm push origin
+          ;;
+    *)
+esac
+
+:<<EOF
+*** git status --porcelain=v2 ***
+1 .M N... 100644 100644 100644 f2b00441c365bf944a30a6e6110976b0ce0e1d4f f2b00441c365bf944a30a6e6110976b0ce0e1d4f .config/doom/_bookmarks.el
+
+*** git status --porcelain=v1 ***
+M .config/doom/_bookmarks.el
+EOF

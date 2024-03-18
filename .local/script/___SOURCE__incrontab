@@ -1,0 +1,156 @@
+#!/usr/bin/env bash
+
+ls
+
+# j2
+
+:<<OLD
+"$HOME"/.config/tmux/tmux.conf IN_MODIFY                     systemd-run --wait bash -c 'tmux source-file $@/$#; swaymsg "[app_id=Alacritty] scratchpad show"'
+"$HOME"/.tmux.conf             IN_MODIFY                     systemd-run --wait bash -c 'tmux source-file $@/$#; swaymsg "[app_id=Alacritty] scratchpad show"'
+"$HOME"/.config                IN_MODIFY,recursive=false	 "$HOME"/.local/bin/c callback $@/$# $%
+"$HOME"/.local/script          IN_MODIFY                     systemd-run sh -c 'chmod --verbose u=rwx,go-rwx $@/$#/*'
+"$HOME"/.sway                  IN_MODIFY                     systemd-run --user -p ExecStartPre='sway --validate' -p ExecStartPost='notify-send ' sway reload
+/tmp/foo.bar                   IN_MODIFY                     systemd-run --user notify-send "$@/$# $%"
+OLD
+
+:<<MAN
+incrontab(5)                 incron documentation                 incrontab(5)
+
+NAME
+       incrontab - tables for driving inotify cron (incron)
+
+DESCRIPTION
+       An incrontab file contains instructions to the incrond(8) daemon of the
+       general  form:  "run  this command on these file events". There are two
+       categories of tables: system tables (with root privileges) and user ta‐
+       bles (with user privileges).
+
+       System tables are (by default) located in /etc/incron.d  and  may  have
+       any  names. Each system table exists separately inside incron and their
+       watches never collide.
+
+       Each user has their own table, and commands in any given incrontab will
+       be executed as the user who owns the incrontab. System users  (such  as
+       apache, postfix, nobody etc.) may have their own incrontab.
+
+       incrontab  files  are  read when the incrond(8) daemon starts and after
+       any change (incrontab file are being hooked when incrond is running).
+
+       Blank lines are ignored. The general line format is the following:
+
+       <path> <mask> <command>
+
+       Where path is an absolute filesystem path, mask is an  event  mask  (in
+       symbolic  or  numeric  form)  and  command  is an executable file (or a
+       script) with its arguments. See bellow for event mask symbols. The exe‐
+       cutable file may be noted as an absolute path or only as the  name  it‐
+       self (PATH locations are examined).
+
+       Please  remember that the same path may occur only once per table (oth‐
+       erwise only the first occurrence takes effect and an error  message  is
+       emitted  to the system log).  Please not that the * wildcard is allowed
+       to observe a range of files.
+
+EVENT SYMBOLS
+       These basic event mask symbols are defined:
+
+       IN_ACCESS           File was accessed (read) (*)
+       IN_ATTRIB           Metadata changed (permissions, timestamps, extended
+       attributes, etc.) (*)
+       IN_CLOSE_WRITE      File opened for writing was closed (*)
+       IN_CLOSE_NOWRITE    File not opened for writing was closed (*)
+       IN_CREATE           File/directory created in watched directory (*)
+       IN_DELETE           File/directory deleted from watched directory (*)
+       IN_DELETE_SELF           Watched file/directory was itself deleted
+       IN_MODIFY           File was modified (*)
+       IN_MOVE_SELF        Watched file/directory was itself moved
+       IN_MOVED_FROM       File moved out of watched directory (*)
+       IN_MOVED_TO         File moved into watched directory (*)
+       IN_OPEN             File was opened (*)
+
+       When monitoring a directory, the events marked  with  an  asterisk  (*)
+       above  can  occur  for  files  in the directory, in which case the name
+       field in the returned event data identifies the name of the file within
+       the directory.
+
+       The IN_ALL_EVENTS symbol is defined as a bit mask of all of  the  above
+       events. Two additional convenience symbols are IN_MOVE, which is a com‐
+       bination  of IN_MOVED_FROM and IN_MOVED_TO, and IN_CLOSE which combines
+       IN_CLOSE_WRITE and IN_CLOSE_NOWRITE.
+
+       The following further symbols can be specified in the mask:
+
+       IN_DONT_FOLLOW      Don't dereference pathname if it is a symbolic link
+       IN_ONESHOT          Monitor pathname for only one event
+       IN_ONLYDIR          Only watch pathname if it is a directory
+
+       Additionally, there is a symbol which doesn't  appear  in  the  inotify
+       symbol set. It is loopable=true. This symbol disables monitoring events
+       until  the  current  one is completely handled (until its child process
+       exits).  Also, there is the symbol recursive=false. This symbol  limits
+       the  observation on the specified directory and does not include subdi‐
+       rectories.  Finally, there is also the symbol dotdirs=true. This symbol
+       will include the hidden directories (where the names starts with a dot)
+       in the observation.
+
+WILDCARDS
+       The following wildards may be used inside command specification:
+
+       $$   dollar sign
+       $@   watched filesystem path (see above)
+       $#   event-related file name
+       $%   event flags (textually)
+       $&   event flags (numerically)
+
+EXAMPLE
+       These are some example rules which can be used in an incrontab file:
+
+       /tmp IN_ALL_EVENTS abcd $@/$# $%
+
+       /usr/bin IN_ACCESS,loopable=true abcd $#
+
+       /home IN_CREATE /usr/local/bin/abcd $#
+
+       /home IN_CREATE,dotdirs=true /usr/local/bin/abcd $#
+
+       /home IN_CREATE,recursive=false /usr/local/bin/abcd $#
+
+       /var/log 12 abcd $@/$#
+
+       The first line monitors all events on the /tmp directory. When an event
+       occurs it runs a application called 'abcd' with the full  path  of  the
+       file as the first arguments and the event flags as the second one.
+
+       The second line monitors accesses (readings) on the /usr/bin directory.
+       The  application  'abcd'  is run as a handler and the appropriate event
+       watch is disabled until the program finishes. The  file  name  (without
+       the directory path) is passed in as an argument.
+
+       The  third example is used for monitoring the /home directory for newly
+       create files or directories (it practically means an event is sent when
+       a new user is added). This event is processed by a program specified by
+       an absolute path.
+
+       The fourth example is the third example, but it will include hidden di‐
+       rectories in the observation.
+
+       The fifth example is the third example, but it will exclude  sub-direc‐
+       tories from the observation.
+
+       And  the final line shows how to use numeric event mask instead of tex‐
+       tual one. The value 12 is exactly the same as IN_ATTRIB,IN_CLOSE_WRITE.
+
+SEE ALSO
+       incrond(8), incrontab(1), incron.conf(5)
+
+AUTHOR
+       Andreas Altair Redmer <altair.ibn.la.ahad.sy@gmail.com> (please  report
+       bugs   to   https://github.com/ar-/incron/issues   ).    Lukas  Jelinek
+       <lukas@aiken.cz> .
+
+COPYING
+       This program is free software. It can  be  used,  redistributed  and/or
+       modified under the terms of the GNU General Public License, version 2.
+
+Lukas Jelinek                       0.5.12                        incrontab(5)
+MAN
