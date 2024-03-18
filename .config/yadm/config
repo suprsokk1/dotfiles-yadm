@@ -7,3 +7,5 @@
 # [remote "origin"]
 # 	url = https://github.com/suprsokk1/dotfiles-yadm.git
 # 	fetch = +refs/heads/*:refs/remotes/origin/*
+[alias]
+	foo = !echo bar

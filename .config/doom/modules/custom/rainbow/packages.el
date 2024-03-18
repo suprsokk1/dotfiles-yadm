@@ -2,4 +2,4 @@
 ;;; packages.el
 
 (when (modulep! +delimiters)
-    (package! rainbow-delimiters))
+  (package! rainbow-delimiters))

@@ -1,3 +1,4 @@
+// -*- mode: css -*-
 @theme "theme.rasi"
 
 configuration {
@@ -9,6 +10,22 @@ configuration {
   show-icons: true;
   /* icon-theme: "Papirus"; */
   /* scrollbar:  false; */
+  cache-dir: "~/.cache/rofi";
+  show: "drun";
+  modes: "menu,drun,ssh,filebrowser";
+  async-pre-read: 20;
+  /* markup-rows: false; */
+  markup-rows: true; // Default: false
+
+  /* modes: "menu:~/.local/script/___ALIAS__rofi--menu,drun,ssh,filebrowser"; */
+  /* Tell rofi that DMenu input is Pango markup encoded, and should be rendered. See here for details about Pango markup. */
+  /* multi-select: true; */
+  /* sync: false; */
+  /* Allow multiple lines to be selected. Adds a small selection indicator to the left of each entry. */
+  /* Force rofi mode to first read all data from stdin before showing the selection window. This is original dmenu behavior. */
+  /* Note: the default asynchronous mode will also be automatically disabled if used with conflicting options, such as -dump, -only-match or -auto-select. */
+  /* async-pre-read number */
+
 
 }
 
@@ -44,7 +61,7 @@ inputbar {
 }
 
 listview {
-    lines: 5;
+    lines: 10;
     scrollbar: false;
 }
 

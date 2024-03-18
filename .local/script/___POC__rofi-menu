@@ -9,19 +9,41 @@ export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1001/bus
 export WAYLAND_DISPLAY=wayland-1
 
 command_not_found_handle() {
-    if ${selection:+selection-is-${selection}}; then
-         printf '%s\n' foo bar baz
-    fi
+    exec >&2
+    tput setaf 1
+    printf 'COMMAND NOT FOUND HANDLE [%q]\n' "$*"
+    tput sgr0
 }
 
 parent-is-zsh() {
-    systemd-run --user -E WAYLAND_DISPLAY  -- rofi -show $name -modi $name:$0
+    # systemd-run --user -E WAYLAND_DISPLAY  -- rofi -show $name -modi $name:$0 -show-icons -markup
+    rofi -show $name -modi $name:$0 -show-icons -markup
 }
 
-selection-is-foo() {
+selection-is-Files() {
+    echo Exit
     command fd -t f . /proc/sys
 }
 
-parent-is-${parent_name}
+selection-is-Exit() {
+    exit 0
+}
+
+if parent-is-${parent_name}; then
+     if ${selection:+selection-is-${selection}}; then
+          printf '%s\n' Files
+     else
+         case ${selection[@]} in
+             Exit) ;; # End run
+             "$HOME"/*)
+                 printf '%s\n' Delete 'yadm add' Copy Move Rename
+                 ;;
+             /*/*)
+                 printf 'Ignored %s\n' "${selection[@]}" >&2
+                 ;;
+             *)
+         esac
+     fi
+fi
 
 exit 0

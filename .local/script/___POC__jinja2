@@ -1,7 +1,43 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env python
+import os
+from re import template
+import sys
+from subprocess import run, Popen, PIPE, DEVNULL
+from pathlib import Path
+from box import Box
+from jinja2 import Template
+from loguru import logger
 
-parent=$(readlink /proc/$PPID/exe)
 
-if ! [ "${parent##*/}" = rofi ]; then
-    command rofi -dmenu
-fi
+
+
+def main():
+    res = ""
+
+    for arg in sys.argv[1:]:
+        data = load(arg).to_dict()
+        template = Template(data.pop('template'))
+
+        res = template.render(**data)
+
+    for line in res.splitlines():
+        res = run(f"systemd-run --user {line}", shell=True, capture_output=True)
+        print(res.stdout.decode(), res.stderr.decode(), sep=" ", end="\n")
+
+
+
+@logger.catch
+def load(path):
+    yaml_file = Path(path)
+    box = Box()
+
+    with yaml_file.open('r') as fd:
+        text = fd.read()
+        idx = text.index('---')
+
+        return box.from_yaml(text)
+
+
+if __name__ == '__main__':
+    main()
+    # res = run("", shell=True, capture_output=True)

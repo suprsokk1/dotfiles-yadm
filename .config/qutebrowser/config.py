@@ -160,15 +160,12 @@ config.set('content.headers.user_agent', 'Mozilla/5.0 ({os_info}) AppleWebKit/53
 config.set('content.javascript.enabled', False, '*://linuxize.com/*')
 
 # searxng = 'http://127.0.0.1:8080/search?q={}'
-searxng_general = 'http://127.0.0.1:6081/search?q=!general {}'
-google = 'https://www.duckduckgo.com/?={}'
-duckduckgo = 'https://www.google.com/search?q={}'
 
 searchengines = dict(
-    DEFAULT=searxng_general,
-    x=searxng_general,
-    d=duckduckgo,
-    g=google,
+    s=( searxng_general:= 'http://127.0.0.1:6081/search?q=!general {}'),
+    d=( duckduckgo := 'https://www.duckduckgo.com/?q={}'),
+    g=( google := 'https://www.google.com/search?q={}'),
+    DEFAULT=duckduckgo,
 )
 
 # https://www.google.com/search?q=foo&newwindow=1&sca_esv=589766361&sxsrf=AM9HkKkkoKT3ecI26pVfQmkZVeC1Dvi7fg%3A1702301939255&source=hp&ei=8xB3ZZ7EDNaWhbIPsr2IsA8&iflsig=AO6bgOgAAAAAZXcfAzlfZJVe27Any7sDRUSUTt0LYMZk&udm=&ved=0ahUKEwjeiYzzwIeDAxVWS0EAHbIeAvYQ4dUDCAk&uact=5&oq=foo&gs_lp=Egdnd3Mtd2l6IgNmb28yCBAAGIAEGJIDMgsQABiABBiKBRiSAzIIEAAYgAQYyQMyBRAuGIAEMgUQABiABDIFEAAYgAQyBRAAGIAEMgUQABiABDIFEAAYgAQyCxAuGIAEGMcBGNEDSNnjbFDN3GxYg99scAF4AJABAJgBhQGgAf0CqgEDMC4zuAEDyAEA-AEBqAIKwgIHECMY6gIYJ8ICCxAuGIAEGMcBGK8BwgIEECMYJw&sclient=gws-wiz

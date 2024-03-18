@@ -7,35 +7,36 @@
     //    "spacing": 10, // Gaps between modules (4px)
     // Choose the order of the modules
 
+    "modules-left": [
+        "custom/shell-text"
+       // "sway/workspaces"
+    ],
+
+    "modules-center": [
+        "sway/window"
+    ],
+
+    "modules-right": [
+        "sway/mode",
+        "network",
+        "battery",
+        "clock"
+        // "custom/shell-json",
+        // "backlight",
+        // "network#vpn",
+        // "sway/language",
+        // "pulseaudio",
+        // "temperature",
+        // "cpu",
+        // "memory",
+
+        // "keyboard-state"
+    ],
+
     "id": "bar-0",
     "ipc": true,
     // TODO debug mode
     // bug => 🐜
-
-    "modules-right": [
-        "sway/mode",
-        // "custom/shell-json",
-        "backlight",
-        "network#vpn",
-        "sway/language",
-        "network",
-        "pulseaudio",
-        "battery",
-        "temperature",
-        "cpu",
-        "memory",
-        "clock",
-        "keyboard-state"
-    ],
-
-    "modules-left": [
-        "sway/workspaces"
-    ],
-
-    "modules-center": [
-        "custom/debug",
-        "sway/window"
-    ],
 
     "custom/debug": {
         "format": "debug: {}",
@@ -46,26 +47,16 @@
         "signal": 8,
     },
 
-    "custom/debug": {
-        "format": "debug: {}",
-        "return-type": "text",
-        "max-length": 40,
-        "interval": 2,
-        "exec": ", info",
-        "on-click": "pkill -SIGRTMIN+8 --exact waybar",
-        "signal": 8,
-    },
-
     "custom/shell-text": {
         "format": "{} {icon}",
         "format-good": "",
         "return-type": "text",
         "max-length": 40,
-        // "exec": "/usr/bin/env, jump text",
+        "exec": "___POC__statusbar--system-overall-health",
         "format-icons": {
-            "good": "",
-            "bad": "🚫",
-            "default": ""
+            "good": "✔",
+            "bad": "⎃",
+            "default": "👻"
         },
         "escape": true
 

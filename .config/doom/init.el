@@ -4,8 +4,11 @@
        vertico
 
        :ui
-       (modeline +light)
+       ;; (modeline +light)
+       modeline
        (popup +defaults)
+       ;; (vc-gutter +diff-hl +pretty)
+       (vc-gutter +pretty)
        emoji
        hl-todo
        treemacs
@@ -56,21 +59,23 @@
        :config
        (default +bindings)
 
-       :development
-       (experimental +modus-operandi)
-
+       :custom
+       (autostart +treemacs)
+       (babel +args +ansi +tmux)
+       (bindings +default)
+       ;; (modus +tinted +ubuntu)
+       ;; (modus +tinted +ubuntu)
+       (font +san-francisco)
+       ;; (modus +tinted)
+       (modus +tinted +iosevka)
+       ;; (modus +deuteranopia)
+       ;; (modus +tritanopia)
+       (vterm +tmux)
+       bindings
+       mmm
+       modus
+       org
+       rainbow
+       sway
+       systemd
        )
-
-       ;; (org +roam2 +pretty +pomodoro +contacts)
-       ;; (org +roam2 +pretty +pomodoro +gnuplot)
-       ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc)
-       ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo)
-       ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo +present)
-       ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo +present +dragndrop)
-       ;; (org +roam2 +pretty +pomodoro +gnuplot +pandoc +hugo +present +dragndrop +jupyther)
-       ;; (python +lsp +pyenv +pyright +tree-sitter)
-       ;; (lsp +eglot +peek)
-       ;; (spell +flyspell)
-       ;; modeline
-       ;; (ligatures +extra +fira +iosevka)
-       ;; indent-guides

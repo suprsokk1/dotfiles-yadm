@@ -2,7 +2,13 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("-*- waybar -*-"
+(("org-refile-last-stored"
+ (filename . "~/.config/config.org")
+ (front-context-string . "*** [ ] Transfor")
+ (rear-context-string . "rg-mode to lisp\n")
+ (position . 668)
+ (last-modified 26102 54060 692485 548000))
+("-*- waybar -*-"
  (filename . "/home/geir/.config/waybar/config")
  (front-context-string . "// -*- mode: js ")
  (rear-context-string)
@@ -51,11 +57,11 @@
  (position . 58)
  (last-modified 26056 45366 725174 32000))
 ("org-capture-last-stored"
- (filename . "/home/geir/org/roam/20240305205428-syncthing.org")
- (front-context-string)
- (rear-context-string . "itle: Syncthing\n")
- (position . 87)
- (last-modified 26087 30836 824829 951000))
+ (filename . "~/org/notes.org")
+ (front-context-string . "** [2024-03-17 S")
+ (rear-context-string . "cture]]\n* Inbox\n")
+ (position . 2966)
+ (last-modified 26103 2295 727120 57000))
 ("-*- emacs | conf.d -*-"
  (filename . "~/.config/doom/conf.d/")
  (front-context-string . "_00-line-numbers")

@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-eval "command emacsclient --eval '(progn (switch-to-buffer (window-buffer))(save-window-excursion $*))'"

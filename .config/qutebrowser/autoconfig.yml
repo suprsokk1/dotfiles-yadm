@@ -12,6 +12,8 @@ settings:
     global: '#000'
   colors.completion.scrollbar.bg:
     global: '#000'
+  colors.webpage.darkmode.enabled:
+    global: true
   colors.webpage.darkmode.policy.images:
     global: never
   content.blocking.method:

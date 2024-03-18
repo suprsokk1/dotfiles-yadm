@@ -6,8 +6,7 @@ include _input
 include _output
 include _laptop
 include _wallpaper
-
-font San Francisco Display 10
+include _font
 
 xwayland enable
 
@@ -18,11 +17,13 @@ set $floating_y_min 50
 
 # set $rofi "rofi -show combi -modes combi -combi-modes drun,window,ssh"
 # set $rofi     "rofi -show combi -modes combi,ssh,filebrowser -combi-modes drun,window"
-set $rofi     "rofi -show combi -modes combi,ssh,filebrowser -combi-modes drun,window"
+# set $rofi     "rofi -show combi -modes combi,ssh,filebrowser -combi-modes drun,window"
 
 # TODO bind alt tab to rofi -modi window
 set $rofi     "rofi -show drun -modi combi,drun -combi-modes window,ssh"
 set $rofi_alt "rofi -show drun -modi drun,window,ssh"
+
+set $rofi     "rofi -show drun"
 
 focus_follows_mouse no
 focus_on_window_activation urgent
@@ -150,3 +151,11 @@ output HEADLESS-1 {
     pos 1920,0
     mode 1280x720@75Hz
 }
+
+
+# for_window [title=Speedbar] floating enable # KILL
+
+for_window [title=^MAN] floating enable;
+
+# "env nc -l 18080 | env FZF_DEFAULT_OPTS=\"\" fzf --multi | xargs -d\"\n\" tmux send -t\! "
+# bindsym Ctrl+t exec tmux split-
