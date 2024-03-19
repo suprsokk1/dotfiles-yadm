@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+export LC_ALL=C
+exec 2>/dev/null
+stdbuf -oL
+
+___META__source |
+    while read -r src ; do
+        [[ $src =~ _{3}[[:upper:]]+_{2}(.*(pass|files)[^-]+) ]] || continue
+        type="${BASH_REMATCH[1]}"
+        eval 'stdbuf -oL $src' | command xargs -I ITEM -P8 jo "$type"=ITEM
+    done | head
+# command stdbuf -oL xargs -I SCRIPT -P8 sh -c 'echo SCRIPT; command SCRIPT | command sd  '\''\n'\''' '\''\x0'\'''
