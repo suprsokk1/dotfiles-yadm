@@ -196,7 +196,9 @@
 (map! "s-[" #'undo)
 (map! "s-]" #'undo-redo)
 
+(map! "s-\\" #'+vterm/here)
 
+;; (use-package! vterm  )
 
 (use-package! ob-tmux
   :custom
