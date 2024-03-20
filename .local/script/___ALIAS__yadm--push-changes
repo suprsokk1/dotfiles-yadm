@@ -18,6 +18,7 @@ command yadm status --porcelain=v1 |
        file="${BASH_REMATCH[3]}"
        us=${BASH_REMATCH[2]}
 
+       [[ -d $file ]] && continue
        case $us in
            A) yadm add "$file" || continue;;
            M) yadm add "$file" || continue;;
