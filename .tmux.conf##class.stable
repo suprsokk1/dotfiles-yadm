@@ -1,50 +1,21 @@
-# ~/.tmux.conf##default -*- mode: conf -*-
+# ~/.tmux.conf -*- mode: conf -*-
 
-# set-option -g pane-border-status top
-set-option -g base-index       1
-set-option -g pane-base-index  1
+set-option -g   prefix             C-Space
 
-# set-option -g default-command    /bin/zsh
-# set-option -g default-shell      /bin/zsh
+set-option -g   base-index         1
+set-option -g   pane-base-index    1
 
-set-option -g default-terminal     "screen-256color"
-set-option -g mouse           on
-set-option -g pane-base-index 1
-set-option -g pane-border-format @inactive
-set-option -g status             off
-set-option -g synchronize-panes  off
-set-option -sg terminal-overrides  ",*:RGB:clipboard"
-set-option -g prefix C-Space
-set-option -gw xterm-keys on
+set-option -g   status             off
+set-option -g   synchronize-panes  off
 
-# WORKING! truecolor (24 bit color)
-# set -g default-terminal "screen-256color"
+set-option -gw  xterm-keys         on
+set-option -g   default-terminal    "screen-256color"
+set-option -sg  terminal-overrides  ",*:RGB:clipboard"
 
-# set -g default-terminal "tmux-256color"
-# set -ag terminal-overrides ",xterm-256color:RGB"
-# set-option -sa terminal-features   ',rxvt-unicode-256color:clipboard:extkeys'
+if-shell -b '[ "$(echo "$TMUX_VERSION >= 2.1" | bc)" = 1 ]' {
+    set -g mouse on
+}
 
-# set-option -g default-shell ~/.cargo/bin/nu
-
-# on|external|off
-# set -s set-clipboard off
-# set -s set-clipboard on
-# set -s set-clipboard off
-# set -s set-clipboard external
-
-# wl-copy|xsel|xclipboard|xclip
-set-option -s copy-command '/usr/bin/wl-copy'
-
-# set -s set-clipboard external
-# set -s set-clipboard off
-
-# set-option -sa terminal-overrides  ',xterm:Tc'
-
-source-file ~/.config/tmux/tmux.conf
-
-# source-file ~/.config/tmux/conf.d/update-environment.conf
-
-# run "sh -c 'test -d ~/.local/share/tpm || (mkdir -p ~/.local/share/tpm; env -C ~/.local/share/ git clone https://github.com/tmux-plugins/tpm)'"
-# run-shell /usr/bin/env sh -c 'if ! test -d ~/src/extrakto.tmux; then tmux split git clone https://github.com/laktak/extrakto ~/src/extrakto.tmux ; fi; ~/src/extrakto.tmux'
-
-run-shell ~/.local/share/tpm/tpm
+if-shell -b '[ "$(echo "$TMUX_VERSION >= 2.1" | bc)" = 1 ]' {
+   set-option -s copy-command '/usr/bin/wl-copy'
+}

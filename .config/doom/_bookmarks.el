@@ -57,11 +57,11 @@
  (position . 58)
  (last-modified 26056 45366 725174 32000))
 ("org-capture-last-stored"
- (filename . "~/org/notes.org")
- (front-context-string . "** [2024-03-17 S")
- (rear-context-string . "cture]]\n* Inbox\n")
- (position . 2966)
- (last-modified 26103 2295 727120 57000))
+ (filename . "~/org/roam/20240326163425-git_lfs.org")
+ (front-context-string)
+ (rear-context-string . "+title: git lfs\n")
+ (position . 85)
+ (last-modified 26114 60162 151528 280000))
 ("-*- emacs | conf.d -*-"
  (filename . "~/.config/doom/conf.d/")
  (front-context-string . "_00-line-numbers")

@@ -52,7 +52,7 @@
        cc
        data
        emacs-lisp
-       go
+       (go +lsp)
        ruby
        yaml
 
@@ -63,6 +63,7 @@
        (autostart +treemacs)
        (babel +args +ansi +tmux)
        (bindings +default)
+       company                          ;company-box
        ;; (modus +tinted +ubuntu)
        ;; (modus +tinted +ubuntu)
        (font +san-francisco)
@@ -71,11 +72,10 @@
        ;; (modus +deuteranopia)
        ;; (modus +tritanopia)
        (vterm +tmux)
-       bindings
-       mmm
-       modus
-       org
-       rainbow
-       sway
-       systemd
+       (bindings)
+       (mmm)
+       (org)
+       (rainbow)
+       (sway)
+       (systemd)
        )

@@ -6,12 +6,16 @@ ntfy+=(--expire-time=3000)
 # ntfy+=(--wait)
 
 if [[ $QUTE_FIFO ]]; then
+
     command rg -o '"[^"]+' -- "$QUTE_HTML"
     command /usr/bin/notify-send $ntfy "$QUTE_HTML"
+
 else
+
     QUTE_FIFO=(${XDG_RUNTIME_DIR:-/run/user/${UID:=}}/qutebrowser/ipc-*)
     echo "spawn $0" | command tee --append "$QUTE_FIFO"
     command env  /usr/bin/notify-send $ntfy "shell"
+
 fi
 
 exit

@@ -40,19 +40,23 @@ selection-is-tmux-lines() {
          command cat -n
 }
 
+
 selection-is-Shell-history() {
     echo @Exit
     command zsh -c 'history'
 }
 
+
 selection-is-tmux-words() {
     echo @Exit
-    command tmux capture-pane -S -
+    command tmux capture-pane -C -p -S -
 }
+
 
 selection-is-Exit() {
     exit 0
 }
+
 
 if ${parent_name:+parent-is-$parent_name}; then
 
@@ -78,7 +82,7 @@ if ${parent_name:+parent-is-$parent_name}; then
      fi
 else
 
-    systemd-run --user -E WAYLAND_DISPLAY rofi -show $name
+    command systemd-run --user -E WAYLAND_DISPLAY rofi -show $name || command env WAYLAND_DISPLAY rofi -show $name
 
 fi
 

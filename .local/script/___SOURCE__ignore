@@ -6,12 +6,15 @@ fuse-overlayfs
 __pycache__
 *#*
 *~
-.git
+*/.git/*
+*OLD*
+*old
 *.pyc
 *.elc
 .cache
-*cache*
 go/pkg
+*cache*
+*/.local/*
 __FD_IGNORE__
 
 echo "$fdignore"

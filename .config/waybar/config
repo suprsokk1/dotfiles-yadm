@@ -17,13 +17,13 @@
     ],
 
     "modules-right": [
-        "cpu",
+        // "cpu",
         "sway/mode",
-        "network#wifibw",
+        // "network#wifibw",
         "network#tailscale",
-        // "network#piavpnovpnbw",
-        "network#piavpnovpn",
-        "network#piavpnwg",
+        // "network#piaovpnbw",
+        "network#piaovpn",
+        "network#piawg",
         "network#wifi",
         "pulseaudio#headset",
         "battery",
@@ -254,7 +254,7 @@
     },
 
 
-    "network#piavpnwg": {
+    "network#piawg": {
         "interface": "wgpia*",
         "format": "{icon} {ifname}",
         "format-alt": "{ifname}",
@@ -264,7 +264,7 @@
         "format-disconnected": ""
     },
 
-    "network#piavpnovpn": {
+    "network#piaovpn": {
         "interface": "tun*",
         "format": "{icon}  : {ifname}",
         "format-alt": "{ifname}",
@@ -274,7 +274,7 @@
         "format-disconnected": ""
     },
 
-    "network#piavpnovpnbw": {
+    "network#piaovpnbw": {
         "interface": "tun*",
         "format": "{bandwidthDownBytes}",
     },

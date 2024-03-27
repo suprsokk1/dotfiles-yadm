@@ -106,7 +106,6 @@
       "." nil
       "s-." #'treemacs--follow)
 
-
 (map! :map global-map "s-o" (cmd! (show! (treemacs) "treemacs")))
 
 (map! :map org-mode-map "s-SPC w" #'widen)
@@ -117,12 +116,10 @@
                "s-p" #'projectile-switch-project-by-name
                "s-f" #'projectile-find-file))
 
-
 ;; (customize-face )
 
-
-
 (map! :map dired-mode-map "s-."  #'dired-up-directory)
+(map! :map global-map  "s-SPC w"  #'widen)
 (map! :map dired-mode-map  "y y"  nil)
 (map! :map dired-mode-map  "y S-y"  nil)
 (map! :map dired-mode-map  "S-s S-s" #'dired-do-symlink)
@@ -130,7 +127,6 @@
 (map! :map dired-mode-map  "r" #'dired-do-rename-regexp)
 (map! :map +ansible-yaml-mode-map  :mode +ansible-yaml-mode
       "M-RET" (cmd! (message "TODO"))
-
       )
 
 (map! :map dired-mode-map  "y y"  nil)
@@ -151,8 +147,6 @@
 
       )
 
-
-
 ;; (map! :map dired-mode-map  "S-s d" (cmd! (shell-command-to-string (format "systemd-escape %s" (buffer-file-name)))))
 
 ;; (map! "s-SPC 0" #'doom/reset-font-size)
@@ -164,7 +158,7 @@
 
 ;; (global-hl-line-mode -1)
 
-;; (blink-cursor-mode 1)
+(blink-cursor-mode 1)
 
 ;; (setq-hook! (quote (prog-mode-hook))
 ;;   hide-mode-line-mode -1)
@@ -197,6 +191,7 @@
 (map! "s-]" #'undo-redo)
 
 (map! "s-\\" #'+vterm/here)
+(map! "s-SPC \\" #'treemacs-select-window)
 
 ;; (use-package! vterm  )
 
@@ -212,6 +207,31 @@
 ;;                    (INTERACTIVE))
 ;;                (indent-rigidly START END ARG INTERACTIVE)))
 ;;  )
+
+(map! :map go-mode-map "M-RET" #'gorepl-run-load-current-file)
+
+(map! :map yaml-mode-map "M-RET"
+      (cmd!
+       (or (string-match (rx "docker-compose") buffer-file-name)
+           (string-match (rx "compose") buffer-file-name))
+       (docker-compose-up)
+       )
+      )
+
+(map! :map global-map "s-i" #'ibuffer)
+(map! :map global-map "s-0" #'balance-windows)
+
+(defmacro window! (pattern)
+    `(string-match ,pattern  (format "%S" (window-list))))
+
+
+(setq! rx/buffer/compile (rx ?* "compile" ?*))
+
+(map! :map makefile-mode-map "M-RET"
+      (cmd!
+       (window! rx/buffer/compile)
+       (save-window-excursion (compile "make -k"))
+       ))
 
 (after! tramp
   (setq! tramp-methods

@@ -12,7 +12,7 @@ configuration {
   /* scrollbar:  false; */
   cache-dir: "~/.cache/rofi";
   show: "drun";
-  modes: "menu,drun,ssh,filebrowser";
+  modes: "examplepango,menu,drun,ssh,filebrowser";
   async-pre-read: 20;
   /* markup-rows: false; */
   markup-rows: true; // Default: false
